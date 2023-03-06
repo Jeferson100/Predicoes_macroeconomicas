@@ -1,4 +1,4 @@
-#Predicao Pib
+#Predicao_Pib
 
 
 Este trabalho tem como meta a previsão do pib brasileiro. São coletados dados do IBGE, IPEA, BANCO CENTRAL, QUANDL E FRED, tendo ao todo mais de trinta variáveis 
