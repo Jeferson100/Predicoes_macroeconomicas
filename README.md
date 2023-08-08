@@ -1,3 +1,3 @@
 # Predicoes_macroeconomicas
 
-Este repositorio contem modelos para predizer variaveis macroeconomicas
+Este repositório contém modelos para prever variáveis macroeconômicas.
