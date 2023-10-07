@@ -1,4 +1,6 @@
 #Projeto de Previsão do PIB Brasileiro
+
+
 Descrição do Projeto
 O objetivo principal deste projeto é criar modelos de previsão para o Produto Interno Bruto (PIB) do Brasil. Utilizamos uma ampla gama de fontes de dados econômicos confiáveis, incluindo o Instituto Brasileiro de Geografia e Estatística (IBGE), Instituto de Pesquisa Econômica Aplicada (IPEA), Banco Central do Brasil, Quandl e FRED (Federal Reserve Economic Data). No total, coletamos mais de trinta variáveis preditoras que têm potencial para impactar o PIB.
 
