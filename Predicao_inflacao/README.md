@@ -1,6 +1,5 @@
 <h1>Projeto de Previsão do IPCA (Índice de Preços ao Consumidor Amplo)</h1>
 -
-
 **Descrição do Projeto**
 O principal objetivo deste projeto é desenvolver modelos de previsão para o Índice de Preços ao Consumidor Amplo (IPCA) no Brasil. 
 Utilizamos uma ampla gama de fontes de dados econômicos confiáveis, incluindo informações do Instituto Brasileiro de Geografia e Estatística (IBGE), 
