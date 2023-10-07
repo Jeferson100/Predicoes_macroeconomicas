@@ -12,8 +12,7 @@ valores ausentes para garantir que os dados estejam completos e confiáveis. Al�
 tornando as séries temporais adequadas para a modelagem. A qualidade dos dados é essencial para a precisão das previsões.
 
 Modelos Utilizados
-Exploramos uma variedade de algoritmos de aprendizado de máquina para prever o IPCA no Brasil. Isso inclui Regressão Linear, ARIMA (Modelo Auto-Regressivo 
-Integrado de Médias Móveis), Redes Neurais e outros modelos relevantes. Cada modelo é escolhido com base em sua capacidade de se ajustar às características dos
+Exploramos uma variedade de algoritmos de aprendizado de máquina para prever o IPCA no Brasil. Isso inclui Regressão Linear, Random Forest e Gradinte Boosting. Cada modelo é escolhido com base em sua capacidade de se ajustar às características dos
 dados e oferecer previsões precisas.
 
 Otimização de Hiperparâmetros
