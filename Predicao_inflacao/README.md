@@ -1,21 +1,21 @@
-Projeto de Previsão do IPCA (Índice de Preços ao Consumidor Amplo)
+<h1>Projeto de Previsão do IPCA (Índice de Preços ao Consumidor Amplo)</h1>
+-
 
-
-Descrição do Projeto
+**Descrição do Projeto**
 O principal objetivo deste projeto é desenvolver modelos de previsão para o Índice de Preços ao Consumidor Amplo (IPCA) no Brasil. 
 Utilizamos uma ampla gama de fontes de dados econômicos confiáveis, incluindo informações do Instituto Brasileiro de Geografia e Estatística (IBGE), 
 Banco Central do Brasil, e outras fontes relevantes. Coletamos uma série de variáveis preditoras que têm o potencial de impactar o IPCA.
 
-Tratamento de Dados
+**Tratamento de Dados**
 A análise de dados neste projeto é abrangente e inclui etapas críticas de pré-processamento. Realizamos tratamentos como a limpeza e preenchimento de 
 valores ausentes para garantir que os dados estejam completos e confiáveis. Além disso, aplicamos técnicas para o ajuste de variáveis não estacionárias, 
 tornando as séries temporais adequadas para a modelagem. A qualidade dos dados é essencial para a precisão das previsões.
 
-Modelos Utilizados
+**Modelos Utilizados**
 Exploramos uma variedade de algoritmos de aprendizado de máquina para prever o IPCA no Brasil. Isso inclui Regressão Linear, Random Forest e Gradiente Boosting. Cada modelo é escolhido com base em sua capacidade de se ajustar às características dos
 dados e oferecer previsões precisas.
 
-Otimização de Hiperparâmetros
+**Otimização de Hiperparâmetros**
 Para garantir que nossos modelos alcancem seu melhor desempenho, realizamos a otimização de hiperparâmetros. Utilizamos técnicas como Grid Search para 
 encontrar as melhores combinações de hiperparâmetros para cada modelo. Isso nos permite obter previsões mais confiáveis e refinadas.
 
