@@ -1,6 +1,7 @@
 <h1>Projeto de Previsão da Taxa SELIC</h1>
 -
 **Descrição do Projeto**
+
 Este projeto tem como objetivo criar modelos de previsão para a taxa SELIC, a taxa básica de juros da economia brasileira. A taxa SELIC 
 desempenha um papel crucial na economia, influenciando os custos de empréstimos e investimentos. Portanto, prever sua trajetória é de 
 grande importância para tomadores de decisão, investidores e analistas financeiros.
