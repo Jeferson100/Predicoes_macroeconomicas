@@ -1,5 +1,7 @@
 # Projeto de Previsões Macroeconômicas no Brasil
 
+![Imagem](https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg)
+
 
 Este é um projeto de análise e previsões macroeconômicas focado na economia do Brasil. Nosso objetivo é utilizar dados históricos e modelos de aprendizado de máquina para entender tendências passadas e fazer previsões sobre indicadores macroeconômicos importantes, como o Produto Interno Bruto (PIB), taxa de inflação, taxa de desemprego e outros.
 
