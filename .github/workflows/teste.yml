@@ -19,4 +19,6 @@ jobs:
           python -m ensurepip --default-pip
           python -m pip install --upgrade pip
 
-      # Adicione seus passos adicionais aqui, por exemplo, instalar dependências com pip.
+      - name: Mostrar arquivos no diretório
+        run: |
+          ls -la
