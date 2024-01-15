@@ -9,7 +9,14 @@ jobs:
       - name: Copia os arquivos do repo
         uses: actions/checkout@v4
 
-      - name: Instalar o python
+      - name: Instalar o Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11.1'
+
+      - name: Instalar o pip
+        run: |
+          python -m ensurepip --default-pip
+          python -m pip install --upgrade pip
+
+      # Adicione seus passos adicionais aqui, por exemplo, instalar dependências com pip.
