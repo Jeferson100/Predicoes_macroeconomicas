@@ -19,6 +19,7 @@ jobs:
           python -m ensurepip --default-pip
           python -m pip install --upgrade pip
 
-      - name: Mostrar arquivos no diretório
+      - name: Navegar e mostrar arquivos
         run: |
+          cd Modelo_Previsão_Taxa_Selic
           ls -la
