@@ -9,7 +9,10 @@
 			"extensions": [
 				"ms-python.python",
 				"ms-python.vscode-pylance",
-				"Codeium"
+				"Codeium.codeium",
+				"ms-azuretools.vscode-docker",
+				"ms-vscode.makefile-tools",
+				"MS-CEINTL.vscode-language-pack-pt-BR"
 			]
 		}
 	}
