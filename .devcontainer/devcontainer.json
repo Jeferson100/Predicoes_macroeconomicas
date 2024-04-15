@@ -12,7 +12,10 @@
 				"Codeium.codeium",
 				"ms-azuretools.vscode-docker",
 				"ms-vscode.makefile-tools",
-				"MS-CEINTL.vscode-language-pack-pt-BR"
+				"MS-CEINTL.vscode-language-pack-pt-BR",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.vscode-jupyter-cell-tags",
+				"ms-toolsai.jupyter-keymap"
 			]
 		}
 	}
