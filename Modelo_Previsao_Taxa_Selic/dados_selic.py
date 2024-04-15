@@ -49,6 +49,7 @@ def dados_expectativas_focus(indicador='IPCA', tipo_expectativa='ExpectativaMerc
     )
     return ipca_expec
 
+"""
 print('dados_expectativas_focus')
 print(dados_expectativas_focus())
 print('dados_bcb')
@@ -58,3 +59,4 @@ print('dados_ibge_codigos')
 print(dados_ibge_codigos())
 print('dados_ibge_link')
 print(dados_ibge_link())
+"""

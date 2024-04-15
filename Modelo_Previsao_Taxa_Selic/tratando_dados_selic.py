@@ -78,11 +78,12 @@ def tratando_dados_ibge_codigos():
 
 
 def tratando_dados_ibge_link(coluna='pib',link='https://sidra.ibge.gov.br/estatisticas/sociais/indicadores-geograficos/6579/taxa-de-selic-ao-ano'):
-    dado_ibge= dados_ibge_link(link=link)
+    dado_ibge= dados_ibge_link(url=link)
     ibge_link = dado_ibge.T
     ibge_link = ibge_link[[1]]
-    ibge_link.columns = coluna
-    ibge_link = ibge_link.astype(float)
+    ibge_link = ibge_link[1:]
+    ibge_link.columns = [coluna]
+    ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors='coerce')
     ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
     ibge_link.index = pd.to_datetime(transforma_para_mes_incial_trimestre(ibge_link))
     ibge_link = ibge_link.resample('MS').fillna(method='ffill')
