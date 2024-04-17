@@ -1,4 +1,4 @@
-from dados_selic import dados_bcb, dados_ibge_codigos, dados_expectativas_focus, dados_ibge_link
+from dados_selic import dados_bcb, dados_ibge_codigos, dados_expectativas_focus, dados_ibge_link, metas_inflacao
 import pandas as pd
 import numpy as np
 from datetime import date, datetime
@@ -65,6 +65,24 @@ def transforma_para_mes_incial_trimestre(dados):
         np.where(trimestre==4,ano+'-'+str(trimestre+6),0))))))
   return lista_mes
 
+def transforme_data(data):
+  from datetime import datetime
+
+  months = {'janeiro': 'january', 'fevereiro': 'february', 'março': 'march',
+          'abril': 'april', 'maio': 'may', 'junho': 'june',
+          'julho': 'july', 'agosto': 'august', 'setembro': 'september',
+          'outubro': 'october', 'novembro': 'november', 'dezembro': 'december'}
+
+  lista_data = []
+  for date in data.index:
+      date_components = date.split(' ')
+      formatted_month = months[date_components[0].lower()].capitalize()
+      formatted_date = f"{formatted_month} {date_components[1]}"
+      date_object = datetime.strptime(formatted_date, '%B %Y')
+      lista_data.append(date_object.strftime('%Y-%m-%d'))
+  data.index = lista_data
+  return data
+
 ###Tratando dados IBGE
 
 def tratando_dados_ibge_codigos():
@@ -84,9 +102,12 @@ def tratando_dados_ibge_link(coluna='pib',link='https://sidra.ibge.gov.br/estati
     ibge_link = ibge_link[1:]
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors='coerce')
-    ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
-    ibge_link.index = pd.to_datetime(transforma_para_mes_incial_trimestre(ibge_link))
-    ibge_link = ibge_link.resample('MS').fillna(method='ffill')
+    if coluna == 'producao':
+       ibge_link = transforme_data(ibge_link)
+    else:
+        ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
+        ibge_link.index = pd.to_datetime(transforma_para_mes_incial_trimestre(ibge_link))
+        ibge_link = ibge_link.resample('MS').fillna(method='ffill')
     return ibge_link
 
 
@@ -111,8 +132,19 @@ def tratando_dados_expectativas():
     dados_ipca.index = dados_ipca.index.to_period('M').to_timestamp()
 
     return dados_ipca
+  
+## Tratando metas de inflação
 
-print(tratando_dados_ibge_codigos())
+def tratando_metas_inflacao():
+    historico_inflacao = metas_inflacao()
+    historico_inflacao_mensal = historico_inflacao.copy()
+    historico_inflacao_mensal.set_index('anos', inplace=True)
+    historico_inflacao_mensal.index = pd.to_datetime(historico_inflacao_mensal.index.str.strip(), format='%Y')
+    historico_inflacao_mensal = historico_inflacao_mensal.resample('MS').interpolate(method='pad')
+    return historico_inflacao
+  
+
+"""print(tratando_dados_ibge_codigos())
 print(tratando_dados_expectativas())
 print('PIB TRIMESTRAL:')
 print(tratando_dados_ibge_link(coluna='pib',link='https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t'))
@@ -122,6 +154,8 @@ print('Formacao bruta de capital fixo')
 print(tratando_dados_ibge_link(coluna='capital',link='https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t'))
 print('Produção indústrias de manufatureiras')
 print(tratando_dados_ibge_link(coluna='producao',link='https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t'))
+"""
 
+print(tratando_metas_inflacao())
 
 
