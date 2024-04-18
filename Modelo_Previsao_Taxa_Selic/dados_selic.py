@@ -15,10 +15,12 @@ selic = {'selic':4189,'IPCA-EX2':27838,'IPCA-EX3':27839,
          'IPCA-MS':4466,'IPCA-MA':11426,'IPCA-EX0':11427,
         'IPCA-EX1':16121,'IPCA-DP':16122}
 
-def dados_bcb(codigo_bcb=selic,data_inicio='2000-01-01'):
+def dados_bcb(codigo_bcb=selic,data_inicio='2000-01-01',**kwargs):
     dados = pd.DataFrame()
-    for chave, valor in codigo_bcb.items():
-        dados[chave] = sgs.get({chave:valor}, start = data_inicio)
+    #for chave, valor in codigo_bcb.items():
+        #dados[chave] = sgs.get({chave:valor}, start = data_inicio)
+    dados = sgs.get(codigo_bcb, start = data_inicio)
+    
     return dados
 
 
@@ -121,6 +123,5 @@ print(dados_bcb(codigo_bcb={'selic':4189,'IPCA-EX2':27838,'IPCA-EX3':27839,'IPCA
 print('dados_ibge_codigos')
 print(dados_ibge_codigos())
 print('dados_ibge_link')
-print(dados_ibge_link())
-"""
 print(metas_inflacao())
+"""

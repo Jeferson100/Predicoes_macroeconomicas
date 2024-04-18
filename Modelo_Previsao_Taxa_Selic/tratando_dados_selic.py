@@ -1,7 +1,7 @@
 from dados_selic import dados_bcb, dados_ibge_codigos, dados_expectativas_focus, dados_ibge_link, metas_inflacao
 import pandas as pd
 import numpy as np
-from datetime import date, datetime
+from datetime import date, datetime,timedelta
 
 
 
@@ -112,10 +112,15 @@ def tratando_dados_ibge_link(coluna='pib',link='https://sidra.ibge.gov.br/estati
 
 
 ###Tratando dados BCB
-
-def tratando_dados_bcb():
-   return
-
+selic = {'selic':4189,'IPCA-EX2':27838,'IPCA-EX3':27839,
+         'IPCA-MS':4466,'IPCA-MA':11426,'IPCA-EX0':11427,
+        'IPCA-EX1':16121,'IPCA-DP':16122}
+def tratando_dados_bcb(codigo_bcb_tratado=selic, data_inicio_tratada='2000-01-01', **kwargs):
+    if not isinstance(codigo_bcb_tratado, dict):
+        print("Código BCB deve ser um dicionário. Usando valor padrão.")
+        codigo_bcb_tratado = selic
+    inflacao_bcb = dados_bcb(codigo_bcb_tratado, data_inicio_tratada, **kwargs)
+    return inflacao_bcb
 
 ###Tratando dados Expectativas
 
@@ -137,10 +142,13 @@ def tratando_dados_expectativas():
 
 def tratando_metas_inflacao():
     historico_inflacao = metas_inflacao()
-    historico_inflacao_mensal = historico_inflacao.copy()
-    historico_inflacao_mensal.set_index('anos', inplace=True)
-    historico_inflacao_mensal.index = pd.to_datetime(historico_inflacao_mensal.index.str.strip(), format='%Y')
-    historico_inflacao_mensal = historico_inflacao_mensal.resample('MS').interpolate(method='pad')
+    duplicado_ano_2000 = int(historico_inflacao[historico_inflacao['anos'].duplicated()]['anos'].iloc[0])
+    if duplicado_ano_2000 == 2000:
+      primeira_ocorrencia = historico_inflacao['anos'].duplicated(keep='first')
+      historico_inflacao.loc[primeira_ocorrencia, 'anos'] = '2001'
+    historico_inflacao.index = pd.to_datetime(historico_inflacao['anos'].str.strip(), format='%Y')
+    historico_inflacao.drop('anos',axis=1,inplace=True)
+    historico_inflacao = historico_inflacao.resample('MS').ffill()
     return historico_inflacao
   
 
@@ -154,8 +162,9 @@ print('Formacao bruta de capital fixo')
 print(tratando_dados_ibge_link(coluna='capital',link='https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t'))
 print('Produção indústrias de manufatureiras')
 print(tratando_dados_ibge_link(coluna='producao',link='https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t'))
-"""
 
 print(tratando_metas_inflacao())
+"""
+
 
 
