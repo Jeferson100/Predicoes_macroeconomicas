@@ -123,7 +123,7 @@ def tratando_dados_ibge_link(
     ibge_link = ibge_link[1:]
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
-    if coluna == "producao":
+    if coluna == "producao_industrial_manufatureira":
         ibge_link = transforme_data(ibge_link)
     else:
         ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))

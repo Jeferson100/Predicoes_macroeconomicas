@@ -46,12 +46,11 @@ def dados_juntos_selic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kw
         dados["expectativas_inflacao"] = tratando_dados_expectativas()
 
     if kwargs.get("meta_inflacao", True):
-        dados["diferenca_meta_efetiva"] = tratando_metas_inflacao()[
-            "diferenca_meta_efetiva"
-        ]
+        dados = dados.join(tratando_metas_inflacao(),)
+        
 
     if kwargs.get("ipca", True):
-        dados["diferenca_meta_efetiva"] = tratando_dados_ibge_codigos()["Valor"]
+        dados["ipca"] = tratando_dados_ibge_codigos()["Valor"]
 
     indicadores = {
         "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
@@ -65,8 +64,10 @@ def dados_juntos_selic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kw
             dados[key] = fetch_data_for_code(link, key)
         else:
             print(f"Dados para '{key}' não solicitados.")
+            
+    dado_sem_nan = dados.fillna(method='ffill')
 
-    return dados
+    return dado_sem_nan
 
 
-print(dados_juntos_selic())
+#print(dados_juntos_selic())
