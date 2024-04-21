@@ -46,8 +46,9 @@ def dados_juntos_selic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kw
         dados["expectativas_inflacao"] = tratando_dados_expectativas()
 
     if kwargs.get("meta_inflacao", True):
-        dados = dados.join(tratando_metas_inflacao(),)
-        
+        dados = dados.join(
+            tratando_metas_inflacao(),
+        )
 
     if kwargs.get("ipca", True):
         dados["ipca"] = tratando_dados_ibge_codigos()["Valor"]
@@ -64,10 +65,11 @@ def dados_juntos_selic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kw
             dados[key] = fetch_data_for_code(link, key)
         else:
             print(f"Dados para '{key}' não solicitados.")
-            
-    dado_sem_nan = dados.fillna(method='ffill')
+
+    dado_sem_nan = dados.fillna(method="ffill")
+    dado_sem_nan = dado_sem_nan.fillna(method="bfill")
 
     return dado_sem_nan
 
 
-#print(dados_juntos_selic())
+# print(dados_juntos_selic())

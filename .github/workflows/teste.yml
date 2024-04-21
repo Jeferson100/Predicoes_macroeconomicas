@@ -14,12 +14,11 @@ jobs:
         with:
           python-version: '3.11.1'
 
-      - name: Instalar o pip
+      - name: Instalar o biblioteca
         run: |
-          python -m ensurepip --default-pip
           python -m pip install --upgrade pip
-
-      - name: Navegar e mostrar arquivos
+          make install
+      - name: Verificar formação dos arquivos
         run: |
-          cd Modelo_Previsao_Taxa_Selic
-          ls -la
+          make format
+          make lint
