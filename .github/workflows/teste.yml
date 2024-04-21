@@ -21,4 +21,6 @@ jobs:
       - name: Verificar formação dos arquivos
         run: |
           make format
+      - name: Verificar lint dos arquivos
+        run: |
           make lint
