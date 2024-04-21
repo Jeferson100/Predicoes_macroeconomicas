@@ -24,3 +24,6 @@ jobs:
       - name: Verificar lint dos arquivos
         run: |
           make lint
+      #- name: Verificar testes dos arquivos
+        #run: |
+          #make test

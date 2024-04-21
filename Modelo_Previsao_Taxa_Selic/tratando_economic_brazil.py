@@ -115,7 +115,7 @@ def tratando_dados_ibge_codigos():
 
 def tratando_dados_ibge_link(
     coluna="pib",
-    link="https://sidra.ibge.gov.br/estatisticas/sociais/indicadores-geograficos/6579/taxa-de-selic-ao-ano",
+    link="",
 ):
     dado_ibge = dados_ibge_link(url=link)
     ibge_link = dado_ibge.T
