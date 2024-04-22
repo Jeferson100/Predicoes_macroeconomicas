@@ -29,7 +29,7 @@ def fetch_data_for_code(link, column):
     return tratando_dados_ibge_link(coluna=column, link=link)
 
 
-def data_economic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kwargs):
+def data_economic(codigos_banco_central=None, data_inicio=DATA_INICIO,salvar=False, diretorio=None,formato='csv',**kwargs):
     data_index = pd.date_range(
         start=data_inicio, end=datetime.today().strftime("%Y-%m-%d"), freq="MS"
     )
@@ -68,8 +68,20 @@ def data_economic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kwargs)
 
     dado_sem_nan = dados.ffill()
     dado_sem_nan = dado_sem_nan.bfill()
+    
+    if salvar:
+        if diretorio is None:
+            raise ValueError("Diretório não especificado para salvar o arquivo")
+        if formato == 'csv':
+            dado_sem_nan.to_csv(diretorio)
+        elif formato == 'excel':
+            dado_sem_nan.to_excel(f"{diretorio}.xlsx")
+        elif formato == 'json':
+            dado_sem_nan.to_json(f"{diretorio}.json")
+        else:
+            raise ValueError("Formato de arquivo não suportado")
 
     return dado_sem_nan
 
 
-#print(dados_juntos_selic())
+# print(dados_juntos_selic())
