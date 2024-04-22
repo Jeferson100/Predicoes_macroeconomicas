@@ -1,4 +1,4 @@
-from coleta_economic_brazil import (
+from .coleta_economic_brazil import (
     dados_bcb,
     dados_ibge_codigos,
     dados_expectativas_focus,
@@ -132,7 +132,9 @@ def tratando_dados_ibge_link(
         ibge_link.index = pd.to_datetime(
             transforma_para_mes_incial_trimestre(ibge_link)
         )
-        ibge_link = ibge_link.resample("MS").fillna(method="ffill")
+        #ibge_link = ibge_link.resample("MS").fillna(method="ffill")
+        ibge_link = ibge_link.resample("MS").ffill()
+
     return ibge_link
 
 

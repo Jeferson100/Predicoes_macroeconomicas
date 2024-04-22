@@ -1,4 +1,4 @@
-from tratando_economic_brazil import (
+from .tratando_economic_brazil import (
     tratando_dados_bcb,
     tratando_dados_ibge_codigos,
     tratando_dados_expectativas,
@@ -29,7 +29,7 @@ def fetch_data_for_code(link, column):
     return tratando_dados_ibge_link(coluna=column, link=link)
 
 
-def dados_juntos_selic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kwargs):
+def data_economic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kwargs):
     data_index = pd.date_range(
         start=data_inicio, end=datetime.today().strftime("%Y-%m-%d"), freq="MS"
     )
@@ -66,10 +66,10 @@ def dados_juntos_selic(codigos_banco_central=None, data_inicio=DATA_INICIO, **kw
         else:
             print(f"Dados para '{key}' não solicitados.")
 
-    dado_sem_nan = dados.fillna(method="ffill")
-    dado_sem_nan = dado_sem_nan.fillna(method="bfill")
+    dado_sem_nan = dados.ffill()
+    dado_sem_nan = dado_sem_nan.bfill()
 
     return dado_sem_nan
 
 
-print(dados_juntos_selic())
+#print(dados_juntos_selic())
