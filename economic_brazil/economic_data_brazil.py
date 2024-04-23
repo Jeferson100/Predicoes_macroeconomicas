@@ -8,6 +8,7 @@ from .tratando_economic_brazil import (
 import pandas as pd
 from datetime import datetime
 import warnings
+from functools import lru_cache
 
 warnings.filterwarnings("ignore")
 
@@ -28,7 +29,7 @@ SELIC_CODES = {
 def fetch_data_for_code(link, column):
     return tratando_dados_ibge_link(coluna=column, link=link)
 
-
+@lru_cache(maxsize=50)
 def data_economic(codigos_banco_central=None, data_inicio=DATA_INICIO,salvar=False, diretorio=None,formato='csv',**kwargs):
     data_index = pd.date_range(
         start=data_inicio, end=datetime.today().strftime("%Y-%m-%d"), freq="MS"
