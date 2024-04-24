@@ -7,7 +7,18 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+#Coleta
 dados = data_economic()
+#info
 dados.info()
-dados.sumary()
+#describe
+dados.describe()
+#graficos
 graficos = Graficos()
+#
+graficos.go_plotar(dados)
+
+graficos.plotar_temporal(dados)
+
+
+

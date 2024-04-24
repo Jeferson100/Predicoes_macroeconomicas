@@ -8,38 +8,53 @@ warnings.filterwarnings("ignore")
 
 
 class Graficos:
-    def plotar_temporal(self, dados):
+    def plotar_temporal(self, dados, save=False, diretorio=None):
         for i in range(len(dados.columns)):
             _, ax = plt.subplots(dpi=120)
             ax.plot(dados.iloc[:, i], label=dados.columns[i])
             plt.legend()
-            plt.show()
+            if save:
+                plt.savefig(diretorio)
+            else:
+                plt.show()
 
-    def plotar_residuos(self, y_treino, predict, bins=50, lags=40):
+    def plotar_residuos(self, y_treino, predict, bins=50, lags=40,save=False,diretorio=None):
         residuo = y_treino - predict
         plt.hist(residuo, bins=bins)
         plt.show()
         sm.graphics.tsa.plot_acf(residuo, lags=lags)
-        plt.show()
+        if save:
+            plt.savefig(diretorio)
+        else:
+            plt.show()
 
-    def plot_predict(self, y_teste, predict):
+    def plot_predict(self, y_teste, predict, save=False, diretorio=None):
         _, ax = plt.subplots(dpi=120)
         ax.plot(y_teste, label="y_teste")
         ax.plot(predict, label="predict")
         plt.legend()
-        plt.show()
-
-    def plotar_heatmap(self, dados):
-        sns.set_theme(rc={"figure.figsize": (15, 10)})
-        sns.heatmap(dados.corr(), cmap="YlGnBu", annot=True)
-        plt.show()
-
-    def plotar_histograma(self, dados):
-        for i in range(len(dados.columns)):
-            sns.histplot(i, kde=True)
+        if save:
+            plt.savefig(diretorio)
+        else:
             plt.show()
 
-    def go_plotar(self, dados):
+    def plotar_heatmap(self, dados, save=False, diretorio=None):
+        sns.set_theme(rc={"figure.figsize": (15, 10)})
+        sns.heatmap(dados.corr(), cmap="YlGnBu", annot=True)
+        if save:
+            plt.savefig(diretorio)
+        else:
+            plt.show()
+
+    def plotar_histograma(self, dados, save=False, diretorio=None):
+        for i in range(len(dados.columns)):
+            sns.histplot(i, kde=True)
+            if save:
+                plt.savefig(diretorio)
+            else:
+                plt.show()
+
+    def go_plotar(self, dados, save=False, diretorio=None):
         fig = go.Figure()
         for i in range(len(dados.columns)):
             fig = go.Figure()
@@ -51,4 +66,7 @@ class Graficos:
                 xaxis_title="Anos",
                 yaxis_title="Valores",
             )
-            fig.show()
+            if save:
+                fig.write_html(diretorio)
+            else:    
+                fig.show()
