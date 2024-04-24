@@ -11,3 +11,6 @@ openpyxl
 beautifulsoup4==4.12.1
 jupyterlab==4.0.0
 requests
+matplotlib 
+seaborn 
+plotly

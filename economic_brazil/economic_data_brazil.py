@@ -43,40 +43,48 @@ def data_economic(
         start=data_inicio, end=datetime.today().strftime("%Y-%m-%d"), freq="MS"
     )
     dados = pd.DataFrame(index=data_index)
+    try:
+        if kwargs.get("banco_central", True):
+            if codigos_banco_central is None:
+                codigos_banco_central = SELIC_CODES
+            dados = tratando_dados_bcb(
+                codigo_bcb_tratado=codigos_banco_central,
+                data_inicio_tratada=data_inicio,
+            )
 
-    if kwargs.get("banco_central", True):
-        if codigos_banco_central is None:
-            codigos_banco_central = SELIC_CODES
-        dados = tratando_dados_bcb(
-            codigo_bcb_tratado=codigos_banco_central, data_inicio_tratada=data_inicio
+        if kwargs.get("expectativas_inflacao", True):
+            dados["expectativas_inflacao"] = tratando_dados_expectativas()
+
+        if kwargs.get("meta_inflacao", True):
+            dados = dados.join(
+                tratando_metas_inflacao(),
+            )
+
+        if kwargs.get("ipca", True):
+            dados["ipca"] = tratando_dados_ibge_codigos()["Valor"]
+
+        indicadores = {
+            "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
+            "despesas_publica": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
+            "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
+            "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
+        }
+
+        for key, link in indicadores.items():
+            if kwargs.get(key, True):
+                dados[key] = fetch_data_for_code(link, key)
+            else:
+                print(f"Dados para '{key}' não solicitados.")
+
+        dado_sem_nan = dados.ffill()
+        dado_sem_nan = dado_sem_nan.bfill()
+
+    except ValueError as _:
+        dado_sem_nan = pd.DataFrame("dados/economic_data_brazil.csv")
+        ultima_data = dados.index[-1]
+        print(
+            f"Problema na importação dos dados.Arquivo selecionado da memoria com a ultima data sendo {ultima_data}."
         )
-
-    if kwargs.get("expectativas_inflacao", True):
-        dados["expectativas_inflacao"] = tratando_dados_expectativas()
-
-    if kwargs.get("meta_inflacao", True):
-        dados = dados.join(
-            tratando_metas_inflacao(),
-        )
-
-    if kwargs.get("ipca", True):
-        dados["ipca"] = tratando_dados_ibge_codigos()["Valor"]
-
-    indicadores = {
-        "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
-        "despesas_publica": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
-        "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
-        "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
-    }
-
-    for key, link in indicadores.items():
-        if kwargs.get(key, True):
-            dados[key] = fetch_data_for_code(link, key)
-        else:
-            print(f"Dados para '{key}' não solicitados.")
-
-    dado_sem_nan = dados.ffill()
-    dado_sem_nan = dado_sem_nan.bfill()
 
     if salvar:
         if diretorio is None:
@@ -91,6 +99,3 @@ def data_economic(
             raise ValueError("Formato de arquivo não suportado")
 
     return dado_sem_nan
-
-
-
