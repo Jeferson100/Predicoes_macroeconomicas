@@ -103,7 +103,7 @@ def transforme_data(data):
 ###Tratando dados IBGE
 
 
-def tratando_dados_ibge_codigos(salvar=False, formato="csv",diretorio=None):
+def tratando_dados_ibge_codigos(salvar=False, formato="csv", diretorio=None):
     ibge_codigos = dados_ibge_codigos()
     ibge_codigos.columns = ibge_codigos.iloc[0, :]
     ibge_codigos = ibge_codigos.iloc[1:, :]
@@ -147,7 +147,7 @@ def tratando_dados_ibge_link(
 
     if salvar:
         if diretorio is None:
-            raise ValueError("Diretório não especificado para salvar o arquivo")        
+            raise ValueError("Diretório não especificado para salvar o arquivo")
         if formato == "csv":
             ibge_link.to_csv(diretorio)
         elif formato == "json":
@@ -170,9 +170,12 @@ selic = {
 
 
 def tratando_dados_bcb(
-    codigo_bcb_tratado=None, data_inicio_tratada="2000-01-01", salvar=False,
+    codigo_bcb_tratado=None,
+    data_inicio_tratada="2000-01-01",
+    salvar=False,
     diretorio=None,
-    formato="csv",**kwargs
+    formato="csv",
+    **kwargs,
 ):
     if codigo_bcb_tratado is None:
         codigo_bcb_tratado = selic
@@ -206,7 +209,7 @@ def tratando_dados_expectativas(salvar=False, formato="csv", diretorio=None):
 
     # adicionar o dia como "01"
     dados_ipca.index = dados_ipca.index.to_period("M").to_timestamp()
-    
+
     if salvar:
         if diretorio is None:
             raise ValueError("Diretório não especificado para salvar o arquivo")
@@ -234,7 +237,7 @@ def tratando_metas_inflacao(salvar=False, formato="csv", diretorio=None):
     )
     historico_inflacao.drop("anos", axis=1, inplace=True)
     historico_inflacao = historico_inflacao.resample("MS").ffill()
-    
+
     if salvar:
         if diretorio is None:
             raise ValueError("Diretório não especificado para salvar o arquivo")

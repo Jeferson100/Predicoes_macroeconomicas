@@ -12,7 +12,8 @@ import pandas as pd
 def test_tratando_dados_bcb_datetime():
     dados = tratando_dados_bcb({"selic": 4189}, "2000-01-01")
     assert isinstance(dados.index, pd.DatetimeIndex)
-    
+
+
 def test_tratando_dados_bcb_columns():
     dados = tratando_dados_bcb({"selic": 4189}, "2000-01-01")
     assert "selic" in dados.columns
@@ -28,7 +29,8 @@ def test_tratando_dados_expectativas():
 def test_tratando_dados_ibge_codigos_time():
     dados = tratando_dados_ibge_codigos()
     assert isinstance(dados.index, pd.DatetimeIndex)
-    
+
+
 def test_tratando_dados_ibge_codigos_columns():
     dados = tratando_dados_ibge_codigos()
     assert "Valor" in dados.columns
@@ -41,7 +43,8 @@ def test_tratando_dados_ibge_link():
         link="https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
     )
     assert isinstance(dados.index, pd.DatetimeIndex)
-    
+
+
 def test_tratando_dados_ibge_link_columns():
     dados = tratando_dados_ibge_link(
         coluna="pib",
@@ -49,11 +52,13 @@ def test_tratando_dados_ibge_link_columns():
     )
     assert "pib" in dados.columns
 
+
 # write tests for tratando_metas_inflacao
 def test_tratando_metas_inflacao_time():
     dados = tratando_metas_inflacao()
     assert isinstance(dados.index, pd.DatetimeIndex)
-    
+
+
 def test_tratando_metas_inflacao_columns():
     dados = tratando_metas_inflacao()
     assert ["meta_inflacao", "inflacao_efetiva", "diferenca_meta_efetiva"] == list(

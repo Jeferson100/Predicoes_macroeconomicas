@@ -14,11 +14,13 @@ class Graficos:
             ax.plot(dados.iloc[:, i], label=dados.columns[i])
             plt.legend()
             if save:
-                plt.savefig(diretorio)
+                plt.savefig(diretorio + "/" + dados.columns[i] + ".png")
             else:
                 plt.show()
 
-    def plotar_residuos(self, y_treino, predict, bins=50, lags=40,save=False,diretorio=None):
+    def plotar_residuos(
+        self, y_treino, predict, bins=50, lags=40, save=False, diretorio=None
+    ):
         residuo = y_treino - predict
         plt.hist(residuo, bins=bins)
         plt.show()
@@ -38,8 +40,8 @@ class Graficos:
         else:
             plt.show()
 
-    def plotar_heatmap(self, dados, save=False, diretorio=None):
-        sns.set_theme(rc={"figure.figsize": (15, 10)})
+    def plotar_heatmap(self, dados, save=False, diretorio=None, size=(15, 10)):
+        sns.set_theme(rc={"figure.figsize": (20, 15)})
         sns.heatmap(dados.corr(), cmap="YlGnBu", annot=True)
         if save:
             plt.savefig(diretorio)
@@ -68,5 +70,5 @@ class Graficos:
             )
             if save:
                 fig.write_html(diretorio)
-            else:    
+            else:
                 fig.show()

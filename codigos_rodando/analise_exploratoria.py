@@ -10,15 +10,17 @@ warnings.filterwarnings("ignore")
 #Coleta
 dados = data_economic()
 #info
-dados.info()
+dados.info().to_csv("/workspaces/Predicoes_macroeconomicas/imagens/info.csv")
 #describe
-dados.describe()
+dados.describe().to_csv("/workspaces/Predicoes_macroeconomicas/imagens/describe.csv")
 #graficos
 graficos = Graficos()
 #
-graficos.go_plotar(dados)
+#graficos.go_plotar(dados, save=True, diretorio="dados/graficos.png")
 
-graficos.plotar_temporal(dados)
+graficos.plotar_temporal(dados, save=True, diretorio="/workspaces/Predicoes_macroeconomicas/imagens")
+
+graficos.plotar_heatmap(dados, save=True, diretorio="/workspaces/Predicoes_macroeconomicas/imagens/graficos_heatmap.png")
 
 
 
