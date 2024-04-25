@@ -1,4 +1,4 @@
-from economic_brazil.tratando_economic_brazil import (
+from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_dados_bcb,
     tratando_dados_expectativas,
     tratando_dados_ibge_codigos,

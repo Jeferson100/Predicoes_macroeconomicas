@@ -1,4 +1,4 @@
-from economic_brazil.economic_data_brazil import data_economic
+from economic_brazil.coleta_dados.economic_data_brazil import data_economic
 import pandas as pd
 
 

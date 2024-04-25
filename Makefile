@@ -1,9 +1,9 @@
 install:
 	#pip install --upgrade pip --user &&\
     pip install --upgrade pip &&\
-    	pip install -r requirements.txt	
+    	pip install --user -r requirements.txt	
 format:	
-	black economic_brazil/*.py tests/*.py
+	black economic_brazil/coleta_dados/*.py  economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py tests/*.py
 
 lint:
 	pylint --disable=R,C economic_brazil/*.py tests/*.py

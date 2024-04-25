@@ -1,7 +1,7 @@
 import sys
 sys.path.append('..')
-from economic_brazil.economic_data_brazil import data_economic
-from economic_brazil.codigos_graficos import Graficos
+from economic_brazil.coleta_dados.economic_data_brazil import data_economic
+from economic_brazil.visualizacoes_graficas.codigos_graficos import Graficos
 import pandas as pd
 import warnings
 
