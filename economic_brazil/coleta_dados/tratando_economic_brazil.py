@@ -4,7 +4,7 @@ from .coleta_economic_brazil import (
     dados_ibge_codigos,
     dados_expectativas_focus,
     metas_inflacao,
-    )
+)
 import pandas as pd
 import numpy as np
 from datetime import datetime

@@ -50,8 +50,7 @@ def data_economic(
             dados = tratando_dados_bcb(
                 codigo_bcb_tratado=codigos_banco_central,
                 data_inicio_tratada=data_inicio,
-                )
-            
+            )
 
         if kwargs.get("expectativas_inflacao", True):
             dados["expectativas_inflacao"] = tratando_dados_expectativas()
@@ -81,7 +80,9 @@ def data_economic(
         dado_sem_nan = dado_sem_nan.bfill()
 
     except ValueError as _:
-        dado_sem_nan = pd.DataFrame("/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.csv")
+        dado_sem_nan = pd.DataFrame(
+            "/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.csv"
+        )
         ultima_data = dados.index[-1]
         print(
             f"Problema na importação dos dados.Arquivo selecionado da memoria com a ultima data sendo {ultima_data}."

@@ -1,10 +1,9 @@
-from economic_brazil.coleta_dados.economic_data_brazil import (
-    data_economic,
+from economic_brazil.coleta_dados.coleta_economic_brazil import (
     dados_bcb,
-    dados_ibge_codigos,
     dados_ibge_link,
-    metas_inflacao,
+    dados_ibge_codigos,
     dados_expectativas_focus,
+    metas_inflacao,
 )
 
 # write tests for tratando_dados_bcb
