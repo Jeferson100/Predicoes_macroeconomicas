@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("..")
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
@@ -110,9 +111,18 @@ class Estacionaridade:
             )
             rolstd = pd.Series(timeseries.iloc[:, i]).rolling(window=12).std().dropna()
             # Plot rolling statistics:
-            orig = plt.plot(timeseries.iloc[:, i], color="blue", label="Original") # pylint: disable=unused-variable
-            mean = plt.plot(rolmean, color="red", label="Rolling Mean") # pylint: disable=unused-variable
-            std = plt.plot(rolstd, color="black", label="Rolling Std") # pylint: disable=unused-variable
+            # pylint: disable=unused-variable
+            orig = plt.plot(
+                timeseries.iloc[:, i], color="blue", label="Original"
+            )  
+            # pylint: disable=unused-variable
+            mean = plt.plot(
+                rolmean, color="red", label="Rolling Mean"
+            ) 
+            std = plt.plot(
+                rolstd, color="black", label="Rolling Std"
+            )  
+            # pylint: disable=unused-variable
             plt.legend(loc="best")
             plt.title(
                 f"Rolling Mean & Standard Deviation na variavel {timeseries.columns[i]}"

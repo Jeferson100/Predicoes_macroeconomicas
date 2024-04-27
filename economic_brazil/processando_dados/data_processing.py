@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("..")
 from xgboost import XGBRegressor
 import pandas as pd
@@ -38,44 +39,49 @@ def backcasting_nan(dados):
     """
     np.random.seed(0)
     dados_bac = dados.copy()
-    colunas=dados.columns.tolist()
+    colunas = dados.columns.tolist()
     for i in colunas:
         dados_interpolacao = dados.copy()
 
-        dados_interpolacao = dados_interpolacao.loc[:dados_interpolacao[i].last_valid_index()]
-
+        dados_interpolacao = dados_interpolacao.loc[
+            : dados_interpolacao[i].last_valid_index()
+        ]
 
         # Separate values not NaN and NaN in two different dataframes
         treino_interpolacao = dados_interpolacao[dados_interpolacao[i].notnull()]
         predicao_interpolacao = dados_interpolacao[dados_interpolacao[i].isnull()]
-    
+
         # Create Y_treino column and remove from treino_interpolacao
         Y_treino = treino_interpolacao[i]
-        treino_interpolacao = treino_interpolacao.drop(i,axis=1)
+        treino_interpolacao = treino_interpolacao.drop(i, axis=1)
 
-        predicao_interpolacao = predicao_interpolacao.drop(i,axis=1)
-        
+        predicao_interpolacao = predicao_interpolacao.drop(i, axis=1)
+
         # Remove columns with more than 10 NaN values
-        predicao_interpolacao = predicao_interpolacao.dropna(thresh=len(predicao_interpolacao) - 4, axis=1)
+        predicao_interpolacao = predicao_interpolacao.dropna(
+            thresh=len(predicao_interpolacao) - 4, axis=1
+        )
 
         Y_treino = Y_treino[Y_treino.index.isin(treino_interpolacao.index)]
 
         treino_interpolacao = treino_interpolacao.loc[:, predicao_interpolacao.columns]
 
-         # Fill NaN values in remaining columns with the mean
+        # Fill NaN values in remaining columns with the mean
         treino_interpolacao = treino_interpolacao.fillna(treino_interpolacao.mean())
-        predicao_interpolacao = predicao_interpolacao.fillna(predicao_interpolacao.mean())
+        predicao_interpolacao = predicao_interpolacao.fillna(
+            predicao_interpolacao.mean()
+        )
         # Filter prediction dataframe to include only columns present in training dataframe
         # Create the model
         model = XGBRegressor(random_state=0)
-    
-         # Train the model
-        model.fit(treino_interpolacao.values,Y_treino.values.reshape(-1,1))
+
+        # Train the model
+        model.fit(treino_interpolacao.values, Y_treino.values.reshape(-1, 1))
         predicao = model.predict(predicao_interpolacao.values)
-        interpolados= pd.DataFrame(predicao,index=predicao_interpolacao.index)
+        interpolados = pd.DataFrame(predicao, index=predicao_interpolacao.index)
         try:
             interpolados.columns = [i]
-            dados_bac.fillna(interpolados,inplace=True)
+            dados_bac.fillna(interpolados, inplace=True)
         except ValueError:
             dados_bac[i] = dados[i]
 
