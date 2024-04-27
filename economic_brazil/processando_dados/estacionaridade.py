@@ -1,12 +1,9 @@
 import sys
-
 sys.path.append("..")
-from economic_brazil.coleta_dados.economic_data_brazil import data_economic
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.stattools import kpss
 from pmdarima import arima
-import scipy.stats as stats
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
@@ -65,14 +62,16 @@ class Estacionaridade:
         )
         return test_est
 
-    def report_ndiffs(self, dados, test=["kpss", "adf", "pp"], alpha=0.05):
+    def report_ndiffs(self, dados, test=None, alpha=0.05):
+        if test is None:
+            test = ["kpss", "adf", "pp"]
         dat_ndifis = pd.DataFrame(index=dados.columns)
         for i in test:
             dat_n = []
             for j in dados.columns:
                 try:
                     dat_n.append(arima.ndiffs(dados[j].dropna(), alpha, test=i))
-                except:
+                except ValueError:
                     dat_n.append(0)
             dat_ndifis[i] = dat_n
         result = []
@@ -110,12 +109,10 @@ class Estacionaridade:
                 pd.Series(timeseries.iloc[:, i]).rolling(window=12).mean().dropna()
             )
             rolstd = pd.Series(timeseries.iloc[:, i]).rolling(window=12).std().dropna()
-
             # Plot rolling statistics:
-
-            orig = plt.plot(timeseries.iloc[:, i], color="blue", label="Original")
-            mean = plt.plot(rolmean, color="red", label="Rolling Mean")
-            std = plt.plot(rolstd, color="black", label="Rolling Std")
+            orig = plt.plot(timeseries.iloc[:, i], color="blue", label="Original") # pylint: disable=unused-variable
+            mean = plt.plot(rolmean, color="red", label="Rolling Mean") # pylint: disable=unused-variable
+            std = plt.plot(rolstd, color="black", label="Rolling Std") # pylint: disable=unused-variable
             plt.legend(loc="best")
             plt.title(
                 f"Rolling Mean & Standard Deviation na variavel {timeseries.columns[i]}"

@@ -41,7 +41,7 @@ class Graficos:
             plt.show()
 
     def plotar_heatmap(self, dados, save=False, diretorio=None, size=(15, 10)):
-        sns.set_theme(rc={"figure.figsize": (20, 15)})
+        sns.set_theme(rc={"figure.figsize": size})
         sns.heatmap(dados.corr(), cmap="YlGnBu", annot=True)
         if save:
             plt.savefig(diretorio)
