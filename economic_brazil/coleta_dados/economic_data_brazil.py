@@ -79,7 +79,8 @@ def data_economic(
         dado_sem_nan = dados.ffill()
         dado_sem_nan = dado_sem_nan.bfill()
 
-    except ValueError as _:
+    except Exception as e:
+        print("Erro ao buscar dados", e)
         dado_sem_nan = pd.DataFrame(
             "/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.csv"
         )
