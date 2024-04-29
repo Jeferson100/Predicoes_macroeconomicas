@@ -10,17 +10,20 @@ class TimeSeriesModelTuner:
         self.y_train = dados[coluna]
         self.tscv = TimeSeriesSplit(n_splits=numero_divisoes, gap=gap_series, max_train_size=max_train_size, test_size=test_size)
 
-    def grid_search(self, param_grid, scoring='squared_mean_squared_error', random_state=0):
-        grid_search = GridSearchCV(self.model, param_grid, cv=self.tscv, scoring=scoring, random_state=random_state)
+    def grid_search(self, param_grid, scoring='neg_mean_absolute_percentage_error'):
+        grid_search = GridSearchCV(self.model, param_grid, cv=self.tscv, scoring=scoring)
         grid_search.fit(self.X_train, self.y_train)
+        print("Best Grid Search Params:", grid_search.best_params_, "Score:", grid_search.best_score_)
         return grid_search.best_params_, grid_search.best_score_
 
-    def random_search(self, param_distributions, n_iter=10, scoring='squared_mean_squared_error', random_state=0):
-        random_search = RandomizedSearchCV(self.model, param_distributions, n_iter=n_iter, cv=self.tscv, scoring=scoring, random_state=random_state)
+    def random_search(self, param_distributions, n_iter=10, scoring='neg_mean_absolute_percentage_error'):
+        random_search = RandomizedSearchCV(self.model, param_distributions, n_iter=n_iter, cv=self.tscv, scoring=scoring)
         random_search.fit(self.X_train, self.y_train)
+        print("Best Random Search Params:", random_search.best_params_, "Score:", random_search.best_score_)
         return random_search.best_params_, random_search.best_score_
 
-    def bayesian_optimization(self, search_spaces, n_iter=32, scoring='neg_mean_absolute_error', random_state=0):
-        bayes_search = BayesSearchCV(self.model, search_spaces, n_iter=n_iter, cv=self.tscv, scoring=scoring, random_state=random_state)
+    def bayesian_optimization(self, search_spaces, n_iter=32, scoring='neg_mean_absolute_error'):
+        bayes_search = BayesSearchCV(self.model, search_spaces, n_iter=n_iter, cv=self.tscv, scoring=scoring)
         bayes_search.fit(self.X_train, self.y_train)
+        print("Best Bayesian Optimization Params:", bayes_search.best_params_, "Score:", bayes_search.best_score_)
         return bayes_search.best_params_, bayes_search.best_score_
