@@ -137,3 +137,20 @@ def corrigindo_nan_arima(
         for i in a:
             dados_sem[k] = dados_sem[k].fillna(i, limit=1)
     return dados_sem
+
+def criando_mes_ano_dia(dados, mes=None, ano=None, dia=None, dummy=None, coluns=['year', 'month', 'day']):
+    if mes:
+        dados["mes"] = dados.index.month
+    if ano:
+        dados["ano"] = dados.index.year
+    if dia:
+        dados["dia"] = dados.index.day
+    if dummy:
+        dados_dia_mes_ano = pd.get_dummies(dados,
+                                           columns=coluns,
+                                           prefix=[i for i in coluns],
+                                           prefix_sep='_',
+                                           drop_first=True).astype(float)
+        dados = dados_dia_mes_ano.copy()
+    
+    return dados
