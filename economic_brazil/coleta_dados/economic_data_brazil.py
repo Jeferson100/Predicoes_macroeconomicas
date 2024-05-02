@@ -46,11 +46,19 @@ def data_economic(
     try:
         if kwargs.get("banco_central", True):
             if codigos_banco_central is None:
-                codigos_banco_central = SELIC_CODES
-            dados = tratando_dados_bcb(
-                codigo_bcb_tratado=codigos_banco_central,
-                data_inicio_tratada=data_inicio,
-            )
+                    codigos_banco_central = SELIC_CODES
+            try:
+                dados = tratando_dados_bcb(
+                    codigo_bcb_tratado=codigos_banco_central,
+                    data_inicio_tratada=data_inicio,)
+            except ValueError as e:
+                print("Erro ao buscar dados", e)
+                dados = pd.read_csv('/workspaces/Predicoes_macroeconomicas/dados/dados_bcb.csv')
+                ultima_data = dados.Date.iloc[-1]
+                print(
+                    f"Problema na importação dos dados do Banco Central.Arquivo selecionado da memoria com a ultima data sendo {ultima_data}."
+                )
+                
 
         if kwargs.get("expectativas_inflacao", True):
             dados["expectativas_inflacao"] = tratando_dados_expectativas()
@@ -84,7 +92,7 @@ def data_economic(
         dado_sem_nan = pd.DataFrame(
             "/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.csv"
         )
-        ultima_data = dados.index[-1]
+        ultima_data = dados.Date.iloc[-1]
         print(
             f"Problema na importação dos dados.Arquivo selecionado da memoria com a ultima data sendo {ultima_data}."
         )

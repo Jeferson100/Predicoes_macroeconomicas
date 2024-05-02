@@ -133,4 +133,15 @@ class Graficos:
                 self.plot_correlogram(dados[col],lags=lags_correlogram,title=f'Correlogram_{col}', save=save_correlogram, diretorio=diretorio_correlogram+f"/correlogram_{col}.png")
             else:
                 self.plot_correlogram(dados[col],lags=lags_correlogram,title=f'Correlogram_{col}')
+    
+    def plotar_residuos_predicit(self, y_treino, predict, bins=50, lags=40, save=False, diretorio=None):
+        residuo = y_treino - predict
+        plt.hist(residuo, bins=bins)
+        plt.show()
+        sm.graphics.tsa.plot_acf(residuo, lags=lags)
+        if save:
+            plt.savefig(diretorio)
+            plt.close() 
+        else:
+            plt.show()
         
