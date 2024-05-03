@@ -5,6 +5,7 @@ from xgboost import XGBRegressor
 import pandas as pd
 import numpy as np
 from pmdarima import arima
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -138,19 +139,44 @@ def corrigindo_nan_arima(
             dados_sem[k] = dados_sem[k].fillna(i, limit=1)
     return dados_sem
 
-def criando_mes_ano_dia(dados, mes=None, ano=None, dia=None, dummy=None, coluns=['year', 'month', 'day']):
+
+def criando_mes_ano_dia(
+    dados,
+    mes=None,
+    ano=None,
+    dia=None,
+    dummy=None,
+    trimestre=None,
+    coluns=["mes", "ano", "dia", "trimestre"],
+):
     if mes:
         dados["mes"] = dados.index.month
     if ano:
         dados["ano"] = dados.index.year
     if dia:
         dados["dia"] = dados.index.day
+    if trimestre:
+        dados["trimestre"] = dados.index.quarter
     if dummy:
-        dados_dia_mes_ano = pd.get_dummies(dados,
-                                           columns=coluns,
-                                           prefix=[i for i in coluns],
-                                           prefix_sep='_',
-                                           drop_first=True).astype(float)
+        dados_dia_mes_ano = pd.get_dummies(
+            dados,
+            columns=coluns,
+            prefix=[i for i in coluns],
+            prefix_sep="_",
+            drop_first=True,
+        ).astype(float)
         dados = dados_dia_mes_ano.copy()
-    
+
     return dados
+
+
+def escalando_dados(dados, tipo="minmax"):
+    if tipo == "minmax":
+        scaler = MinMaxScaler()
+        scaler.fit(dados)
+        dados = scaler.transform(dados)
+    else:
+        scaler = StandardScaler()
+        scaler.fit(dados)
+        dados = scaler.transform(dados)
+    return dados, scaler

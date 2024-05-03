@@ -112,16 +112,10 @@ class Estacionaridade:
             rolstd = pd.Series(timeseries.iloc[:, i]).rolling(window=12).std().dropna()
             # Plot rolling statistics:
             # pylint: disable=unused-variable
-            orig = plt.plot(
-                timeseries.iloc[:, i], color="blue", label="Original"
-            )  
+            orig = plt.plot(timeseries.iloc[:, i], color="blue", label="Original")
             # pylint: disable=unused-variable
-            mean = plt.plot(
-                rolmean, color="red", label="Rolling Mean"
-            ) 
-            std = plt.plot(
-                rolstd, color="black", label="Rolling Std"
-            )  
+            mean = plt.plot(rolmean, color="red", label="Rolling Mean")
+            std = plt.plot(rolstd, color="black", label="Rolling Std")
             # pylint: disable=unused-variable
             plt.legend(loc="best")
             plt.title(
@@ -145,7 +139,7 @@ class Estacionaridade:
                 dfoutput["Critical Value (%s)" % key] = value
             print(dfoutput)
 
-    def corrigindo_nao_estacionaridade(self, base, n_difis, valor_predicao):
+    def corrigindo_nao_estacionaridade(self, base, valor_predicao):
         """
         Corrigindo não estacionaridade function.
 
@@ -160,6 +154,7 @@ class Estacionaridade:
         - dados_est (DataFrame): The modified dataset with non-stationary variables differenced.
         """
         dados_est = base.copy()
+        n_difis = self.report_ndiffs(dados_est)
         for i in n_difis[n_difis["Ndifis"] >= 1].index:
             if i == valor_predicao:
                 dados_est[i] = dados_est[i]

@@ -20,3 +20,4 @@ statsmodels==0.14.0
 scikit-optimize
 catboost==1.2.5
 mapie
+kaleido

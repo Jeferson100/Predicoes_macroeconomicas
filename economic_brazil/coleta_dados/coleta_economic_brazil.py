@@ -26,7 +26,7 @@ def dados_bcb(codigos_banco_central=None, data_inicio="2000-01-01"):
     dados = pd.DataFrame()
     if codigos_banco_central is None:
         codigos_banco_central = SELIC_CODES
-    dados = sgs.get(codigos_banco_central, start=data_inicio)   
+    dados = sgs.get(codigos_banco_central, start=data_inicio)
     return dados
 
 

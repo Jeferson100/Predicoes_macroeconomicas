@@ -5,10 +5,10 @@ install:
 	pip install -r requirements.txt
 
 format:
-	black economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py tests/*.py
+	black economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py economic_brazil/treinamento/*.py economic_brazil/analisando_modelos/*.py tests/*.py
 
 lint:
-	pylint --disable=R,C economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py tests/*.py
+	pylint --disable=R,C economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py economic_brazil/treinamento/*.py economic_brazil/analisando_modelos/*.py tests/*.py
 
 
 test:
