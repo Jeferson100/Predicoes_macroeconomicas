@@ -147,7 +147,7 @@ def criando_mes_ano_dia(
     dia=None,
     dummy=None,
     trimestre=None,
-    coluns=["mes", "ano", "dia", "trimestre"],
+    coluns=None,
 ):
     if mes:
         dados["mes"] = dados.index.month
@@ -158,6 +158,8 @@ def criando_mes_ano_dia(
     if trimestre:
         dados["trimestre"] = dados.index.quarter
     if dummy:
+        if coluns is None:
+            coluns = ["mes", "ano", "dia", "trimestre"]
         dados_dia_mes_ano = pd.get_dummies(
             dados,
             columns=coluns,

@@ -1,5 +1,3 @@
-import pandas as pd
-
 # import os modelos de regressao
 from sklearn.ensemble import GradientBoostingRegressor
 from xgboost import XGBRegressor

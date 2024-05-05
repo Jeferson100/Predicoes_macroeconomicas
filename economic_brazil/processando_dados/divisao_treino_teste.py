@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import TimeSeriesSplit
 
 
@@ -37,7 +36,6 @@ def treino_test_dados(dados, data_divisao, coluna=None, treino_teste=None, tipo=
 def treino_teste_seies_temporal(
     x_train,
     y_train,
-    coluna,
     numero_divisoes=5,
     gap_series=5,
     max_train_size=100,

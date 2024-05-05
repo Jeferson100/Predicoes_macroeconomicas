@@ -1,8 +1,5 @@
-import numpy as np
 from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
 from skopt import BayesSearchCV
-from skopt.space import Real, Integer
-
 
 class TimeSeriesModelTuner:
     def __init__(
