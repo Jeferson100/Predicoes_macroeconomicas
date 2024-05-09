@@ -21,3 +21,5 @@ scikit-optimize
 catboost==1.2.5
 mapie
 kaleido
+tensorflow
+shap==0.45.1
