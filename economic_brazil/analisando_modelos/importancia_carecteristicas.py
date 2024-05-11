@@ -6,12 +6,8 @@ from economic_brazil.processando_dados.divisao_treino_teste import treino_test_d
 from economic_brazil.processando_dados.estacionaridade import Estacionaridade
 from economic_brazil.processando_dados.data_processing import criando_dummy_covid, escalando_dados, criando_mes_ano_dia
 import shap
-
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
-
+from random import randint
+shap.initjs()
 
 class TratandoDados:
     def __init__(self, df):
@@ -39,11 +35,14 @@ class TratandoDados:
         return x_train_scaler, y_train, x_test_scaler, y_test, columns
 
 class ImportanciaRandomForest:
-    def __init__(self, X, y,colunas, model=None):
-        self.X = X
-        self.y = y
+    def __init__(self, dados,label='selic',treino_teste='2020-04-01',model=None):
+        self.df = dados
         self.model = model
-        self.colunas = colunas
+        self.X, self.y, _ , _ , self.colunas = self.tratando_dados_random(colunas_label=label,divisao_treino_teste=treino_teste)     
+        
+    def tratando_dados_random(self,colunas_label='selic',divisao_treino_teste='2020-04-01'):
+         x_train, y_train, x_test, y_test, colunas = TratandoDados(self.df).tratando_dados(colunas_label=colunas_label,divisao_treino_teste=divisao_treino_teste)
+         return x_train, y_train, x_test, y_test, colunas
     
     def treinar_modelo(self):
         """Treina o modelo RandomForestRegressor com os dados fornecidos."""
@@ -76,25 +75,54 @@ class ImportanciaRandomForest:
         else:
             return feature_importances
 
-
-        
 class ImportanciaShap:
-    def __init__(self, X, y):
-        self.X = X
-        self.y = y
-        self.model = None
+    def __init__(self, dados,label='selic',treino_teste='2020-04-01',model=None):
+        self.df = dados
+        self.model = model
+        self.X, self.y, _ , _ , self.colunas = self.tratando_dados_shap(colunas_label=label,divisao_treino_teste=treino_teste)
+        self.shap_values, self.explainer = self.shap_explainer()
+        
+    def tratando_dados_shap(self,colunas_label='selic',divisao_treino_teste='2020-04-01'):
+         x_train, y_train, x_test, y_test, colunas = TratandoDados(self.df).tratando_dados(colunas_label=colunas_label,divisao_treino_teste=divisao_treino_teste)
+         return x_train, y_train, x_test, y_test, colunas   
     
     def treinar_modelo(self):
         """Treina o modelo RandomForestRegressor com os dados fornecidos."""
+        model = RandomForestRegressor()
+        self.model = model.fit(self.X, self.y)
+        return self.model
+    
+    def shap_explainer(self):
         if self.model is None:
-            self.model = RandomForestRegressor()
-            self.model.fit(self.X, self.y)
+            self.treinar_modelo()
+        explainer = shap.TreeExplainer(self.model)
+        shap_values = explainer.shap_values(pd.DataFrame(self.X,columns=self.colunas))
+        return shap_values, explainer
+    
+    def summary_plot_shap(self,bar=None):    
+        if bar:
+            shap.summary_plot(self.shap_values, pd.DataFrame(self.X,columns=self.colunas), plot_type="bar",show=False)
+            plt.tight_layout();
         else:
-            raise RuntimeError("Modelo já foi treinado.")
+            shap.summary_plot(self.shap_values, pd.DataFrame(self.X,columns=self.colunas), show=False)
+            plt.tight_layout();
+            
+    def force_plot_shap_random(self):
+        i = randint(0, len(self.X))
+        # visualize the first prediction's explanation
+        shap.force_plot(self.explainer.expected_value, self.shap_values[i,:], pd.DataFrame(self.X,columns=self.colunas).iloc[i,:])
+        plt.tight_layout();
+    
+    def force_plot_shap(self):
+        shap.force_plot(self.explainer.expected_value, self.shap_values, pd.DataFrame(self.X,columns=self.colunas))
+        plt.show()
+        plt.tight_layout();
         
-    def importancia_shap(self,columns, plot=True):
-        model = self.model
-        explainer = shap.TreeExplainer(model)
-        
-
+    def shap_dependence_plot(self,variavel1,variavel2):
+        shap.dependence_plot(ind=variavel1,
+                     shap_values=self.shap_values,
+                     features=pd.DataFrame(self.X,columns=self.colunas),
+                     interaction_index=variavel2,
+                     title=f'{variavel1} x {variavel2}')
+    
 
