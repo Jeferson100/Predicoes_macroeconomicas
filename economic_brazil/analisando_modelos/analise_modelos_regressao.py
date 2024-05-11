@@ -45,7 +45,7 @@ class MetricasModelos:
                 data_frame.to_csv(diretorio) 
             return data_frame
 
-    def plotando_predicoes(dados,title="Predições", xlabel="Tempo", ylabel="Valores", figsize=(15, 10),grid=True, save=False, diretorio=None):
+    def plotando_predicoes(self,dados,title="Predições", xlabel="Tempo", ylabel="Valores", figsize=(15, 10),grid=True, save=False, diretorio=None):
         #Plotando as predicoes
         plt.figure(figsize=figsize)
         for i in dados.columns:

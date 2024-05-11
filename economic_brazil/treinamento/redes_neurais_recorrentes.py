@@ -1,3 +1,4 @@
+from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 import matplotlib.pyplot as plt
@@ -15,7 +16,7 @@ class RnnModel:
         return np.array(X), np.array(Y)
         
 
-    def create_rnn_model(self,input_shape, num_layers=2, units=50, dropout_rate=0.2, num_outputs=1, optimizer='adam', loss='mean_squared_error',activation='relu',metrics=['accuracy']):
+    def create_rnn_model(self,input_shape, num_layers=2, units=50, dropout_rate=0.2, num_outputs=1, optimizer='adam', loss='mean_squared_error',activation='relu',metrics=None):
         """
         Cria uma rede neural recorrente com um número configurável de camadas LSTM.
 
@@ -26,6 +27,8 @@ class RnnModel:
         :param num_outputs: Número de unidades na camada de saída
         :return: Objeto do modelo Keras compilado
         """
+        if metrics is None:
+            metrics = ['accuracy']
         model = Sequential()
         # Adicionando a primeira camada LSTM
         model.add(LSTM(units, return_sequences=True if num_layers > 1 else False, input_shape=input_shape))
