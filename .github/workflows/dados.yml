@@ -26,7 +26,7 @@ jobs:
             make install
         - name: Coleta de Dados
           run: |
-            cd dados
+            cd /workspaces/Predicoes_macroeconomicas/dados
             pwd
             python rodando_coleta_dados.py
         - name: Commit files
