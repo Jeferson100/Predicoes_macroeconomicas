@@ -1,6 +1,4 @@
-from tensorflow import keras
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout
+import keras
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -39,28 +37,28 @@ class RnnModel:
         """
         if metrics is None:
             metrics = ["accuracy"]
-        model = Sequential()
+        model = keras.Sequential()
         # Adicionando a primeira camada LSTM
         model.add(
-            LSTM(
+            keras.layers.LSTM(
                 units,
                 return_sequences=True if num_layers > 1 else False,
                 input_shape=input_shape,
             )
         )
-        model.add(Dropout(dropout_rate))
+        model.add(keras.layers.Dropout(dropout_rate))
 
         # Adicionando camadas LSTM adicionais se necessário
         for i in range(1, num_layers):
             return_sequences = (
                 i != num_layers - 1
             )  # A última camada LSTM não deve retornar sequências
-            model.add(LSTM(units, return_sequences=return_sequences))
-            model.add(Dropout(dropout_rate))
+            model.add(keras.layers.LSTM(units, return_sequences=return_sequences))
+            model.add(keras.layers.Dropout(dropout_rate))
 
         # Camada densa para aprendizado adicional e camada de saída
-        model.add(Dense(units, activation=activation))
-        model.add(Dense(num_outputs))
+        model.add(keras.layers.Dense(units, activation=activation))
+        model.add(keras.layers.Dense(num_outputs))
 
         model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
         return model

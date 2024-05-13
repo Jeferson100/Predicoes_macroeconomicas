@@ -29,6 +29,10 @@ jobs:
             cd ./dados
             pwd
             python rodando_coleta_dados.py
+        - name: Configure Git
+          run: |
+            git config --global user.email "sehnemjeferson@gmail.com"
+            git config --global user.name "Jeferson Sehnem"
         - name: Commit files
           run: |
             git add .
