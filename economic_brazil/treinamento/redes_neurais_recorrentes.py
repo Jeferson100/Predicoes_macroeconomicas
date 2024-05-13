@@ -1,4 +1,4 @@
-from tensorflow.keras import layers
+from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 import matplotlib.pyplot as plt
