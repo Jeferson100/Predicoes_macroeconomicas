@@ -6,16 +6,16 @@ class TimeSeriesModelTuner:
     def __init__(
         self,
         model,
-        dados,
-        coluna,
-        numero_divisoes=5,
-        gap_series=5,
+        X_train,
+        y_train,
+        numero_divisoes=10,
+        gap_series=0,
         max_train_size=100,
         test_size=10,
     ):
         self.model = model
-        self.X_train = dados.drop(columns=coluna, axis=1)
-        self.y_train = dados[coluna]
+        self.X_train = X_train
+        self.y_train = y_train
         self.tscv = TimeSeriesSplit(
             n_splits=numero_divisoes,
             gap=gap_series,
