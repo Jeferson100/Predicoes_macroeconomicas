@@ -10,9 +10,9 @@ from catboost import CatBoostRegressor
 from sklearn import linear_model
 
 @pytest.fixture(scope="module")
-def data_regressao():
+def data():
     # Gera um dataset de regressão sintético para testes
-    X, y,_ = make_regression(n_samples=100, n_features=4, noise=0.1, random_state=42)
+    X, y = make_regression(n_samples=100, n_features=4, noise=0.1, random_state=42)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     modelos = TreinamentoModelos(X_train, y_train)
     return X_train, X_test, y_train, y_test, modelos
