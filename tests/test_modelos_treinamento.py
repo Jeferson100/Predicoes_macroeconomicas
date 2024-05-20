@@ -9,13 +9,18 @@ from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
 from sklearn import linear_model
 
+# pylint: disable=W0621
 @pytest.fixture(scope="module")
+# pylint: disable=W0632
 def data_regressao():
     # Gera um dataset de regressão sintético para testes
+   # pylint: disable=W0632
     X, y = make_regression(n_samples=100, n_features=4, noise=0.1, random_state=42)
+    # pylint: disable=W0632
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     modelos = TreinamentoModelos(X_train, y_train)
     return X_train, X_test, y_train, y_test, modelos
+# pylint: disable=W0621
 
 def test_modelo_gradient_boosting(data_regressao):
     _, _, _, _, modelos = data_regressao
@@ -60,3 +65,4 @@ def test_treinar_regressao_linear(data_regressao):
     model = modelos.treinar_regressao_linear()
     predictions = model.predict(X_test)
     assert len(predictions) == len(y_test)
+# pylint: disable=W0621
