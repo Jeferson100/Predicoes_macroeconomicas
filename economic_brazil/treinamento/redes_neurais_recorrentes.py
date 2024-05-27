@@ -63,7 +63,6 @@ class RnnModel:
 
         model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
         return model
-        
 
     def treinar_modelo(
         self,
@@ -120,52 +119,81 @@ class RnnModel:
         plt.tight_layout()
         plt.show()
 
+
 class HyperTurnerModel:
-    def __init__(self, x_train, y_train, x_test, y_test,camadas_sequenciais=3):
+    def __init__(self, x_train, y_train, x_test, y_test, camadas_sequenciais=3):
         self.x_train = x_train
         self.y_train = y_train
         self.x_test = x_test
         self.y_test = y_test
         self.camadas_sequenciais = camadas_sequenciais
 
-    def build_model(self, hp, learning_rate=None, neuronios_camada_1=None, neuronios_camada_sequenciais=None, neuronios_camada_final=1):
+    def build_model(
+        self,
+        hp,
+        learning_rate=None,
+        neuronios_camada_1=None,
+        neuronios_camada_sequenciais=None,
+        neuronios_camada_final=1,
+    ):
         if learning_rate is None:
-            learning_rate = hp.Choice('learning_rate', [1e-2, 1e-3, 1e-4, 1e-5, 1e-6])
+            learning_rate = hp.Choice("learning_rate", [1e-2, 1e-3, 1e-4, 1e-5, 1e-6])
         if neuronios_camada_1 is None:
-            neuronios_camada_1 = hp.Int('neuronios_camada_1', min_value=8, max_value=64, step=8)
+            neuronios_camada_1 = hp.Int(
+                "neuronios_camada_1", min_value=8, max_value=64, step=8
+            )
         if neuronios_camada_sequenciais is None:
-            neuronios_camada_sequenciais = hp.Int('neuronios_camada_sequenciais', min_value=8, max_value=64, step=8)
+            neuronios_camada_sequenciais = hp.Int(
+                "neuronios_camada_sequenciais", min_value=8, max_value=64, step=8
+            )
 
         model = keras.Sequential()
-        model.add(keras.layers.LSTM(
-            units=neuronios_camada_1,
-            activation='relu',
-            input_shape=(self.x_train.shape[1], self.x_train.shape[2]),
-            return_sequences=True))
+        model.add(
+            keras.layers.LSTM(
+                units=neuronios_camada_1,
+                activation="relu",
+                input_shape=(self.x_train.shape[1], self.x_train.shape[2]),
+                return_sequences=True,
+            )
+        )
 
         for _ in range(self.camadas_sequenciais - 1):
-            model.add(keras.layers.Dropout(rate=hp.Float('dropout', min_value=0.0, max_value=0.5, step=0.1)))
-            model.add(keras.layers.LSTM(
-                units=neuronios_camada_sequenciais,
-                activation='relu',
-                return_sequences=True))
+            model.add(
+                keras.layers.Dropout(
+                    rate=hp.Float("dropout", min_value=0.0, max_value=0.5, step=0.1)
+                )
+            )
+            model.add(
+                keras.layers.LSTM(
+                    units=neuronios_camada_sequenciais,
+                    activation="relu",
+                    return_sequences=True,
+                )
+            )
 
         model.add(keras.layers.Dense(neuronios_camada_final))
-        model.compile(optimizer=keras.optimizers.Adam(learning_rate=learning_rate), loss='mse')
+        model.compile(
+            optimizer=keras.optimizers.Adam(learning_rate=learning_rate), loss="mse"
+        )
         return model
 
     def tuner(self, epochs=100, batch_size=32):
         tuner = keras_tuner.RandomSearch(
             hypermodel=self.build_model,
-            objective='val_loss',
+            objective="val_loss",
             max_trials=5,
             executions_per_trial=3,
-            overwrite=True)
+            overwrite=True,
+        )
 
-        tuner.search(self.x_train, self.y_train, epochs=epochs, batch_size=batch_size, validation_data=(self.x_test, self.y_test))
+        tuner.search(
+            self.x_train,
+            self.y_train,
+            epochs=epochs,
+            batch_size=batch_size,
+            validation_data=(self.x_test, self.y_test),
+        )
         best_model = tuner.get_best_models(num_models=1)[0]
         if best_model:
             print(best_model.summary())
         return best_model
-
-

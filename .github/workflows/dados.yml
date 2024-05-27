@@ -1,7 +1,7 @@
 name: Coleta de Dados
 on:
   schedule:
-    - cron: "* * 1,15 * *"
+    - cron: "* * 1 * *"
   workflow_dispatch:
 jobs:
     build:

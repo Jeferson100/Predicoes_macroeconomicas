@@ -46,8 +46,8 @@ class ConformalRegressionPlotter:
 
     def plot_prediction_intervals(
         self,
-        index_train,
         index_test,
+        index_train,
         legend="Prediction Intervals",
         y_label="Response Variable",
         title="Prediction Intervals",
@@ -61,6 +61,7 @@ class ConformalRegressionPlotter:
 
         fig = go.Figure()
         # Train data
+
         fig.add_trace(
             go.Scatter(
                 x=index_train,
@@ -70,6 +71,7 @@ class ConformalRegressionPlotter:
                 line=dict(color="blue"),
             )
         )
+
         # Test data
         fig.add_trace(
             go.Scatter(

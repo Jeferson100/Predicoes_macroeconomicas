@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("..")
 from .tratando_economic_brazil import (
     tratando_dados_bcb,
     tratando_dados_expectativas,
@@ -9,6 +12,8 @@ import pandas as pd
 from datetime import datetime
 import warnings
 from functools import lru_cache
+import requests
+from urllib.error import URLError
 
 warnings.filterwarnings("ignore")
 
@@ -73,7 +78,20 @@ def data_economic(
             )
 
         if kwargs.get("ipca", True):
-            dados["ipca"] = tratando_dados_ibge_codigos()["Valor"]
+            try:
+                dados["ipca"] = tratando_dados_ibge_codigos()["Valor"]
+            except requests.exceptions.SSLError as e:
+                error_message = str(e).split()[
+                    :4
+                ]  # Ajuste o número de palavras conforme necessário
+                print(f"Erro na API IBGE: {' '.join(error_message)}")
+                dados_ipca = pd.read_csv("../dados/economic_data_brazil.csv")
+                dados_ipca.index = pd.to_datetime(dados_ipca.Date)
+                dados["ipca"] = dados_ipca["ipca"]
+                ultima_data = dados.index[-1]
+                print(
+                    f"Problema na importação dos dados do IBGE .Arquivo selecionado da memoria com a ultima data sendo {ultima_data}."
+                )
 
         indicadores = {
             "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
@@ -84,7 +102,20 @@ def data_economic(
 
         for key, link in indicadores.items():
             if kwargs.get(key, True):
-                dados[key] = fetch_data_for_code(link, key)
+                try:
+                    dados[key] = fetch_data_for_code(link, key)
+                except URLError as e:
+                    error_message = str(e).split()[
+                        :2
+                    ]  # Ajuste o número de palavras conforme necessário
+                    print(f"Erro na API IBGE Link: {' '.join(error_message)}")
+                    dados_ibge = pd.read_csv("../dados/economic_data_brazil.csv")
+                    dados_ibge.index = pd.to_datetime(dados_ipca.Date)
+                    dados[key] = dados_ibge[key]
+                    ultima_data = dados.index[-1]
+                    print(
+                        f"Problema na importação dos dados do IBGE {key}.Arquivo selecionado da memoria com a ultima data sendo {ultima_data}."
+                    )
             else:
                 print(f"Dados para '{key}' não solicitados.")
 
