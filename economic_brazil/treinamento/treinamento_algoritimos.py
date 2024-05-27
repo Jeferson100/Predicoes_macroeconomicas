@@ -10,9 +10,10 @@ import joblib
 import pickle
 from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
+# pylint: disable=E0401
 from keras.models import load_model
 from keras.losses import MeanSquaredError
-
+# pylint: disable=E0401
 
 class TreinandoModelos:
     def __init__(
