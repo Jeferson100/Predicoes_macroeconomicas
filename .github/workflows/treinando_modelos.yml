@@ -24,7 +24,7 @@ jobs:
         - name: Install dependencies
           run: |
             make install
-        - name: Coleta de Dados
+        - name: Rodando treinamento
           run: |
             cd ./codigos_rodando
             pwd

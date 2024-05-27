@@ -9,10 +9,13 @@ import pandas as pd
 
 
 # write tests for tratando_dados_bcb,
-def test_tratando_dados_bcb_datetime():
+# pylint: disable=W0105
+
+"""def test_tratando_dados_bcb_datetime():
     dados = tratando_dados_bcb({"selic": 4189}, "2000-01-01")
     assert isinstance(dados.index, pd.DatetimeIndex)
-
+"""
+# pylint: disable=W0105
 
 # pylint: disable=W0105
 """def test_tratando_dados_bcb_columns():

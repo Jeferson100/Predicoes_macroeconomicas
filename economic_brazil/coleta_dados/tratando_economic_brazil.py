@@ -1,3 +1,5 @@
+import sys
+sys.path.append('..')
 from .coleta_economic_brazil import (
     dados_bcb,
     dados_ibge_link,
