@@ -4,7 +4,12 @@ from economic_brazil.coleta_dados.economic_data_brazil import data_economic
 from economic_brazil.processando_dados.tratando_dados import TratandoDados
 from economic_brazil.treinamento.treinamento_algoritimos import carregar
 from economic_brazil.analisando_modelos.analise_modelos_regressao import MetricasModelosDicionario,PredicaosModelos
+from economic_brazil.analisando_modelos.regressao_conformal import ConformalRegressionPlotter
+from economic_brazil.predicao_valores_futuros import KerasTrainedRegressor, Predicao
+
+
 import warnings
+import pickle
 warnings.filterwarnings("ignore", category=UserWarning)
 
 #Coleta
@@ -44,7 +49,7 @@ metri.plotando_predicoes(
     index=index_treino,
     title="Predições nos dados de treino",
     save=True,
-    diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/'
+    diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_treino.png',
 )
 
 metri.plotando_predicoes(
@@ -52,6 +57,8 @@ metri.plotando_predicoes(
     predicoes_teste,
     index=index_teste,
     title="Predições nos dados de teste",
+    save=True,
+    diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_teste.png',
 )
 
 metri.plotando_predicoes_go_treino_teste(
@@ -65,3 +72,30 @@ metri.plotando_predicoes_go_treino_teste(
     diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_treino_teste.png',
     type_arquivo='png'
 )
+
+##melhor modelo baseado em MENOR erro absoluto (MAE)
+melhor_modelo = metrica_teste['MAE'].idxmin()
+print(f'Melhor modelo baseado na MAE mais baixo, com valor de {metrica_teste["MAE"].min()}:',melhor_modelo)
+
+#Conformal
+index_treino_conformal = dados[dados.index <= data_divisao_treino_teste].index
+index_teste_conformal = dados[dados.index > data_divisao_treino_teste].index
+if melhor_modelo == 'redes_neurais':
+    conformal = ConformalRegressionPlotter(KerasTrainedRegressor(modelos_carregados[melhor_modelo]), x_treino_recorrente, x_teste_recorrente, y_treino[1:], y_teste[1:])
+    y_pred, y_pis, _,_ = conformal.regressao_conformal()
+    conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/regressao_conforma_teste.png')
+else:
+    conformal = ConformalRegressionPlotter(modelos_carregados[melhor_modelo], x_treino, x_teste, y_treino[1:], y_teste[1:])
+    y_pred, y_pis, _,_ = conformal.regressao_conformal()
+    conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/regressao_conforma_teste.png')
+    
+## Predicao futuro
+predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],coluna='selic')
+dados_predicao_futuro, dados_futuro, index_futuro = predicao.criando_dados_futuros()
+dados_predicao = predicao.criando_dataframe_predicoes()
+print(dados_predicao)
+data_predicao,intervalo_lower,intervalo_upper,predicao_proximo_mes = predicao.predicao_ultimo_periodo()
+with open('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_futuro.pkl', 'wb') as pickle_file:
+    pickle.dump(dados_futuro, pickle_file)
+print(f'Data da predição:{data_predicao}, Valor da predição:{predicao_proximo_mes}, Intervalo de predição [lower,upper] :{intervalo_lower,intervalo_upper}')
+predicao.plotando_predicoes(save=True,diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_futuro.png')

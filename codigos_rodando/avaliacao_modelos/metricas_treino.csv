@@ -1,7 +1,6 @@
 ,MAE,MSE,RMSE,R²
-xg_boost,0.0,0.0,0.0,1.0
-gradiente_boosting,0.11,0.02,0.13,1.0
-sarimax,0.31,1.52,1.23,0.93
-cat_boost,0.53,0.44,0.66,0.98
-redes_neurais,2.29,8.29,2.88,0.63
-regressao_linear,2.83,11.0,3.32,0.51
+gradiente_boosting,2.27,9.4,3.07,0.59
+xg_boost,2.31,9.11,3.02,0.6
+cat_boost,2.79,11.52,3.39,0.5
+regressao_linear,2.94,11.93,3.45,0.48
+redes_neurais,3.02,13.27,3.64,0.42

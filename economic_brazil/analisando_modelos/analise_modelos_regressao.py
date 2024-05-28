@@ -152,7 +152,7 @@ class PredicaosModelos:
         cat_boost=True,
         regressao_linear=True,
         redes_neurais=True,
-        sarimax=True,
+        sarimax=False,
         predicao_futuro=False,
         dados_predicao=None,
         dados_predicao_recorrente=None,
@@ -230,10 +230,10 @@ class PredicaosModelos:
                 )
             if sarimax:
                 predicoes_treino["sarimax"] = self.modelos["sarimax"].predict(
-                    start=0, end=None, exog=self.x_treino
+                    start=0, end=self.x_treino.shape[0] - 2, exog=self.x_treino
                 )
                 predicoes_teste["sarimax"] = self.modelos["sarimax"].predict(
-                    start=0, end=None, exog=self.x_teste
+                    start=0, end=self.x_teste.shape[0] - 1, exog=self.x_teste
                 )
             return predicoes_treino, predicoes_teste
 
@@ -299,6 +299,7 @@ class MetricasModelosDicionario:
         plt.grid(grid)  # Adicionando grade ao gráfico para melhor visualização
         if save:
             plt.savefig(diretorio)
+            plt.close()
         else:
             plt.show()  # Exibindo o gráfico
 
@@ -340,6 +341,7 @@ class MetricasModelosDicionario:
         plt.grid(grid)  # Adicionando grade ao gráfico para melhor visualização
         if save:
             plt.savefig(diretorio)
+            plt.close()
         else:
             plt.show()  # Exibindo o gráfico
 
@@ -468,7 +470,7 @@ class MetricasModelosDicionario:
                 if type_arquivo == "html":
                     pio.write_html(fig, file=diretorio, auto_open=False)
                 else:
-                    pio.write_image(fig, file=diretorio, format='svg')
+                    pio.write_image(fig, file=diretorio, format="svg")
             else:
                 raise ValueError("Diretório não especificado para salvar o gráfico.")
         else:

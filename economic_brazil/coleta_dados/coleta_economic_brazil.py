@@ -1,5 +1,6 @@
 import sys
-sys.path.append('..')
+
+sys.path.append("..")
 import pandas as pd
 from bcb import sgs
 import sidrapy
