@@ -230,10 +230,10 @@ class PredicaosModelos:
                 )
             if sarimax:
                 predicoes_treino["sarimax"] = self.modelos["sarimax"].predict(
-                    start=0, end=self.x_treino.shape[0] - 1, exog=self.x_treino
+                    start=0, end=None, exog=self.x_treino
                 )
                 predicoes_teste["sarimax"] = self.modelos["sarimax"].predict(
-                    start=0, end=self.x_teste.shape[0] - 1, exog=self.x_teste
+                    start=0, end=None, exog=self.x_teste
                 )
             return predicoes_treino, predicoes_teste
 
@@ -358,6 +358,7 @@ class MetricasModelosDicionario:
         grid=True,
         save=False,
         diretorio=None,
+        type_arquivo="png",
     ):
         """
         Função para plotar previsões de séries temporais usando Plotly.
@@ -462,7 +463,12 @@ class MetricasModelosDicionario:
         # Salvando ou exibindo o gráfico
         if save:
             if diretorio:
-                pio.write_image(fig, diretorio)
+                if type_arquivo == "png":
+                    pio.write_image(fig, diretorio)
+                if type_arquivo == "html":
+                    pio.write_html(fig, file=diretorio, auto_open=False)
+                else:
+                    pio.write_image(fig, file=diretorio, format='svg')
             else:
                 raise ValueError("Diretório não especificado para salvar o gráfico.")
         else:

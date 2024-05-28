@@ -13,18 +13,31 @@ from economic_brazil.processando_dados.divisao_treino_teste import treino_test_d
 
 
 class TratandoDados:
-    def __init__(self, df):
+    def __init__(self, df,data_divisao=None):
         self.df = df
         self.scaler_modelo = None
         self.pca_modelo = None
+        self.data_divisao = data_divisao
+        
+    def data_divisao_treino_teste(self):
+        if self.data_divisao is None:
+            data_inicio = self.df[-50:].index[1].strftime('%Y-%m-%d')
+            print('Data divisao de treino e teste:',data_inicio)
+            return data_inicio
+        else:
+            print('Data divisao de treino e teste:',self.data_divisao)
+            return self.data_divisao
 
     # pylint: disable=W0632
     def tratando_divisao(
-        self, dados, divisao_treino_teste="2020-04-01", treino_teste=True
+        self, dados, divisao_treino_teste= None, treino_teste=True
     ):
         """
         Divide os dados em conjuntos de treino e teste.
         """
+        if divisao_treino_teste is None:
+            divisao_treino_teste = self.data_divisao_treino_teste()
+            
         if treino_teste:
             # pylint: disable=W0632
             treino, teste = treino_test_dados(
