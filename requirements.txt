@@ -20,8 +20,8 @@ statsmodels==0.14.0
 scikit-optimize==0.10.0
 catboost==1.2.5
 mapie
-kaleido
-tensorflow==2.15.1
+kaleido==0.2.1
+tensorflow==2.16.1
 shap==0.45.1
 keras==3.3.3
 keras-tuner==1.4.7
