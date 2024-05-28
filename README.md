@@ -1,5 +1,6 @@
 [![Teste Actions](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/teste.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/teste.yml)
 [![Coleta de Dados](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/dados.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/dados.yml)
+[![Treinando Modelos](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_modelos.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_modelos.yml)
 # Projeto de Previsões Macroeconômicas no Brasil
 
 ![Imagem](https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg)
