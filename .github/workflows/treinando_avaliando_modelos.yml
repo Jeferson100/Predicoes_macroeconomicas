@@ -31,7 +31,6 @@ jobs:
             python rodando_treinamento.py
         - name: Avaliando modelos
           run: |
-            cd ..
             cd ./codigos_rodando   
             pwd
             python rodando_avaliacao_modelo.py
