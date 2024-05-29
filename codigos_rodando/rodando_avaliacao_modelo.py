@@ -95,18 +95,44 @@ dados_corformal = {
     'data': index_teste[-1],
     'predicao': y_pred,
     'intervalo_lower': y_pis.squeeze()[0:,0],
-    'intervalo_upper': y_pis.squeeze()[0:,1],}
+    'intervalo_upper': y_pis.squeeze()[0:,1],}    
 
-pd.DataFrame(dados_corformal).to_csv('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/regressao_conforma_teste.csv',index=False)
-    
 ## Predicao futuro
 with parallel_config(backend='threading', n_jobs=2):
     predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],coluna='selic')
-dados_predicao_futuro, dados_futuro, index_futuro = predicao.criando_dados_futuros()
+dados_predicao_futuro, _, index_futuro = predicao.criando_dados_futuros()
 dados_predicao = predicao.criando_dataframe_predicoes()
+#dados_predicao.to_csv('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_predicao.csv',index=False)
 print(dados_predicao)
 data_predicao,intervalo_lower,intervalo_upper,predicao_proximo_mes = predicao.predicao_ultimo_periodo()
-with open('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_futuro.pkl', 'wb') as pickle_file:
-    pickle.dump(dados_futuro, pickle_file)
+dados_futuro = {
+    'data': data_predicao,
+    'intervalo_lower': intervalo_lower,
+    'intervalo_upper': intervalo_upper,
+    'predicao': predicao_proximo_mes}
 print(f'Data da predição:{data_predicao}, Valor da predição:{predicao_proximo_mes}, Intervalo de predição [lower,upper] :{intervalo_lower,intervalo_upper}')
 predicao.plotando_predicoes(save=True,diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_futuro.png')
+
+###salvando os dados
+dados_salvos = {}
+dados_salvos['y_treino'] = y_treino
+dados_salvos['x_treino'] = x_treino
+dados_salvos['y_treino_recorrente'] = y_treino_recorrente
+dados_salvos['x_treino_recorrente'] = x_treino_recorrente
+dados_salvos['x_teste'] = x_teste
+dados_salvos['y_teste'] = y_teste
+dados_salvos['y_teste_recorrente'] = y_teste_recorrente
+dados_salvos['x_teste_recorrente'] = x_teste_recorrente
+dados_salvos['metrica_teste'] = metrica_teste
+dados_salvos['metrica_treino'] = metrica_treino
+dados_salvos['predicoes_treino'] = predicoes_treino
+dados_salvos['predicoes_teste'] = predicoes_teste
+dados_salvos['index_treino'] = index_treino
+dados_salvos['index_teste'] = index_teste
+dados_salvos['melhor_modelo'] = melhor_modelo
+dados_salvos['dados_conformal'] = dados_corformal
+dados_salvos['dados_predicao'] = dados_predicao
+dados_salvos['dados_futuro'] = dados_futuro
+dados_salvos['modelos_carregados'] = list(modelos_carregados.keys())
+with open('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_salvos.pkl', 'wb') as f:
+    pickle.dump(dados_salvos, f)

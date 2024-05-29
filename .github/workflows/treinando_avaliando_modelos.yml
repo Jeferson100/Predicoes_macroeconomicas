@@ -31,9 +31,10 @@ jobs:
             python rodando_treinamento.py
         - name: Avaliando modelos
           run: |
+            cd ..
             cd ./codigos_rodando   
             pwd
-            python avaliando_modelos.py
+            python rodando_avaliacao_modelo.py
         - name: Configure Git
           run: |
             git config --global user.email "sehnemjeferson@gmail.com"
