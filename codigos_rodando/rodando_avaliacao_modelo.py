@@ -33,11 +33,11 @@ metri = MetricasModelosDicionario()
 metrica_teste = metri.calculando_metricas(predicoes_teste, y_teste, y_teste_recorrente)
 metrica_treino = metri.calculando_metricas(predicoes_treino, y_treino, y_treino_recorrente)
 
-metrica_teste
-metrica_treino
+print(metrica_teste)
+print(metrica_treino)
 
-metrica_teste.to_csv("/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/metricas_teste.csv")
-metrica_treino.to_csv("/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/metricas_treino.csv")
+#metrica_teste.to_csv("/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/metricas_teste.csv")
+#metrica_treino.to_csv("/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/metricas_treino.csv")
 
 index_treino = dados[dados.index <= data_divisao_treino_teste][6:].index
 index_teste = dados[dados.index > data_divisao_treino_teste][4:].index
