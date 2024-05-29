@@ -1,4 +1,4 @@
-name: Treinando Modelos
+name: Treinando Modelos e Avaliando Modelos
 on:
 
   schedule:
@@ -31,6 +31,7 @@ jobs:
             python rodando_treinamento.py
         - name: Avaliando modelos
           run: |
+            cd ./codigos_rodando   
             pwd
             python avaliando_modelos.py
         - name: Configure Git

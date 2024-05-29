@@ -22,7 +22,7 @@ catboost==1.2.5
 mapie
 kaleido==0.2.1
 tensorflow==2.16.1
-shap==0.45.1
+shap==0.43.0
 keras==3.3.3
 keras-tuner==1.4.7
 streamlit==1.35.0
