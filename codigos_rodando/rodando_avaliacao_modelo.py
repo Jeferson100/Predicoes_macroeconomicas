@@ -49,7 +49,7 @@ metri.plotando_predicoes(
     index=index_treino,
     title="Predições nos dados de treino",
     save=True,
-    diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_treino.png',
+    diretorio='../codigos_rodando/avaliacao_modelos/predicao_treino.png',
 )
 
 metri.plotando_predicoes(
@@ -58,7 +58,7 @@ metri.plotando_predicoes(
     index=index_teste,
     title="Predições nos dados de teste",
     save=True,
-    diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_teste.png',
+    diretorio='../codigos_rodando/avaliacao_modelos/predicao_teste.png',
 )
 
 metri.plotando_predicoes_go_treino_teste(
@@ -69,7 +69,7 @@ metri.plotando_predicoes_go_treino_teste(
     index_treino,
     index_teste,
     save=True,
-    diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_treino_teste.png',
+    diretorio='../codigos_rodando/avaliacao_modelos/predicao_treino_teste.png',
     type_arquivo='png'
 )
 
@@ -111,7 +111,7 @@ dados_futuro = {
     'intervalo_upper': intervalo_upper,
     'predicao': predicao_proximo_mes}
 print(f'Data da predição:{data_predicao}, Valor da predição:{predicao_proximo_mes}, Intervalo de predição [lower,upper] :{intervalo_lower,intervalo_upper}')
-predicao.plotando_predicoes(save=True,diretorio='/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/predicao_futuro.png')
+predicao.plotando_predicoes(save=True,diretorio='../codigos_rodando/avaliacao_modelos/predicao_futuro.png')
 
 ###salvando os dados
 dados_salvos = {}
@@ -134,5 +134,5 @@ dados_salvos['dados_conformal'] = dados_corformal
 dados_salvos['dados_predicao'] = dados_predicao
 dados_salvos['dados_futuro'] = dados_futuro
 dados_salvos['modelos_carregados'] = list(modelos_carregados.keys())
-with open('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_salvos.pkl', 'wb') as f:
+with open('../codigos_rodando/avaliacao_modelos/apresentacao_streamlt/dados_salvos.pkl', 'wb') as f:
     pickle.dump(dados_salvos, f)
