@@ -18,9 +18,14 @@ st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel Selic",
 path_diretorio = os.getcwd()
 
 #################################################### Carregando dados ############################################################
+try:
+    arquivo = path_diretorio+'/dados_salvos.pkl'
+    dados_salvos = pickle.load(open(arquivo, 'rb'))
+except FileNotFoundError:
+    arquivo = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlt/dados_salvos.pkl'
+    dados_salvos = pickle.load(open(arquivo, 'rb'))
 
 if "dados_salvos" not in st.session_state:
-    dados_salvos = pickle.load(open(path_diretorio+'/dados_salvos.pkl', 'rb'))
     st.session_state["dados_salvos"] = dados_salvos
     st.session_state['x_treino'] = dados_salvos['x_treino']
     st.session_state['x_teste'] = dados_salvos['x_teste']
