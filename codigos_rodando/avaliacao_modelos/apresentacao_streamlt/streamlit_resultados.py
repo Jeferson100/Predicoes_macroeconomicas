@@ -7,17 +7,20 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import warnings
-
+import os
 warnings.filterwarnings("ignore")
 
 st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel Selic",
                    page_icon="https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg",
                    layout="wide")
 
+#dados_path = os.path.join(os.getcwd(), 'dados_salvos.pkl')
+
+
 #################################################### Carregando dados ############################################################
 
 if "dados_salvos" not in st.session_state:
-    dados_salvos = pickle.load(open('../codigos_rodando/avaliacao_modelos/apresentacao_streamlt/dados_salvos.pkl', 'rb'))
+    dados_salvos = pickle.load(open('dados_salvos.pkl', 'rb'))
     st.session_state["dados_salvos"] = dados_salvos
     st.session_state['x_treino'] = dados_salvos['x_treino']
     st.session_state['x_teste'] = dados_salvos['x_teste']

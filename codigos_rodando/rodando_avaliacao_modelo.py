@@ -10,7 +10,9 @@ import pandas as pd
 from joblib import parallel_config
 import warnings
 import pickle
+import os
 warnings.filterwarnings("ignore", category=UserWarning)
+path_codigos_rodando = os.path.join(os.getcwd())
 
 #Coleta
 dados = data_economic()
@@ -21,7 +23,7 @@ x_treino, x_teste, y_treino, y_teste,pca, scaler = tratando.tratando_dados()
 data_divisao_treino_teste = tratando.data_divisao_treino_teste()
 
 #Carregando modelos
-modelos_carregados = carregar(diretorio='../codigos_rodando/modelos_salvos/',gradiente_boosting=True, xg_boost=True, cat_boost=True, regressao_linear=True, redes_neurais=True, sarimax=True)
+modelos_carregados = carregar(diretorio=path_codigos_rodando+'/modelos_salvos/',gradiente_boosting=True, xg_boost=True, cat_boost=True, regressao_linear=True, redes_neurais=True, sarimax=True)
 
 #Prevendo os dados de treino e teste
 predi = PredicaosModelos(modelos_carregados, x_treino, y_treino, x_teste, y_teste)
@@ -49,7 +51,7 @@ metri.plotando_predicoes(
     index=index_treino,
     title="Predições nos dados de treino",
     save=True,
-    diretorio='../codigos_rodando/avaliacao_modelos/predicao_treino.png',
+    diretorio=path_codigos_rodando+'/avaliacao_modelos/predicao_treino.png',
 )
 
 metri.plotando_predicoes(
@@ -58,7 +60,7 @@ metri.plotando_predicoes(
     index=index_teste,
     title="Predições nos dados de teste",
     save=True,
-    diretorio='../codigos_rodando/avaliacao_modelos/predicao_teste.png',
+    diretorio=path_codigos_rodando+'/avaliacao_modelos/predicao_teste.png',
 )
 
 metri.plotando_predicoes_go_treino_teste(
@@ -69,7 +71,7 @@ metri.plotando_predicoes_go_treino_teste(
     index_treino,
     index_teste,
     save=True,
-    diretorio='../codigos_rodando/avaliacao_modelos/predicao_treino_teste.png',
+    diretorio=path_codigos_rodando+'/avaliacao_modelos/predicao_treino_teste.png',
     type_arquivo='png'
 )
 
@@ -111,7 +113,7 @@ dados_futuro = {
     'intervalo_upper': intervalo_upper,
     'predicao': predicao_proximo_mes}
 print(f'Data da predição:{data_predicao}, Valor da predição:{predicao_proximo_mes}, Intervalo de predição [lower,upper] :{intervalo_lower,intervalo_upper}')
-predicao.plotando_predicoes(save=True,diretorio='../codigos_rodando/avaliacao_modelos/predicao_futuro.png')
+predicao.plotando_predicoes(save=True,diretorio=path_codigos_rodando+'/avaliacao_modelos/predicao_futuro.png')
 
 ###salvando os dados
 dados_salvos = {}
@@ -134,5 +136,5 @@ dados_salvos['dados_conformal'] = dados_corformal
 dados_salvos['dados_predicao'] = dados_predicao
 dados_salvos['dados_futuro'] = dados_futuro
 dados_salvos['modelos_carregados'] = list(modelos_carregados.keys())
-with open('../codigos_rodando/avaliacao_modelos/apresentacao_streamlt/dados_salvos.pkl', 'wb') as f:
+with open(path_codigos_rodando+'/avaliacao_modelos/apresentacao_streamlt/dados_salvos.pkl', 'wb') as f:
     pickle.dump(dados_salvos, f)
