@@ -15,12 +15,12 @@ st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel Selic",
                    layout="wide")
 
 #dados_path = os.path.join(os.getcwd(), 'dados_salvos.pkl')
-
+path_diretorio = os.getcwd()
 
 #################################################### Carregando dados ############################################################
 
 if "dados_salvos" not in st.session_state:
-    dados_salvos = pickle.load(open('dados_salvos.pkl', 'rb'))
+    dados_salvos = pickle.load(open(path_diretorio+'/dados_salvos.pkl', 'rb'))
     st.session_state["dados_salvos"] = dados_salvos
     st.session_state['x_treino'] = dados_salvos['x_treino']
     st.session_state['x_teste'] = dados_salvos['x_teste']
