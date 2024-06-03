@@ -3,7 +3,7 @@
 [![Treinando Modelos e Avaliando Modelos](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml)
 # Previsões Macroeconômicas da Economia Brasileira
 
-![Dashboard](/workspaces/Predicoes_macroeconomicas/imagens/strealit_predicoes_economicas.png)
+![Dashboard](imagens/strealit_predicoes_economicas.png)
 
 Este é um projeto de análise e previsões macroeconômicas focado na economia do Brasil. Nosso objetivo é utilizar dados históricos e modelos de aprendizado de máquina para entender tendências passadas e fazer previsões sobre indicadores macroeconômicos importantes, como o Produto Interno Bruto (PIB), taxa de inflação, taxa de desemprego e outros.
 
