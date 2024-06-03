@@ -1,31 +1,49 @@
 [![Teste Actions](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/teste.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/teste.yml)
 [![Coleta de Dados](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/dados.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/dados.yml)
 [![Treinando Modelos e Avaliando Modelos](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml)
-# Projeto de Previsões Macroeconômicas no Brasil
+# Previsões Macroeconômicas da Economia Brasileira
 
-![Imagem](https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg)
-
+![Dashboard](/workspaces/Predicoes_macroeconomicas/imagens/strealit_predicoes_economicas.png)
 
 Este é um projeto de análise e previsões macroeconômicas focado na economia do Brasil. Nosso objetivo é utilizar dados históricos e modelos de aprendizado de máquina para entender tendências passadas e fazer previsões sobre indicadores macroeconômicos importantes, como o Produto Interno Bruto (PIB), taxa de inflação, taxa de desemprego e outros.
 
-Motivação
+## Motivação
 
-A economia brasileira é altamente dinâmica e influenciada por uma variedade de fatores, incluindo mudanças nas políticas governamentais, flutuações nos preços das commodities, oscilações cambiais e muito mais. A capacidade de prever com precisão esses indicadores é crucial para investidores, tomadores de decisão políticos e empresas que desejam se adaptar às condições econômicas em constante mudança.
+A economia brasileira é altamente dinâmica e influenciada por uma variedade de fatores, incluindo mudanças nas políticas governamentais, flutuações nos preços das commodities, oscilações cambiais e muito mais. Prever com precisão esses indicadores é crucial para investidores, tomadores de decisão políticos e empresas que desejam se adaptar às condições econômicas em constante mudança.
 
-Dados Utilizados
+## Dados Utilizados
 
-Nossas análises se baseiam em uma ampla gama de dados macroeconômicos, incluindo séries temporais de longo prazo de várias fontes confiáveis, como o Instituto Brasileiro de Geografia e Estatística (IBGE), Banco Central do Brasil, Fundação Getúlio Vargas (FGV) e outras. Esses dados abrangem décadas de informações sobre variáveis econômicas cruciais.
+Nossas análises se baseiam em uma ampla gama de dados macroeconômicos de fontes confiáveis:
+- **Instituto Brasileiro de Geografia e Estatística (IBGE)**
+- **Banco Central do Brasil**
+- **Fundação Getúlio Vargas (FGV)**
+- **Outras fontes confiáveis**
 
-Metodologia
+Esses dados abrangem décadas de informações sobre variáveis econômicas cruciais.
+
+## Metodologia
 
 Utilizamos técnicas avançadas de análise de séries temporais e aprendizado de máquina para construir modelos que possam capturar padrões históricos e fornecer previsões confiáveis. Nossos modelos são ajustados regularmente para refletir as últimas informações econômicas e ajustes nas condições do mercado.
 
-Resultados
+## Resultados
 
-Este repositório contém os resultados de nossas previsões macroeconômicas, incluindo gráficos, análises estatísticas e relatórios detalhados sobre nossos modelos. Atualizamos regularmente as previsões à medida que novos dados são lançados.
+Este repositório contém os resultados de nossas previsões macroeconômicas, incluindo:
+- **Gráficos**
+- **Análises estatísticas**
+- **Relatórios detalhados sobre nossos modelos**
 
-Como Contribuir
+Atualizamos regularmente as previsões à medida que novos dados são lançados.
 
-Convidamos você a contribuir para este projeto. Se você é um especialista em economia, cientista de dados ou apenas está interessado em análise econômica, sua contribuição é valiosa. Você pode ajudar a melhorar nossos modelos, adicionar novas fontes de dados, corrigir erros ou propor novas análises.
+## Como Contribuir
 
+Convidamos você a contribuir para este projeto. Se você é um especialista em economia, cientista de dados ou apenas está interessado em análise econômica, sua contribuição é valiosa. Você pode ajudar a:
+- **Melhorar nossos modelos**
+- **Adicionar novas fontes de dados**
+- **Corrigir erros**
+- **Propor novas análises**
 
+---
+
+Explore nosso trabalho e participe dessa iniciativa para melhor compreender a economia brasileira!
+
+[Explore o Dashboard](https://predicao-economica-selic.streamlit.app/)
