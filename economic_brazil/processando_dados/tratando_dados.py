@@ -29,7 +29,9 @@ class TratandoDados:
             return self.data_divisao
 
     # pylint: disable=W0632
-    def tratando_divisao(self, dados, divisao_treino_teste=None, treino_teste=True):
+    def tratando_divisao(
+        self, dados, treino_teste=True, divisao_treino_teste=None, coluna=None
+    ):
         """
         Divide os dados em conjuntos de treino e teste.
         """
@@ -46,7 +48,7 @@ class TratandoDados:
         else:
             # pylint: disable=W0632
             x_treino, y_treino, x_teste, y_teste = treino_test_dados(
-                dados, data_divisao=divisao_treino_teste
+                dados, data_divisao=divisao_treino_teste, coluna=coluna
             )
             return x_treino, y_treino, x_teste, y_teste
 

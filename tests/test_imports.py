@@ -103,3 +103,20 @@ def test_regressao_conformal():
     )
 
     # pylint: disable=unused-import
+
+
+def test_treinamento_algoritmos():
+    # pylint: disable=unused-import
+    from economic_brazil.treinamento.treinamento_algoritimos import (
+        carregar,
+        TreinandoModelos,
+    )
+
+    # pylint: disable=unused-import
+
+
+def test_tratando_dados():
+    # pylint: disable=unused-import
+    from economic_brazil.processando_dados.tratando_dados import TratandoDados
+
+    # pylint: disable=unused-import
