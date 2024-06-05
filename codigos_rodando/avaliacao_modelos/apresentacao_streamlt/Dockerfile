@@ -13,10 +13,12 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/Jeferson100/Predicoes_macroeconomicas.git
 
-#WORKDIR /app/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlt
+WORKDIR /app/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlt
+
+COPY . .
 
 RUN pip install --upgrade pip && \
-    pip install -r /app/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlt/requirements.txt
+    pip install -r requirements.txt
 
 EXPOSE 8501
 
