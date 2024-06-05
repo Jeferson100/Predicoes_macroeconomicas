@@ -29,7 +29,6 @@ jobs:
       run: |
         cd codigos_rodando/avaliacao_modelos/apresentacao_streamlt
         pwd
-        ls - l
         docker build -t streamlit_predicao_selic .
         docker tag streamlit_predicao_selic jefersonsehnem/streamlit_predicao_selic:latest
         docker push jefersonsehnem/streamlit_predicao_selic:latest
