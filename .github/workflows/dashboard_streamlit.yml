@@ -19,11 +19,11 @@ jobs:
     - name: Entrando no diretório da aplicacão
       run: |
         pwd
-        cd /codigos_rodando
+        cd codigos_rodando
         pwd
-        cd /avalacao_modelos
+        cd avalacao_modelos
         pwd
-        cd /dashboard
+        cd dashboard
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
