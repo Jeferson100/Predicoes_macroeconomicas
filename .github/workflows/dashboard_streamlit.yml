@@ -19,12 +19,8 @@ jobs:
     - name: Entrando no diretório da aplicacão
       run: |
         pwd
-        cd codigos_rodando
+        cd codigos_rodando/avaliacao_modelos/apresentacao_streamlt
         pwd
-        cd avaliacao_modelos
-        pwd
-        cd apresentacao_streamlt
-
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
