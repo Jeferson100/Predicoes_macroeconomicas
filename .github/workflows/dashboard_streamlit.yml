@@ -15,7 +15,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-        
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
@@ -25,14 +25,11 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     
-    - name: Build and push
-      run: |
-       pwd
-       cd codigos_rodando/avaliacao_modelos/apresentacao_streamlt
-       pwd
-    
     - name: Build and push Docker image
       run: |
+        cd codigos_rodando/avaliacao_modelos/apresentacao_streamlt
+        pwd
+        ls - l
         docker build -t streamlit_predicao_selic .
         docker tag streamlit_predicao_selic jefersonsehnem/streamlit_predicao_selic:latest
         docker push jefersonsehnem/streamlit_predicao_selic:latest
