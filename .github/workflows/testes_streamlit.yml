@@ -1,0 +1,30 @@
+# https://docs.streamlit.io/develop/concepts/app-testing/automate-tests
+name: Streamlit app
+on:
+  push:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  app-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: streamlit/streamlit-app-action@v0.0.3
+        with:
+          app-path: codigos_rodando/avaliacao_modelos/apresentacao_streamlit/streamlit_resultados.py
+          ruff: true
+          pytest-args: -v --junit-xml=test-results.xml
+      - if: always()
+        uses: pmeier/pytest-results-action@v0.6.0
+        with:
+          path: test-results.xml
+          summary: true
+          display-options: fEX

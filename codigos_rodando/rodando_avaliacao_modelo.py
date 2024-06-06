@@ -136,5 +136,6 @@ dados_salvos['dados_conformal'] = dados_corformal
 dados_salvos['dados_predicao'] = dados_predicao
 dados_salvos['dados_futuro'] = dados_futuro
 dados_salvos['modelos_carregados'] = list(modelos_carregados.keys())
-with open(path_codigos_rodando+'/avaliacao_modelos/apresentacao_streamlt/dados_salvos.pkl', 'wb') as f:
+
+with open(path_codigos_rodando+'/avaliacao_modelos/apresentacao_streamlit/dados_salvos.pkl', 'wb') as f:
     pickle.dump(dados_salvos, f)
