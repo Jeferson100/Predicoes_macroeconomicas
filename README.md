@@ -3,7 +3,7 @@
 [![Treinando Modelos e Avaliando Modelos](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml)
 # Previsões Macroeconômicas da Economia Brasileira
 
-[Explore o Dashboard](https://predicao-economica-selic.streamlit.app/)
+[Explore o Dashboard](https://predicao-selic.streamlit.app/)
 
 ![Dashboard](imagens/strealit_predicoes_economicas.png)
 
