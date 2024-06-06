@@ -1,5 +1,7 @@
 ## https://docs.streamlit.io/deploy/tutorials/docker
 
+##Para ativar o Streamlit, basta executar o seguinte comando: docker run -p 8501:8501 streamlit
+
 FROM python:3.9-slim
 
 WORKDIR /app
@@ -13,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/Jeferson100/Predicoes_macroeconomicas.git
 
-WORKDIR /app/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlt
+WORKDIR /app/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit
 
 COPY . .
 
