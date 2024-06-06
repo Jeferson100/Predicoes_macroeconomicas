@@ -1,6 +1,7 @@
 [![Teste Actions](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/teste.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/teste.yml)
 [![Coleta de Dados](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/dados.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/dados.yml)
 [![Treinando Modelos e Avaliando Modelos](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/treinando_avaliando_modelos.yml)
+[![Construindo and Push Docker Image](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/register_docker_streamlit.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/register_docker_streamlit.yml)
 # Previsões Macroeconômicas da Economia Brasileira
 
 [Explore o Dashboard](https://predicao-selic.streamlit.app/)

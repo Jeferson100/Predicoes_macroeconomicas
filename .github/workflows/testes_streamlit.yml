@@ -1,5 +1,5 @@
 # https://docs.streamlit.io/develop/concepts/app-testing/automate-tests
-name: Streamlit app
+name: TesteStreamlit app
 on:
   push:
     branches: ["main"]
@@ -13,22 +13,19 @@ jobs:
   app-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    - name: Copia os arquivos do repo
+      uses: actions/checkout@v4
 
-      - name: Run Ruff to fix linting issues
-        run: ruff --fix .
-        
-      - uses: streamlit/streamlit-app-action@v0.0.3
-        with:
-          app-path: codigos_rodando/avaliacao_modelos/apresentacao_streamlit/streamlit_resultados.py
-          ruff: true
-          pytest-args: -v --junit-xml=test-results.xml
-      - if: always()
-        uses: pmeier/pytest-results-action@v0.6.0
-        with:
-          path: test-results.xml
-          summary: true
-          display-options: fEX
+    - name: Instalando o Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Rodando test atraves do selenium
+      run: |
+        cd codigos_rodando/avaliacao_modelos/apresentacao_streamlit
+        pip install -r requirements.txt
+        python test_deploy_streamlit.py
+
+
+      
