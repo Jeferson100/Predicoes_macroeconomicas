@@ -1,5 +1,5 @@
 #https://docs.streamlit.io/develop/concepts/app-testing/automate-tests
-name: Build and Push Docker Image 
+name: Construindo and Push Docker Image 
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
     
     - name: Build and push Docker image
       run: |
-        cd codigos_rodando/avaliacao_modelos/apresentacao_streamlt
+        cd codigos_rodando/avaliacao_modelos/apresentacao_streamlit
         pwd
         docker build -t streamlit_predicao_selic .
         docker tag streamlit_predicao_selic jefersonsehnem/streamlit_predicao_selic:latest
