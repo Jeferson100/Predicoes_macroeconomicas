@@ -9,16 +9,7 @@
 
 ![Dashboard](imagens/strealit_predicoes_economicas.png)
 
-
-<div>
-  <iframe id="inlineFrameExample"
-      title="Inline Frame Example"
-      width="300"
-      height="200"
-      src="https://predicao-selic.streamlit.app/">
-  </iframe>
-</div>
-
+## Introdução
 
 Este é um projeto de análise e previsões macroeconômicas focado na economia do Brasil. Nosso objetivo é utilizar dados históricos e modelos de aprendizado de máquina para entender tendências passadas e fazer previsões sobre indicadores macroeconômicos importantes, como o Produto Interno Bruto (PIB), taxa de inflação, taxa de desemprego e outros.
 
@@ -61,4 +52,3 @@ Convidamos você a contribuir para este projeto. Se você é um especialista em 
 
 Explore nosso trabalho e participe dessa iniciativa para melhor compreender a economia brasileira!
 
-[Explore o Dashboard](https://predicao-economica-selic.streamlit.app/)

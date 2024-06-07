@@ -14,6 +14,7 @@ st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel Selic",
                    page_icon="https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg",
                    layout="wide")
 
+
 #dados_path = os.path.join(os.getcwd(), 'dados_salvos.pkl')
 path_diretorio = os.getcwd()
 
@@ -74,15 +75,29 @@ st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôec
 
 ###################################################### Sidebar github ########################################################
 
-#Colocando um link para meu github
-st.sidebar.markdown("Produzido por: https://github.com/Jeferson100")
-# Create for Selecionador
+st.sidebar.markdown(
+    '''
+    <img src="https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg" 
+    style="width: 300px; height: auto;">
+    ''',
+    unsafe_allow_html=True
+)
 
+st.sidebar.markdown("---")
 
 ###################################################### Filtrando modeloss ########################################################
 st.sidebar.header("Escolha um dos Modelos:")
 
 modelos_filtrados = st.sidebar.multiselect("Escolha um dos Modelos:", modelos_carregados)
+
+st.sidebar.markdown("---")
+
+# Exibir imagem do GitHub
+st.sidebar.markdown("<h1 style='text-align: ; color: black;'>Contatos</h1>", unsafe_allow_html=True)
+
+st.sidebar.markdown("[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github)](https://github.com/Jeferson100)")
+
+
 
 # Adcionando filtragem por modelos
 modelos_filtrados_lista = []
