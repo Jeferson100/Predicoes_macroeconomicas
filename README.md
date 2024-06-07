@@ -7,7 +7,7 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://predicao-selic.streamlit.app/)
 
 
-[steamlit_app.webm](https://github.com/Jeferson100/Predicoes_macroeconomicas/assets/56743554/bfe17414-ba51-41d7-9669-25adf61f6b9a)
+[Video app streamlit](https://github.com/Jeferson100/Predicoes_macroeconomicas/assets/56743554/bfe17414-ba51-41d7-9669-25adf61f6b9a)
 
 ## Introdução
 
