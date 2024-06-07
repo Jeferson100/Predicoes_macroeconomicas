@@ -17,10 +17,7 @@ def app_test():
         "codigos_rodando/avaliacao_modelos/apresentacao_streamlit/streamlit_resultados.py",
         default_timeout=50,
     ).run()
-
-
 # pylint: disable=W0621
-
 
 def test_streamlit_app_rodando(app_test):
     # Testa se o app foi iniciado corretamente

@@ -8,6 +8,7 @@
 
 [Video app streamlit](https://github.com/Jeferson100/Predicoes_macroeconomicas/assets/56743554/22a787af-0dcc-4688-979a-e00aa9c5d516)
 
+
 ## Introdução
 
 Este é um projeto de análise e previsões macroeconômicas focado na economia do Brasil. Nosso objetivo é utilizar dados históricos e modelos de aprendizado de máquina para entender tendências passadas e fazer previsões sobre indicadores macroeconômicos importantes, como o Produto Interno Bruto (PIB), taxa de inflação, taxa de desemprego e outros.
