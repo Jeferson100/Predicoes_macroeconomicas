@@ -4,9 +4,15 @@
 [![Construindo and Push Docker Image](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/register_docker_streamlit.yml/badge.svg)](https://github.com/Jeferson100/Predicoes_macroeconomicas/actions/workflows/register_docker_streamlit.yml)
 # Previsões Macroeconômicas da Economia Brasileira
 
-[Explore o Dashboard](https://predicao-selic.streamlit.app/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://predicao-selic.streamlit.app/)
+
 
 ![Dashboard](imagens/strealit_predicoes_economicas.png)
+
+<iframe
+  src="https://predicao-selic.streamlit.app/?embed=true"
+  style="height: 450px; width: 100%;"
+></iframe>
 
 Este é um projeto de análise e previsões macroeconômicas focado na economia do Brasil. Nosso objetivo é utilizar dados históricos e modelos de aprendizado de máquina para entender tendências passadas e fazer previsões sobre indicadores macroeconômicos importantes, como o Produto Interno Bruto (PIB), taxa de inflação, taxa de desemprego e outros.
 
