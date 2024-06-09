@@ -1,5 +1,4 @@
 import sys
-
 sys.path.append("..")
 import pytest
 from sklearn.model_selection import train_test_split
