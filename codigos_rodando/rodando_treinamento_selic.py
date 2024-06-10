@@ -12,7 +12,7 @@ dados = data_economic()
 tratando = TratandoDados(dados)
 x_treino, x_teste, y_treino, y_teste,pca, scaler = tratando.tratando_dados()
 
-tuning = TreinandoModelos(x_treino, y_treino, x_teste, y_teste,diretorio='../codigos_rodando/modelos_salvos/',salvar_modelo=True)
+tuning = TreinandoModelos(x_treino, y_treino, x_teste, y_teste,diretorio='../codigos_rodando/modelos_salvos/modelos_selic/',salvar_modelo=True)
 
 modelos_tunning = tuning.treinar_modelos(redes_neurais=True,sarimax=False)
 

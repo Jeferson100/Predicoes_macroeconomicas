@@ -28,12 +28,12 @@ jobs:
           run: |
             cd ./codigos_rodando
             pwd
-            python rodando_treinamento.py
+            python rodando_treinamento_selic.py
         - name: Avaliando modelos
           run: |
             cd ./codigos_rodando   
             pwd
-            python rodando_avaliacao_modelo.py
+            python rodando_avaliacao_modelo_selic.py
         - name: Configure Git
           run: |
             git config --global user.email "sehnemjeferson@gmail.com"

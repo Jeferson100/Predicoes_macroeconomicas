@@ -10,7 +10,10 @@ import warnings
 import os
 warnings.filterwarnings("ignore")
 
-st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel Selic",
+###############################################################################################Defina a variável##########################################################################
+variavel = 'selic'
+
+st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel {variavel}",
                    page_icon="https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg",
                    layout="wide")
 
@@ -20,10 +23,10 @@ path_diretorio = os.getcwd()
 
 #################################################### Carregando dados ############################################################
 try:
-    arquivo = path_diretorio+'/dados_salvos.pkl'
+    arquivo = path_diretorio+f'/dados_salvos_{variavel}.pkl'
     dados_salvos = pickle.load(open(arquivo, 'rb'))
 except FileNotFoundError:
-    arquivo = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos.pkl'
+    arquivo = f'/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_{variavel}.pkl'
     dados_salvos = pickle.load(open(arquivo, 'rb'))
 
 if "dados_salvos" not in st.session_state:
@@ -70,7 +73,7 @@ modelos_carregados = st.session_state['modelos_carregados']
 
 
 ###################################################################### Titulo da Apresentação ########################################################
-st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôeconomicas: Variável Selic para a data {dados_futuros['data']}</h1>", unsafe_allow_html=True)
+st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôeconomicas: Variável {variavel} para a data {dados_futuros['data']}</h1>", unsafe_allow_html=True)
 
 
 ###################################################### Sidebar github ########################################################
