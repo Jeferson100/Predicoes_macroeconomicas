@@ -30,10 +30,7 @@ try:
     from economic_brazil.coleta_dados.economic_data_brazil import data_economic
     dados_economicos = data_economic()
 except:
-    sys.path.append('/mount/src/predicoes_macroeconomicas')
-    from economic_brazil.coleta_dados.economic_data_brazil import data_economic
-    dados_economicos = data_economic()
-    #dados_economicos = pd.read_csv('/mount/src/Predicoes_macroeconomicas/dados/dados_bcb.csv')
+    dados_economicos = pd.read_csv('/mount/src/Predicoes_macroeconomicas/dados/dados_bcb.csv')
 
 if "dados_salvos_selic" not in st.session_state:
     st.session_state['dados_futuro'] = dados_salvos_selic['dados_futuro']
