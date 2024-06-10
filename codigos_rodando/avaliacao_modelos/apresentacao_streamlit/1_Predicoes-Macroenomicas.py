@@ -8,7 +8,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import warnings
 import os
-from economic_brazil.coleta_dados.economic_data_brazil import data_economic
 warnings.filterwarnings("ignore")
 
 st.set_page_config(page_title=f"Predições Macroeconomicas",
@@ -28,9 +27,13 @@ except FileNotFoundError:
     dados_salvos_selic = pickle.load(open(arquivo, 'rb'))
     
 try:
+    from economic_brazil.coleta_dados.economic_data_brazil import data_economic
     dados_economicos = data_economic()
 except:
-    dados_economicos = pd.read_csv('/mount/src/Predicoes_macroeconomicas/dados/dados_bcb.csv')
+    sys.path.append('/mount/src/predicoes_macroeconomicas')
+    from economic_brazil.coleta_dados.economic_data_brazil import data_economic
+    dados_economicos = data_economic()
+    #dados_economicos = pd.read_csv('/mount/src/Predicoes_macroeconomicas/dados/dados_bcb.csv')
 
 if "dados_salvos_selic" not in st.session_state:
     st.session_state['dados_futuro'] = dados_salvos_selic['dados_futuro']
