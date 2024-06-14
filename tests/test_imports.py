@@ -3,7 +3,7 @@
 
 def test_imports_economic_brazil():
     # pylint: disable=unused-import
-    from economic_brazil.coleta_dados.economic_data_brazil import data_economic
+    from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
 
     # pylint: disable=unused-import
 

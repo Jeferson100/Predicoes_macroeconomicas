@@ -1,7 +1,10 @@
+import sys
+
+sys.path.append("..")
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from economic_brazil.processando_dados.tratando_dados import TratandoDados
-from economic_brazil.coleta_dados.economic_data_brazil import data_economic
+from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
 import pytest
 
 
@@ -17,7 +20,12 @@ def sample_data():
         pandas.DataFrame: The sample dataset.
     """
     # pylint: disable=W0621
-    dados = data_economic(data_inicio="2000-01-01")
+    economic_brazil = EconomicBrazil(data_inicio="2000-01-01")
+    dados = economic_brazil.dados_brazil(
+        dados_metas_inflacao=False,
+        dados_ibge_link=False,
+        dados_expectativas_inflacao=False,
+    )
     # pylint: disable=W0621
     return dados
 
@@ -31,10 +39,11 @@ def test_data_divisao_treino_teste(sample_data):
 
 
 def test_tratando_divisao_y_treino_y_teste_x_treino_x_teste(sample_data):
-    processer = TratandoDados(sample_data)
+    coluna_label = sample_data.columns[0]
+    processer = TratandoDados(sample_data, coluna_label=coluna_label)
     # pylint: disable=W0632
     x_treino, y_treino, x_teste, y_teste = processer.tratando_divisao(
-        sample_data, treino_teste=False, coluna="selic"
+        sample_data, treino_teste=False
     )
     # pylint: disable=W0632
     assert len(x_treino) > 0
@@ -44,7 +53,8 @@ def test_tratando_divisao_y_treino_y_teste_x_treino_x_teste(sample_data):
 
 
 def test_tratando_divisao_treino_teste(sample_data):
-    processer = TratandoDados(sample_data)
+    coluna_label = sample_data.columns[0]
+    processer = TratandoDados(sample_data, coluna_label=coluna_label)
     treino, teste = processer.tratando_divisao(sample_data)
     assert len(treino) > 0
     assert len(teste) > 0
@@ -76,7 +86,8 @@ def test_tratando_defasagens(sample_data):
 
 def test_tratando_divisao_x_y(sample_data):
     data_processor = TratandoDados(sample_data, data_divisao="2020-05-31")
-    x, y = data_processor.tratando_divisao_x_y(sample_data)
+    coluna_label = sample_data.columns[0]
+    x, y = data_processor.tratando_divisao_x_y(sample_data, label=coluna_label)
     assert x.shape[0] == y.shape[0]
     assert x.shape[1] == sample_data.shape[1] - 1
 
@@ -96,7 +107,8 @@ def test_tratando_pca(sample_data):
 
 
 def test_tratando_dados(sample_data):
-    data_processor = TratandoDados(sample_data)
+    coluna_label = sample_data.columns[0]
+    data_processor = TratandoDados(sample_data, coluna_label=coluna_label)
     (
         x_treino,
         x_teste,

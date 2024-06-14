@@ -7,6 +7,7 @@ from .coleta_economic_brazil import (
     dados_ibge_codigos,
     dados_expectativas_focus,
     metas_inflacao,
+    dados_ipeadata,
 )
 import pandas as pd
 import numpy as np
@@ -104,18 +105,41 @@ def transforme_data(data):
 
 
 ###Tratando dados IBGE
-
-
-def tratando_dados_ibge_codigos(salvar=False, formato="csv", diretorio=None):
-    ibge_codigos = dados_ibge_codigos()
+def tratando_dados_ibge_codigos(
+    codigos=None, period="all", salvar=None, formato="csv", diretorio=None
+):
+    if codigos is None:
+        ibge_codigos = dados_ibge_codigos(period="all")
+    else:
+        ibge_codigos = dados_ibge_codigos(**codigos, period=period)
+    # Verificar se o DataFrame não está vazio
+    if ibge_codigos.empty:
+        raise ValueError("O DataFrame está vazio. Verifique os códigos fornecidos.")
     ibge_codigos.columns = ibge_codigos.iloc[0, :]
     ibge_codigos = ibge_codigos.iloc[1:, :]
     ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(converter_mes_para_data)
     ibge_codigos.index = ibge_codigos["data"]
-    ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
+    try:
+        ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
+    except ValueError as exc:
+        ibge_codigos["Valor"] = pd.to_numeric(ibge_codigos["Valor"], errors="coerce")
+        primeiro_valido_index = ibge_codigos["Valor"].first_valid_index()
+        if primeiro_valido_index is None:
+            # pylint: disable=W0622
+            raise ValueError(
+                f'Não há valores válidos para a variável {ibge_codigos["Variável"][0]}. Verifique se os códigos {codigos} estão ativos em https://sidra.ibge.gov.br/home/pms/brasil.'
+            ) from exc
+            # pylint: disable=W0622
+        else:
+            ibge_codigos = ibge_codigos.loc[primeiro_valido_index:]
+            ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
+            print(
+                f'Valores validos apartir de {primeiro_valido_index} para a variável {ibge_codigos["Variável"][0]}'
+            )
+    # ibge_codigos = ibge_codigos[ibge_codigos.index > primeiro_valido_index]
     if salvar:
         if diretorio is None:
-            raise ValueError("Diretório não especificado para salvar o arquivo")
+            print("Diretório não especificado para salvar o arquivo")
         if formato == "csv":
             ibge_codigos.to_csv(diretorio)
         elif formato == "json":
@@ -160,15 +184,9 @@ def tratando_dados_ibge_link(
 
 
 ###Tratando dados BCB
+
 selic = {
     "selic": 4189,
-    "IPCA-EX2": 27838,
-    "IPCA-EX3": 27839,
-    "IPCA-MS": 4466,
-    "IPCA-MA": 11426,
-    "IPCA-EX0": 11427,
-    "IPCA-EX1": 16121,
-    "IPCA-DP": 16122,
 }
 
 
@@ -250,3 +268,22 @@ def tratando_metas_inflacao(salvar=False, formato="csv", diretorio=None):
             historico_inflacao.to_json(diretorio)
 
     return historico_inflacao
+
+
+def tratatando_dados_ipeadata(codigo_ipeadata, data="2000-01-01"):
+    ((nome_coluna, codigo),) = codigo_ipeadata.items()
+    dados_ipea = dados_ipeadata(codigo=codigo, data=data)
+    coluna = dados_ipea.filter(like="VALUE").columns[0]
+    dados_ipea = dados_ipea[[coluna]]
+    if (dados_ipea.index.day == 1).all():
+        pass
+    else:
+        dados_ipea = dados_ipea.resample("MS").mean()
+    try:
+        dados_ipea = dados_ipea[dados_ipea.index >= pd.to_datetime(data)]
+    except ValueError:
+        print(
+            f"Data inicial posterior a {data} definida, o conjunto de dados {codigo} tem data inicial em {dados_ipea.index[0]}"
+        )
+    dados_ipea.columns = [nome_coluna]
+    return dados_ipea

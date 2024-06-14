@@ -93,7 +93,8 @@ def criando_defasagens(base, numero_defasagens=4):
     base_def = base.copy()
     for j in range(numero_defasagens):
         for i in base.columns:
-            base_def[i + str("_lags_") + str(j + 1)] = base_def[i].shift(j + 1)
+            col_name = f"{i}_lags_{j+1}"
+            base_def[col_name] = base_def[i].shift(j + 1)
     return base_def
 
 
@@ -169,6 +170,7 @@ def criando_mes_ano_dia(
         ).astype(float)
         dados = dados_dia_mes_ano.copy()
 
+    dados = dados.loc[:, ~dados.columns.duplicated()]
     return dados
 
 

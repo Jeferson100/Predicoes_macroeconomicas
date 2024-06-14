@@ -13,11 +13,12 @@ from economic_brazil.processando_dados.divisao_treino_teste import treino_test_d
 
 
 class TratandoDados:
-    def __init__(self, df, data_divisao=None):
+    def __init__(self, df, data_divisao=None, coluna_label=None):
         self.df = df
         self.scaler_modelo = None
         self.pca_modelo = None
         self.data_divisao = data_divisao
+        self.coluna_label = coluna_label
 
     def data_divisao_treino_teste(self):
         if self.data_divisao is None:
@@ -29,14 +30,15 @@ class TratandoDados:
             return self.data_divisao
 
     # pylint: disable=W0632
-    def tratando_divisao(
-        self, dados, treino_teste=True, divisao_treino_teste=None, coluna=None
-    ):
+    def tratando_divisao(self, dados, treino_teste=True, divisao_treino_teste=None):
         """
         Divide os dados em conjuntos de treino e teste.
+
         """
         if divisao_treino_teste is None:
             divisao_treino_teste = self.data_divisao_treino_teste()
+        if self.coluna_label is None:
+            self.coluna_label = "selic"
 
         if treino_teste:
             # pylint: disable=W0632
@@ -48,7 +50,7 @@ class TratandoDados:
         else:
             # pylint: disable=W0632
             x_treino, y_treino, x_teste, y_teste = treino_test_dados(
-                dados, data_divisao=divisao_treino_teste, coluna=coluna
+                dados, data_divisao=divisao_treino_teste, coluna=self.coluna_label
             )
             return x_treino, y_treino, x_teste, y_teste
 
@@ -88,7 +90,11 @@ class TratandoDados:
         Cria defasagens nos dados.
         """
         dados_defas = criando_defasagens(dados, numero_defasagens=numero_defasagens)
-        return dados_defas[numero_defasagens:]
+        dados_defas = dados_defas[numero_defasagens:]
+        if dados_defas.isnull().values.any():
+            dados_defas = dados_defas.ffill()
+            dados_defas = dados_defas.bfill()
+        return dados_defas
 
     def tratando_divisao_x_y(self, dados, label="selic"):
         """
@@ -144,8 +150,8 @@ class TratandoDados:
             teste = self.tratando_defasagens(teste)
 
         # Separação das variáveis independentes e dependentes
-        x_treino, y_treino = self.tratando_divisao_x_y(treino)
-        x_teste, y_teste = self.tratando_divisao_x_y(teste)
+        x_treino, y_treino = self.tratando_divisao_x_y(treino, label=self.coluna_label)
+        x_teste, y_teste = self.tratando_divisao_x_y(teste, label=self.coluna_label)
 
         # Escalonamento dos dados
         if scaler:
@@ -168,7 +174,6 @@ class TratandoDados:
         defasagens=True,
         pca=True,
         scaler=True,
-        coluna_drop="selic",
         ultimas_colunas=-10,
     ):
         if covid:
@@ -179,7 +184,7 @@ class TratandoDados:
             dados = self.tratando_datas(dados)
         if defasagens:
             dados = self.tratando_defasagens(dados)
-        dados = dados.drop(coluna_drop, axis=1)
+        dados = dados.drop(self.coluna_label, axis=1)
         dados = dados.iloc[ultimas_colunas:]
         if scaler:
             dados = self.scaler_modelo.transform(dados)

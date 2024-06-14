@@ -27,10 +27,12 @@ except FileNotFoundError:
     dados_salvos_selic = pickle.load(open(arquivo, 'rb'))
     
 try:
-    from economic_brazil.coleta_dados.economic_data_brazil import data_economic
-    dados_economicos = data_economic()
+    arquivo = '/workspaces/Predicoes_macroeconomicas/dados/dados_banco_central.pkl'
+    dados_economicos = pickle.load(open(arquivo, 'rb'))
 except:
-    dados_economicos = pd.read_csv('/mount/src/predicoes_macroeconomicas/dados/dados_bcb.csv')
+    arquivo = '/mount/src/predicoes_macroeconomicas/dados/dados_banco_central.pkl'
+    dados_economicos = pickle.load(open(arquivo, 'rb'))
+
 
 if "dados_salvos_selic" not in st.session_state:
     st.session_state['dados_futuro'] = dados_salvos_selic['dados_futuro']

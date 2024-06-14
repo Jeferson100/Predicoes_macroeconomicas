@@ -1,6 +1,6 @@
 import sys
 sys.path.append('..')
-from economic_brazil.coleta_dados.economic_data_brazil import data_economic
+from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
 from economic_brazil.processando_dados.tratando_dados import TratandoDados
 from economic_brazil.treinamento.treinamento_algoritimos import carregar
 from economic_brazil.analisando_modelos.analise_modelos_regressao import MetricasModelosDicionario,PredicaosModelos
@@ -15,7 +15,22 @@ warnings.filterwarnings("ignore", category=UserWarning)
 path_codigos_rodando = os.path.join(os.getcwd())
 
 #Coleta
-dados = data_economic()
+SELIC_CODES = {
+    "selic": 4189,
+    "IPCA-EX2": 27838,
+    "IPCA-EX3": 27839,
+    "IPCA-MS": 4466,
+    "IPCA-MA": 11426,
+    "IPCA-EX0": 11427,
+    "IPCA-EX1": 16121,
+    "IPCA-DP": 16122,}
+
+variaveis_ibge = {
+    'ipca': {'codigo': 1737, 'territorial_level': '1', 'ibge_territorial_code': 'all', 'variable': '63'},}
+
+economic_brazil = EconomicBrazil(codigos_banco_central=SELIC_CODES, codigos_ibge=variaveis_ibge, data_inicio="2000-01-01")
+
+dados = economic_brazil.dados_brazil(dados_ipeadata=False)
 
 #Tratando
 tratando = TratandoDados(dados)

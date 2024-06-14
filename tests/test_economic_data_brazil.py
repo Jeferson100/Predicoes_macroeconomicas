@@ -1,38 +1,64 @@
-from economic_brazil.coleta_dados.economic_data_brazil import data_economic
+import pytest
+from unittest.mock import patch, mock_open
 import pandas as pd
+from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
+
+# pylint: disable=W0621
+@pytest.fixture
+def econ_brazil():
+    # dados_economicos = EconomicBrazil()
+    return EconomicBrazil()
 
 
-def test_no_missing_data():
-    df = data_economic()
-    assert not df.isna().any().any()
+# pylint: disable=W0621
 
 
-# write a test for check the index is datetime
-def test_index_is_datetime():
-    df = data_economic()
-    assert isinstance(df.index, pd.DatetimeIndex)
+def test_dados_banco_central(econ_brazil):
+    # dados_economicos = EconomicBrazil()
+    dados = econ_brazil.dados_banco_central()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
 
 
-# write a test for check the columns
-def test_columns():
-    df = data_economic()
-    colunas_possiveis = [
-        "selic",
-        "IPCA-EX2",
-        "IPCA-EX3",
-        "IPCA-MS",
-        "IPCA-MA",
-        "IPCA-EX0",
-        "IPCA-EX1",
-        "IPCA-DP",
-        "expectativas_inflacao",
-        "meta_inflacao",
-        "inflacao_efetiva",
-        "diferenca_meta_efetiva",
-        "ipca",
-        "pib",
-        "despesas_publica",
-        "capital_fixo",
-        "producao_industrial_manufatureira",
-    ]
-    assert all(column in colunas_possiveis for column in df.columns)
+def test_dados_expectativas_inflacao(econ_brazil):
+    dados = econ_brazil.dados_expectativas_inflacao()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
+def test_dados_metas_inflacao(econ_brazil):
+    dados = econ_brazil.dados_metas_inflacao()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
+def test_dados_ibge(econ_brazil):
+    dados = econ_brazil.dados_ibge()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
+def test_dados_ibge_link(econ_brazil):
+    dados = econ_brazil.dados_ibge_link()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
+def test_dados_ipeadata(econ_brazil):
+    dados = econ_brazil.dados_ipeadata()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
+def test_dados_dados_brazil(econ_brazil):
+    dados = econ_brazil.dados_brazil()
+    assert not dados.isna().any().any()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
+def test_salvar_dados(econ_brazil):
+    dados = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
+    with patch("builtins.open", mock_open()) as mocked_file:
+        econ_brazil.salvar_dados(dados, diretorio="test_file", formato="pickle")
+        mocked_file.assert_called_with("test_file.pkl", "wb")

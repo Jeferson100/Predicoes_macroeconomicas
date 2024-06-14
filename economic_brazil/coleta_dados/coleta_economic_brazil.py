@@ -5,6 +5,7 @@ import pandas as pd
 from bcb import sgs
 import sidrapy
 from bcb import Expectativas
+import ipeadatapy as ip
 from bs4 import BeautifulSoup
 import requests
 import math
@@ -165,3 +166,8 @@ def metas_inflacao():
     )
 
     return historico_inflacao
+
+
+def dados_ipeadata(codigo="ANBIMA12_TJTLN1212", data="2020-01-01"):
+    dados_ipea = ip.timeseries(codigo, yearGreaterThan=int(data[0:4]) - 1)
+    return dados_ipea

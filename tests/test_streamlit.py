@@ -4,18 +4,23 @@ import os
 from streamlit.testing.v1 import AppTest
 import warnings
 import pytest
+
 warnings.filterwarnings("ignore")
-path = os.path.abspath('../Predicoes_macroeconomicas')
+path = os.path.abspath("../Predicoes_macroeconomicas")
 
 # pylint: disable=W0621
 @pytest.fixture(scope="module")
 def app_test():
     # Retorna uma instância de AppTest apontando para o script principal do Streamlit
     return AppTest.from_file(
-        path + '/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/streamlit_resultados.py',
-        default_timeout=50,
+        path
+        + "/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/1_Predicoes-Macroenomicas.py",
+        default_timeout=100,
     ).run()
+
+
 # pylint: disable=W0621
+
 
 def test_streamlit_app_rodando(app_test):
     # Testa se o app foi iniciado corretamente
