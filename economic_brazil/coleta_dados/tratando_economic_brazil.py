@@ -8,10 +8,12 @@ from .coleta_economic_brazil import (
     dados_expectativas_focus,
     metas_inflacao,
     dados_ipeadata,
+    coleta_google_trends,
 )
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, date
+
 
 # Tratando dados IBGE/SIDRAPY
 
@@ -94,8 +96,8 @@ def transforme_data(data):
     }
 
     lista_data = []
-    for date in data.index:
-        date_components = date.split(" ")
+    for dat in data.index:
+        date_components = dat.split(" ")
         formatted_month = months[date_components[0].lower()].capitalize()
         formatted_date = f"{formatted_month} {date_components[1]}"
         date_object = datetime.strptime(formatted_date, "%B %Y")
@@ -287,3 +289,19 @@ def tratatando_dados_ipeadata(codigo_ipeadata, data="2000-01-01"):
         )
     dados_ipea.columns = [nome_coluna]
     return dados_ipea
+
+
+def tratando_dados_google_trends(
+    kw_list, frequencia_data=None, start_date=None, end_date=None
+):
+    if frequencia_data is None:
+        frequencia_data = "MS"
+    if start_date is None:
+        start_date = "2004-01-01"
+    if end_date is None:
+        end_date = str(date.today())
+    data = coleta_google_trends(kw_list, start_date, end_date)
+    data = data.resample(frequencia_data).mean()
+    if "isPartial" in data.columns:
+        data.drop("isPartial", axis=1, inplace=True)
+    return data

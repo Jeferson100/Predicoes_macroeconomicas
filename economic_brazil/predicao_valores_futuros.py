@@ -59,19 +59,25 @@ class Predicao:
         if self.modelo == 'redes_neurais':
             conformal = ConformalRegressionPlotter(self.mascara_sklearn, self.x_treino_recorrente, self.dados_predicao_futuro[-9:], self.y_treino_recorrente, self.dados_futuro[-9:])
         else:
-            conformal = ConformalRegressionPlotter(self.modelo_carregado, self.x_treino, self.dados_predicao_futuro, self.y_treino[1:], self.dados_futuro[-9:])
+            conformal = ConformalRegressionPlotter(self.modelo_carregado, self.x_treino, self.dados_predicao_futuro[-8:], self.y_treino, self.dados_futuro[-8:])
         
         y_pred_best_model, y_pis_best_model, _, _ = conformal.regressao_conformal()
         return y_pred_best_model, y_pis_best_model, _, _
 
     def criando_dataframe_predicoes(self):
+        
         y_pis_best_model_squeezed = self.y_pis_best_model.squeeze()
         y_pred_best_model_squeezed = self.y_pred_best_model.squeeze()
+        if self.modelo == 'redes_neurais':
+            index_futuro_adjusted = self.index_futuro[-9:]
+        else:
+            index_futuro_adjusted = self.index_futuro[-8:]
         resultados_best = pd.DataFrame({
             'intervalo_lower': np.round(y_pis_best_model_squeezed[:, 0],2),
             'intervalo_upper': np.round(y_pis_best_model_squeezed[:, 1],2),
             'predicao': np.round(y_pred_best_model_squeezed,2)
-        }, index=self.index_futuro[-9:])
+        }, 
+            index=index_futuro_adjusted)
         return resultados_best
     
     def predicao_ultimo_periodo(self):

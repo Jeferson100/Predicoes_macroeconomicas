@@ -106,7 +106,7 @@ with parallel_config(backend='threading', n_jobs=2):
     else:
         conformal = ConformalRegressionPlotter(modelos_carregados[melhor_modelo], x_treino, x_teste, y_treino[1:], y_teste[1:])
         y_pred, y_pis, _,_ = conformal.regressao_conformal()
-        conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio=path_codigos_rodando+'/codigos_rodando/avaliacao_modelos/regressao_conforma_teste_selic.png')
+        conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio=path_codigos_rodando+'/avaliacao_modelos/regressao_conforma_teste_selic.png')
 
 dados_corformal = {
     'data': index_teste[-1],

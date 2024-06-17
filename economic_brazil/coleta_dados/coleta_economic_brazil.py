@@ -7,8 +7,11 @@ import sidrapy
 from bcb import Expectativas
 import ipeadatapy as ip
 from bs4 import BeautifulSoup
+from pytrends.request import TrendReq
 import requests
 import math
+import time
+from datetime import date
 
 
 # Dados BCB
@@ -171,3 +174,35 @@ def metas_inflacao():
 def dados_ipeadata(codigo="ANBIMA12_TJTLN1212", data="2020-01-01"):
     dados_ipea = ip.timeseries(codigo, yearGreaterThan=int(data[0:4]) - 1)
     return dados_ipea
+
+
+def coleta_google_trends(kw_list=None, start_date=None, end_date=None):
+    if start_date is None:
+        start_date = "2004-01-01"
+    if end_date is None:
+        end_date = str(date.today())
+    if kw_list is None:
+        kw_list = ["seguro desemprego"]
+
+    # Dividindo a pesquisa em vários períodos de 5 anos
+    periods = pd.date_range(start=start_date, end=end_date, freq="5YE")
+    if periods[-1] < pd.to_datetime(end_date):
+        periods = periods.append(pd.Index([pd.to_datetime(end_date)]))
+
+    # Criando uma instância do TrendReq
+    pytrends = TrendReq()
+
+    # Fazendo a pesquisa para cada período de 5 anos
+    data = pd.DataFrame()
+    for i in range(len(periods) - 1):
+        timeframe = (
+            f"{periods[i].strftime('%Y-%m-%d')} {periods[i+1].strftime('%Y-%m-%d')}"
+        )
+        pytrends.build_payload(kw_list, timeframe=timeframe)
+        temp_data = pytrends.interest_over_time()
+        data = pd.concat([data, temp_data])
+
+        # Aguardando alguns segundos para evitar sobrecarga no servidor do Google Trends
+        time.sleep(5)
+    print("O google trends tem como data de início o ano 2004.")
+    return data

@@ -50,6 +50,12 @@ def test_dados_ipeadata(econ_brazil):
     assert isinstance(dados, pd.DataFrame)
 
 
+def test_dados_google_trends(econ_brazil):
+    dados = econ_brazil.dados_google_trends()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
 def test_dados_dados_brazil(econ_brazil):
     dados = econ_brazil.dados_brazil()
     assert not dados.isna().any().any()

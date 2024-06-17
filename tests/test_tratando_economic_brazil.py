@@ -4,6 +4,7 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_dados_ibge_link,
     tratando_metas_inflacao,
     tratatando_dados_ipeadata,
+    tratando_dados_google_trends,
 )
 import pandas as pd
 
@@ -74,5 +75,12 @@ def test_tratando_metas_inflacao_columns():
 def test_tratatando_dados_ipeadata():
     codigo_ipea = {"taja_juros_ltn": "ANBIMA12_TJTLN1212"}
     dados = tratatando_dados_ipeadata(codigo_ipeadata=codigo_ipea, data="2000-01-01")
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert not dados.empty
+
+
+def test_tratatando_dados_google_trends():
+    lista = ["seguro desemprego"]
+    dados = tratando_dados_google_trends(kw_list=lista)
     assert isinstance(dados.index, pd.DatetimeIndex)
     assert not dados.empty

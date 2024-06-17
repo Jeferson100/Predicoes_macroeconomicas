@@ -195,6 +195,7 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_dados_ibge_codigos,
     tratando_metas_inflacao,
     tratatando_dados_ipeadata,
+    tratando_dados_google_trends,
 )
 
 warnings.filterwarnings("ignore")
@@ -266,6 +267,10 @@ indicadores_ibge_link = {
     "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
 }
 
+lista_google_trends = [
+    "seguro desemprego",
+]
+
 
 class EconomicBrazil:
     def __init__(
@@ -274,6 +279,7 @@ class EconomicBrazil:
         codigos_ibge=None,
         codigos_ibge_link=None,
         codigos_ipeadata=None,
+        lista_termos_google_trends=None,
         data_inicio=None,
     ):
         self.codigos_banco_central = codigos_banco_central or SELIC_CODES
@@ -281,6 +287,9 @@ class EconomicBrazil:
         self.codigos_ibge_link = codigos_ibge_link or indicadores_ibge_link
         self.codigos_ipeadata = codigos_ipeadata or codigos_ipeadata_padrao
         self.data_inicio = data_inicio or DATA_INICIO
+        self.lista_termos_google_trends = (
+            lista_termos_google_trends or lista_google_trends
+        )
 
     def fetch_data_for_code(self, link, column):
         return tratando_dados_ibge_link(coluna=column, link=link)
@@ -315,6 +324,10 @@ class EconomicBrazil:
         dic_expectativas_inflacao = dic_expectativas_inflacao.join(
             tratando_dados_expectativas()
         )
+        if "Mediana" in dic_expectativas_inflacao.columns:
+            dic_expectativas_inflacao.rename(
+                columns={"Mediana": "ipca_expectativa_focus"}, inplace=True
+            )
         if salvar:
             self.salvar_dados(dic_expectativas_inflacao, diretorio, formato)
         else:
@@ -374,6 +387,30 @@ class EconomicBrazil:
         else:
             return dic_ipeadata
 
+    def dados_google_trends(
+        self, frequencia_datas=None, salvar=None, diretorio=None, formato="csv"
+    ):
+        if frequencia_datas is None:
+            frequencia_datas = "MS"
+        dic_google_trends = self.data_index()
+        for termo in self.lista_termos_google_trends:
+            try:
+                dic_google_trends = dic_google_trends.join(
+                    tratando_dados_google_trends(
+                        [termo],
+                        frequencia_data=frequencia_datas,
+                        start_date=self.data_inicio,
+                    )
+                )
+            except ValueError:
+                print(
+                    f"Erro na coleta da variavel {termo}. Verifique se o termo esta ativo: https://trends.google.com/trends/explore?hl=pt-BR"
+                )
+        if salvar:
+            self.salvar_dados(dic_google_trends, diretorio, formato)
+        else:
+            return dic_google_trends
+
     def dados_brazil(
         self,
         dados_bcb=True,
@@ -382,6 +419,7 @@ class EconomicBrazil:
         dados_ibge_link=True,
         dados_ipeadata=True,
         dados_metas_inflacao=True,
+        dados_google_trends=False,
         sem_dados_faltantes=True,
         metodo_preenchimento="ffill",
         salvar=None,
@@ -402,6 +440,8 @@ class EconomicBrazil:
             dados = dados.join(self.dados_metas_inflacao())
         if dados_ipeadata:
             dados = dados.join(self.dados_ipeadata())
+        if dados_google_trends:
+            dados = dados.join(self.dados_google_trends())
         if sem_dados_faltantes:
             if metodo_preenchimento == "ffill":
                 dados = dados.ffill()

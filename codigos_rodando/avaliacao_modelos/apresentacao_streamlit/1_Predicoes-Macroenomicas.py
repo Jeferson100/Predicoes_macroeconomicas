@@ -20,27 +20,36 @@ path_diretorio = os.getcwd()
 
 #################################################### Carregando dados ############################################################
 try:
-    arquivo = path_diretorio+'/dados_salvos_selic.pkl'
-    dados_salvos_selic = pickle.load(open(arquivo, 'rb'))
+    arquivo_selic = path_diretorio+'/dados_salvos_selic.pkl'
+    dados_salvos_selic = pickle.load(open(arquivo_selic, 'rb'))
+    arquivo_ipca = path_diretorio+'/dados_salvos_ipca.pkl'
+    dados_salvos_ipca = pickle.load(open(arquivo_ipca, 'rb'))
+    
 except FileNotFoundError:
-    arquivo = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_selic.pkl'
-    dados_salvos_selic = pickle.load(open(arquivo, 'rb'))
+    arquivo_selic = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_selic.pkl'
+    dados_salvos_selic = pickle.load(open(arquivo_selic, 'rb'))
+    arquivo_ipca = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_ipca.pkl'
+    dados_salvos_ipca = pickle.load(open(arquivo_ipca, 'rb'))
     
 try:
-    arquivo = '/workspaces/Predicoes_macroeconomicas/dados/dados_banco_central.pkl'
+    arquivo = '/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.pkl'
     dados_economicos = pickle.load(open(arquivo, 'rb'))
 except:
-    arquivo = '/mount/src/predicoes_macroeconomicas/dados/dados_banco_central.pkl'
+    arquivo = '/mount/src/predicoes_macroeconomicas/dados/economic_data_brazil.pkl'
     dados_economicos = pickle.load(open(arquivo, 'rb'))
 
 
 if "dados_salvos_selic" not in st.session_state:
-    st.session_state['dados_futuro'] = dados_salvos_selic['dados_futuro']
+    st.session_state['dados_futuro_selic'] = dados_salvos_selic['dados_futuro']
+
+if "dados_salvos_ipca" not in st.session_state:
+    st.session_state['dados_futuro_ipca'] = dados_salvos_ipca['dados_futuro']
     
 if "dados_economicos" not in st.session_state:
     st.session_state['dados_economicos'] = dados_economicos
    
-dados_futuros_selic = st.session_state['dados_futuro']
+dados_futuros_selic = st.session_state['dados_futuro_selic']
+dados_futuros_ipca = st.session_state['dados_futuro_ipca']
 dados_economicos = st.session_state['dados_economicos']
 
 
@@ -57,7 +66,7 @@ def juntar_dados(primeira_vez=True,recebe_data=None,dicionario_1=None, dicionari
         data_1['Variavel'] = variavel_1
         return pd.concat([data_1,recebe_data])
     
-predicoes = juntar_dados(primeira_vez=True,recebe_data=None,dicionario_1=dados_futuros_selic, dicionario_2=dados_futuros_selic,variavel_1='selic',variavel_2='selic_2')
+predicoes = juntar_dados(primeira_vez=True,recebe_data=None,dicionario_1=dados_futuros_selic, dicionario_2=dados_futuros_ipca,variavel_1='selic',variavel_2='ipca')
 predicoes.index = predicoes['Variavel']
 data = predicoes['data'].iloc[0]
 predicoes.drop(['Variavel','data'],axis=1,inplace=True)
@@ -143,7 +152,7 @@ fig.add_trace(go.Scatter(x=dados_economicos_filtrados.index, y=dados_economicos_
 fig.update_layout(
         title="",
         xaxis_title="Periódo",
-        yaxis_title="Selic",
+        yaxis_title="Variável",
         legend_title="Legenda",
         height=1000,
         width=800,
