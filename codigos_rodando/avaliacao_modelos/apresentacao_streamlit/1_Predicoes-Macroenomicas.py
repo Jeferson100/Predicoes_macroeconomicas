@@ -24,12 +24,16 @@ try:
     dados_salvos_selic = pickle.load(open(arquivo_selic, 'rb'))
     arquivo_ipca = path_diretorio+'/dados_salvos_ipca.pkl'
     dados_salvos_ipca = pickle.load(open(arquivo_ipca, 'rb'))
+    arquivo_pib = path_diretorio+'/dados_salvos_pib.pkl'
+    dados_salvos_pib = pickle.load(open(arquivo_pib, 'rb'))
     
 except FileNotFoundError:
     arquivo_selic = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_selic.pkl'
     dados_salvos_selic = pickle.load(open(arquivo_selic, 'rb'))
     arquivo_ipca = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_ipca.pkl'
     dados_salvos_ipca = pickle.load(open(arquivo_ipca, 'rb'))
+    arquivo_pib = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_pib.pkl'
+    dados_salvos_pib = pickle.load(open(arquivo_pib, 'rb'))
     
 try:
     arquivo = '/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.pkl'
@@ -45,11 +49,15 @@ if "dados_salvos_selic" not in st.session_state:
 if "dados_salvos_ipca" not in st.session_state:
     st.session_state['dados_futuro_ipca'] = dados_salvos_ipca['dados_futuro']
     
+if "dados_salvos_pib" not in st.session_state:
+    st.session_state['dados_futuro_pib'] = dados_salvos_pib['dados_futuro']
+    
 if "dados_economicos" not in st.session_state:
     st.session_state['dados_economicos'] = dados_economicos
    
 dados_futuros_selic = st.session_state['dados_futuro_selic']
 dados_futuros_ipca = st.session_state['dados_futuro_ipca']
+dados_futuros_pib = st.session_state['dados_futuro_pib']
 dados_economicos = st.session_state['dados_economicos']
 
 
@@ -67,6 +75,7 @@ def juntar_dados(primeira_vez=True,recebe_data=None,dicionario_1=None, dicionari
         return pd.concat([data_1,recebe_data])
     
 predicoes = juntar_dados(primeira_vez=True,recebe_data=None,dicionario_1=dados_futuros_selic, dicionario_2=dados_futuros_ipca,variavel_1='selic',variavel_2='ipca')
+predicoes = juntar_dados(primeira_vez=False,recebe_data=predicoes,dicionario_1=dados_futuros_pib,variavel_1='pib')
 predicoes.index = predicoes['Variavel']
 data = predicoes['data'].iloc[0]
 predicoes.drop(['Variavel','data'],axis=1,inplace=True)
@@ -147,6 +156,8 @@ if filtro_variaveis:
     st.subheader("Histórico da Variável "+filtro_variaveis)
 else:   
     st.subheader("Histórico da Variável Selic")
+if filtro_variaveis == 'pib':
+    dados_economicos_filtrados = dados_economicos_filtrados.resample('QS').median()
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=dados_economicos_filtrados.index, y=dados_economicos_filtrados, mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
 fig.update_layout(

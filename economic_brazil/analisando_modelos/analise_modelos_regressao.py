@@ -16,6 +16,7 @@ class MetricasModelos:
         MSE = mean_squared_error(y_true, y_pred)
         RMSE = np.sqrt(MSE)
         R2 = r2_score(y_true, y_pred)
+        variancia_y = np.var(y_pred)
 
         # Criando um dicionário de métricas com arredondamento
         metrics = {
@@ -23,6 +24,7 @@ class MetricasModelos:
             "MSE": round(MSE, 2),
             "RMSE": round(RMSE, 2),
             "R²": round(R2, 2),
+            "Variance": round(variancia_y, 2),
         }
 
         # Criando um DataFrame a partir das métricas

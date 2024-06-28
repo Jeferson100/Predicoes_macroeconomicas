@@ -24,31 +24,31 @@ path_diretorio = os.getcwd()
 #################################################### Carregando dados ############################################################
 try:
     arquivo = path_diretorio+f'/dados_salvos_{variavel}.pkl'
-    dados_salvos = pickle.load(open(arquivo, 'rb'))
+    dados_salvos_selic = pickle.load(open(arquivo, 'rb'))
 except FileNotFoundError:
     arquivo = f'/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_{variavel}.pkl'
-    dados_salvos = pickle.load(open(arquivo, 'rb'))
+    dados_salvos_selic = pickle.load(open(arquivo, 'rb'))
 
-if "dados_salvos" not in st.session_state:
-    st.session_state["dados_salvos"] = dados_salvos
-    st.session_state['x_treino'] = dados_salvos['x_treino']
-    st.session_state['x_teste'] = dados_salvos['x_teste']
-    st.session_state['y_treino'] = dados_salvos['y_treino']
-    st.session_state['y_teste'] = dados_salvos['y_teste']
-    st.session_state['index_treino'] = dados_salvos['index_treino']
-    st.session_state['index_teste'] = dados_salvos['index_teste']
-    st.session_state['y_teste_recorrente'] = dados_salvos['y_teste_recorrente']
-    st.session_state['y_treino_recorrente'] = dados_salvos['y_treino_recorrente']
-    st.session_state['x_teste_recorrente'] = dados_salvos['x_teste_recorrente']
-    st.session_state['x_treino_recorrente'] = dados_salvos['x_treino_recorrente']
-    st.session_state['predicoes_treino'] = dados_salvos['predicoes_treino']
-    st.session_state['predicoes_teste'] = dados_salvos['predicoes_teste']
-    st.session_state['metrica_teste'] = dados_salvos['metrica_teste']
-    st.session_state['metrica_treino'] = dados_salvos['metrica_treino']
-    st.session_state['melhor_modelo'] = dados_salvos['melhor_modelo']
-    st.session_state['dados_conformal'] = dados_salvos['dados_conformal']
-    st.session_state['dados_futuro'] = dados_salvos['dados_futuro']
-    st.session_state['modelos_carregados'] = dados_salvos['modelos_carregados']
+if "dados_salvos_selic" not in st.session_state:
+    st.session_state["dados_salvos"] = dados_salvos_selic
+    st.session_state['x_treino'] = dados_salvos_selic['x_treino']
+    st.session_state['x_teste'] = dados_salvos_selic['x_teste']
+    st.session_state['y_treino'] = dados_salvos_selic['y_treino']
+    st.session_state['y_teste'] = dados_salvos_selic['y_teste']
+    st.session_state['index_treino'] = dados_salvos_selic['index_treino']
+    st.session_state['index_teste'] = dados_salvos_selic['index_teste']
+    st.session_state['y_teste_recorrente'] = dados_salvos_selic['y_teste_recorrente']
+    st.session_state['y_treino_recorrente'] = dados_salvos_selic['y_treino_recorrente']
+    st.session_state['x_teste_recorrente'] = dados_salvos_selic['x_teste_recorrente']
+    st.session_state['x_treino_recorrente'] = dados_salvos_selic['x_treino_recorrente']
+    st.session_state['predicoes_treino'] = dados_salvos_selic['predicoes_treino']
+    st.session_state['predicoes_teste'] = dados_salvos_selic['predicoes_teste']
+    st.session_state['metrica_teste'] = dados_salvos_selic['metrica_teste']
+    st.session_state['metrica_treino'] = dados_salvos_selic['metrica_treino']
+    st.session_state['melhor_modelo'] = dados_salvos_selic['melhor_modelo']
+    st.session_state['dados_conformal'] = dados_salvos_selic['dados_conformal']
+    st.session_state['dados_futuro'] = dados_salvos_selic['dados_futuro']
+    st.session_state['modelos_carregados'] = dados_salvos_selic['modelos_carregados']
     
 dados_salvos = st.session_state["dados_salvos"]
 x_treino = st.session_state['x_treino']

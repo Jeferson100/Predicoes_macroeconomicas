@@ -30,12 +30,16 @@ jobs:
             pwd
             python rodando_treinamento_selic.py
             python rodando_treinamento_ipca.py
+            python rodando_treinamento_pib.py
+          env:
+            FRED_API_KEY : ${{ secrets.FRED_API_KEY }}
         - name: Avaliando modelos
           run: |
             cd ./codigos_rodando   
             pwd
             python rodando_avaliacao_modelo_selic.py
             python rodando_avaliacao_modelo_ipca.py
+            python rodando_avaliacao_modelo_pib.py
         - name: Configure Git
           run: |
             git config --global user.email "sehnemjeferson@gmail.com"

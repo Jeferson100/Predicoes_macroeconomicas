@@ -13,12 +13,21 @@ from economic_brazil.processando_dados.divisao_treino_teste import treino_test_d
 
 
 class TratandoDados:
-    def __init__(self, df, data_divisao=None, coluna_label=None):
+    def __init__(
+        self,
+        df,
+        data_divisao=None,
+        coluna_label=None,
+        numero_defasagens=None,
+        n_components=None,
+    ):
         self.df = df
         self.scaler_modelo = None
         self.pca_modelo = None
         self.data_divisao = data_divisao
         self.coluna_label = coluna_label
+        self.numero_defasagens = numero_defasagens
+        self.n_components = n_components
 
     def data_divisao_treino_teste(self):
         if self.data_divisao is None:
@@ -85,12 +94,17 @@ class TratandoDados:
         )
         return dados_datas
 
-    def tratando_defasagens(self, dados, numero_defasagens=4):
+    def tratando_defasagens(self, dados):
         """
         Cria defasagens nos dados.
         """
-        dados_defas = criando_defasagens(dados, numero_defasagens=numero_defasagens)
-        dados_defas = dados_defas[numero_defasagens:]
+        if self.numero_defasagens is None:
+            self.numero_defasagens = 4
+
+        dados_defas = criando_defasagens(
+            dados, numero_defasagens=self.numero_defasagens
+        )
+        dados_defas = dados_defas[self.numero_defasagens :]
         if dados_defas.isnull().values.any():
             dados_defas = dados_defas.ffill()
             dados_defas = dados_defas.bfill()
@@ -111,11 +125,13 @@ class TratandoDados:
         dados_scaler, scaler = escalando_dados(dados, tipo=tipo)
         return dados_scaler, scaler
 
-    def tratando_pca(self, dados, n_components=6):
+    def tratando_pca(self, dados):
         """
         Aplica PCA aos dados.
         """
-        pca = PCA(n_components=n_components)
+        if self.n_components is None:
+            self.n_components = 6
+        pca = PCA(n_components=self.n_components)
         dados_pca = pca.fit_transform(dados)
         return pca, dados_pca
 

@@ -12,6 +12,7 @@ import requests
 import math
 import time
 from datetime import date
+import quandl
 
 
 # Dados BCB
@@ -38,6 +39,8 @@ def dados_bcb(codigos_banco_central=None, data_inicio="2000-01-01"):
 
 
 # DADOS IBGE
+
+
 def dados_ibge_codigos(
     codigo="1737",
     territorial_level="1",
@@ -65,6 +68,8 @@ def dados_ibge_link(
 
 
 # Dados Expectativas/Focus
+
+
 def dados_expectativas_focus(
     indicador="IPCA",
     tipo_expectativa="ExpectativaMercadoMensais",
@@ -203,6 +208,11 @@ def coleta_google_trends(kw_list=None, start_date=None, end_date=None):
         data = pd.concat([data, temp_data])
 
         # Aguardando alguns segundos para evitar sobrecarga no servidor do Google Trends
-        time.sleep(5)
+        time.sleep(10)
     print("O google trends tem como data de início o ano 2004.")
+    return data
+
+
+def coleta_quandl(codes=None):
+    data = quandl.get(codes)
     return data

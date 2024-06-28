@@ -50,7 +50,14 @@ def converter_mes_para_data(mes):
 def trimestre_string_int(dados):
     lista_trimestre = []
     for i in range(len(dados.index)):
-        lista_trimestre.append(dados.index[i][-4:] + "-" + "0" + dados.index[i][0])
+        if int(dados.index[i][0]) * 3 == 12:
+            lista_trimestre.append(
+                dados.index[i][-4:] + "-" + str(int(dados.index[i][0]) * 3)
+            )
+        else:
+            lista_trimestre.append(
+                dados.index[i][-4:] + "-" + "0" + str(int(dados.index[i][0]) * 3)
+            )
     return lista_trimestre
 
 
@@ -150,29 +157,28 @@ def tratando_dados_ibge_codigos(
 
 
 def tratando_dados_ibge_link(
-    coluna="pib",
-    link="",
-    salvar=False,
+    coluna=None,
+    link=None,
+    salvar=None,
     formato="csv",
     diretorio=None,
 ):
     dado_ibge = dados_ibge_link(url=link)
     ibge_link = dado_ibge.T
     ibge_link = ibge_link[[1]]
-    ibge_link = ibge_link[1:]
+    ibge_link = ibge_link[3:]
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
-    if coluna == "producao_industrial_manufatureira":
-        ibge_link = transforme_data(ibge_link)
-        ibge_link.index = pd.to_datetime(ibge_link.index)
-    else:
+
+    if ibge_link.index.str.contains("trimestre").any():
+
         ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
 
-        ibge_link.index = pd.to_datetime(
-            transforma_para_mes_incial_trimestre(ibge_link)
-        )
-        # ibge_link = ibge_link.resample("MS").fillna(method="ffill")
         ibge_link = ibge_link.resample("MS").ffill()
+
+    else:
+        ibge_link = transforme_data(ibge_link)
+        ibge_link.index = pd.to_datetime(ibge_link.index)
 
     if salvar:
         if diretorio is None:
@@ -305,3 +311,60 @@ def tratando_dados_google_trends(
     if "isPartial" in data.columns:
         data.drop("isPartial", axis=1, inplace=True)
     return data
+
+
+def tratando_dados_ibge_link_producao_agricola(url, nome_coluna, header=3):
+    dados = pd.read_excel(url, header=header)
+    dados = dados.T
+    dados = dados.iloc[1:]
+    dados = dados[[1]]
+    data = pd.DataFrame()
+    data = dados.iloc[::2, :]
+    data.loc[:, nome_coluna] = dados[
+        dados.index.str.contains("Unnamed")
+    ].values.squeeze()
+    data = transforme_data(data)
+    data = data[[nome_coluna]]
+    data.index = pd.to_datetime(data.index)
+    data[nome_coluna] = pd.to_numeric(data[nome_coluna], errors="coerce")
+    return data
+
+
+def tratando_dados_ibge_link_colum_brazil(
+    coluna=None,
+    link=None,
+    salvar=None,
+    formato="csv",
+    diretorio=None,
+):
+    dado_ibge = dados_ibge_link(url=link)
+    ibge_link = dado_ibge.T
+    ibge_link.columns = ibge_link.iloc[0]
+    ibge_link = ibge_link[
+        ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]
+    ]
+    ibge_link = ibge_link[3:]
+    ibge_link.columns = [coluna]
+    ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
+
+    if ibge_link.index.str.contains("trimestre").any():
+
+        ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
+
+        # ibge_link.index = pd.to_datetime(
+        # transforma_para_mes_incial_trimestre(ibge_link))
+        ibge_link = ibge_link.resample("MS").ffill()
+
+    else:
+        ibge_link = transforme_data(ibge_link)
+        ibge_link.index = pd.to_datetime(ibge_link.index)
+
+    if salvar:
+        if diretorio is None:
+            raise ValueError("Diretório não especificado para salvar o arquivo")
+        if formato == "csv":
+            ibge_link.to_csv(diretorio)
+        elif formato == "json":
+            ibge_link.to_json(diretorio)
+
+    return ibge_link

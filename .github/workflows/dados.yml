@@ -28,6 +28,8 @@ jobs:
             cd ./dados
             pwd
             python rodando_coleta_dados.py
+          env:
+             FRED_API_KEY : ${{ secrets.FRED_API_KEY }}    
         - name: Configure Git
           run: |
             git config --global user.email "sehnemjeferson@gmail.com"

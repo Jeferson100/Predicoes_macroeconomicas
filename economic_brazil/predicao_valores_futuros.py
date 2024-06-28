@@ -23,14 +23,17 @@ class KerasTrainedRegressor(BaseEstimator, RegressorMixin):
 
 
 class Predicao:
-    def __init__(self, x_treino, y_treino, tratando_dados,dados, modelo, modelo_carregado,coluna=None):
+    def __init__(self, x_treino, y_treino, tratando_dados,dados, modelo, modelo_carregado, periodo=None, coluna=None, tratando_pca=True,tratando_scaler=True):
         self.x_treino = x_treino
         self.y_treino = y_treino
         self.tratando_dados = tratando_dados
         self.dados = dados
         self.modelo = modelo
         self.modelo_carregado = modelo_carregado
+        self.periodo = periodo
         self.coluna = coluna
+        self.tratando_pca = tratando_pca
+        self.tratando_scaler = tratando_scaler
         self.neurais = RnnModel()
         self.mascara_sklearn = KerasTrainedRegressor(self.modelo_carregado)
         self.x_treino_recorrente, self.y_treino_recorrente = self.neurais.create_dataset(self.x_treino, self.y_treino)
@@ -38,12 +41,26 @@ class Predicao:
         self.y_pred_best_model, self.y_pis_best_model, _, _ = self.conformal_predicoes()
 
     def criando_dados_futuros(self):
+        if self.periodo == None:
+            self.periodo = 'Mensal'
+            
         dados_futuro = self.dados.iloc[-20:].copy()
-        new_index = self.dados.index[-1] + pd.DateOffset(months=1)
+        
+        if self.periodo == 'Mensal':
+            new_index = dados_futuro.index[-1] + pd.DateOffset(months=1)
+        elif self.periodo == 'Anual':
+            new_index = dados_futuro.index[-1] + pd.DateOffset(years=1)
+        elif self.periodo == 'Trimestral':
+            new_index = dados_futuro.index[-1] + pd.DateOffset(months=3)
+        elif self.periodo == 'Semestral':
+            new_index = dados_futuro.index[-1] + pd.DateOffset(months=6)
+        else:
+            print('Periodo invalido:Apenas mensal, anual, trimestral e semestral')
+
         dados_futuro.loc[new_index] = np.nan
         dados_futuro = dados_futuro.ffill()
         index_futuro = dados_futuro.index
-        dados_predicao_futuro = self.tratando_dados.dados_futuros(dados_futuro)
+        dados_predicao_futuro = self.tratando_dados.dados_futuros(dados_futuro, pca=self.tratando_pca, scaler=self.tratando_scaler)
         return dados_predicao_futuro, dados_futuro[self.coluna].values, index_futuro
 
     def tratando_dados_futuros(self):

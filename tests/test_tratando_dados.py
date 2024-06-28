@@ -79,8 +79,10 @@ def test_tratando_datas(sample_data):
 
 
 def test_tratando_defasagens(sample_data):
-    data_processor = TratandoDados(sample_data, data_divisao="2020-05-31")
-    dados_defas = data_processor.tratando_defasagens(sample_data, numero_defasagens=4)
+    data_processor = TratandoDados(
+        sample_data, data_divisao="2020-05-31", numero_defasagens=4
+    )
+    dados_defas = data_processor.tratando_defasagens(sample_data)
     assert len(dados_defas.columns) > len(sample_data.columns)
 
 

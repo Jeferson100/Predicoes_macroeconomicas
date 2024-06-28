@@ -4,10 +4,12 @@ from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
 from economic_brazil.processando_dados.tratando_dados import TratandoDados
 from economic_brazil.treinamento.treinamento_algoritimos import TreinandoModelos
 import warnings
-
+import pickle
+import os
 warnings.filterwarnings("ignore", category=UserWarning)
+path_codigos_rodando = os.path.join(os.getcwd())
 
-SELIC_CODES = {
+codigos_banco_central = {
     "cambio": 3698,
     "pib_mensal": 4380,
     "igp_m": 189,
@@ -62,14 +64,87 @@ lista = [
 
 ]
 
-economic_brazil = EconomicBrazil(codigos_banco_central=SELIC_CODES, codigos_ibge=variaveis_ibge, codigos_ipeadata=codigos_ipeadata_padrao, lista_termos_google_trends=lista, data_inicio="2000-01-01")
+############################################################################## VARIAVEL PREDICAO ################################################################
+variavel_predicao = 'ipca'
 
-dados = economic_brazil.dados_brazil(dados_bcb= True, dados_expectativas_inflacao=True, dados_ibge_codigos=True, dados_metas_inflacao=True, dados_ibge_link=True, dados_ipeadata=True, dados_google_trends=True)
+dados_bcb = True
+dados_ibge = True
+dados_expectativas_inflacao = True
+dados_metas_inflacao = True
+dados_ibge_link = True
+dados_ipeadata = True
+dados_google_trends = True
+dados_fred =False
 
-tratando = TratandoDados(dados,coluna_label="ipca")
 
-x_treino, x_teste, y_treino, y_teste,pca, scaler = tratando.tratando_dados()
 
-tuning = TreinandoModelos(x_treino, y_treino, x_teste, y_teste,diretorio='../codigos_rodando/modelos_salvos/modelos_ipca/',salvar_modelo=True)
+economic_brazil = EconomicBrazil(codigos_banco_central=codigos_banco_central, 
+                                 codigos_ibge=variaveis_ibge, 
+                                 codigos_ipeadata=codigos_ipeadata_padrao, 
+                                 lista_termos_google_trends=lista, 
+                                 data_inicio="2000-01-01")
 
-modelos_tunning = tuning.treinar_modelos(redes_neurais=True,sarimax=False)
+dados = economic_brazil.dados_brazil(dados_bcb= dados_bcb,
+                                     dados_expectativas_inflacao=dados_expectativas_inflacao, 
+                                     dados_ibge_codigos=dados_ibge, 
+                                     dados_metas_inflacao=dados_metas_inflacao, 
+                                     dados_ibge_link=dados_ibge_link, 
+                                     dados_ipeadata=dados_ipeadata, 
+                                     dados_google_trends=dados_google_trends,)
+
+
+print(dados.shape)
+
+tratando = TratandoDados(dados,
+                         coluna_label=variavel_predicao,
+                         n_components=10,
+                         numero_defasagens=4)
+
+tratando_scaler = True
+tratando_pca = True
+tratando_dummy_covid = True
+tratando_defasagens = True
+tratando_datas = True
+tratando_estacionaridade = True
+
+x_treino, x_teste, y_treino, y_teste,pca, scaler = tratando.tratando_dados(scaler=tratando_scaler, 
+                                                                           pca=tratando_pca, 
+                                                                           covid=tratando_dummy_covid, 
+                                                                           datas=tratando_datas, 
+                                                                           defasagens=tratando_defasagens, 
+                                                                           estacionaridade=tratando_estacionaridade)
+
+data_divisao_treino_teste = tratando.data_divisao_treino_teste()
+
+tuning = TreinandoModelos(x_treino, y_treino, x_teste, y_teste,diretorio=f'../codigos_rodando/modelos_salvos/modelos_{variavel_predicao}/',salvar_modelo=True)
+
+modelo_redes_neurais = True
+modelo_cast = True
+modelo_sarimax = False
+modelo_gradient_boosting = True
+modelo_regresao_linear = True
+modelo_xgboost = True
+
+modelos_tunning = tuning.treinar_modelos(redes_neurais=modelo_redes_neurais,
+                                         cat_boost=modelo_cast,
+                                         sarimax=modelo_sarimax,
+                                         gradiente_boosting=modelo_gradient_boosting,
+                                         regressao_linear=modelo_regresao_linear,
+                                         xg_boost=modelo_xgboost
+                                         )
+
+dados_salvos = {}
+dados_salvos['dados'] = dados
+dados_salvos['x_treino'] = x_treino
+dados_salvos['x_teste'] = x_teste
+dados_salvos['y_treino'] = y_treino
+dados_salvos['y_teste'] = y_teste
+if pca:
+    dados_salvos['pca'] = pca
+if scaler:
+    dados_salvos['scaler'] = scaler
+dados_salvos['data_divisao_treino_teste'] = data_divisao_treino_teste
+dados_salvos['tratando'] = tratando
+
+with open(path_codigos_rodando+f'/avaliacao_modelos/apresentacao_streamlit/dados_treinamento_{variavel_predicao}.pkl', 'wb') as f:
+    pickle.dump(dados_salvos, f)

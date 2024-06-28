@@ -29,3 +29,5 @@ jobs:
       - name: Verificar testes dos arquivos
         run: |
           make test
+        env:
+            FRED_API_KEY : ${{ secrets.FRED_API_KEY }}

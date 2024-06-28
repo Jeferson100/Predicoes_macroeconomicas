@@ -6,7 +6,7 @@ import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
 
-SELIC_CODES = {
+banco_central_codes = {
     "selic": 4189,
     "IPCA-EX2": 27838,
     "IPCA-EX3": 27839,
@@ -29,11 +29,31 @@ SELIC_CODES = {
     'divida_liquida_spc':4513,  
 }
 
-variaveis_ibge = {
-    'ipca': {'codigo': 1737, 'territorial_level': '1', 'ibge_territorial_code': 'all', 'variable': '63'},
-    'custo_m2': {'codigo': 2296, 'territorial_level': '1', 'ibge_territorial_code': 'all', 'variable': '1198'},
-    'pesquisa_industrial_mensal': {'codigo': 8159, 'territorial_level': '1', 'ibge_territorial_code': 'all', 'variable': '11599'},
-    'pmc_volume': {'codigo': 8186, 'territorial_level': '1', 'ibge_territorial_code': 'all', 'variable': '11709'},
+variaveis_ibge_padrao = {
+    "ipca": {
+        "codigo": 1737,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "63",
+    },
+    "custo_m2": {
+        "codigo": 2296,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "1198",
+    },
+    "pesquisa_industrial_mensal": {
+        "codigo": 8159,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11599",
+    },
+    "pmc_volume": {
+        "codigo": 8186,
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11709",
+    },
 }
 
 codigos_ipeadata_padrao = {
@@ -44,22 +64,46 @@ codigos_ipeadata_padrao = {
     "brent_fob": "EIA366_PBRENT366",
 }
 
-indicadores_ibge_link = {
-    "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
+indicadores_ibge_link_padrao = {
+    "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6564/p/all/c11255/90707/d/v6564%201/l/v,p,t%2Bc11255&verUFs=false&verComplementos2=false&verComplementos1=false&omitirIndentacao=false&abreviarRotulos=false&exibirNotas=false&agruparNoCabecalho=false",
     "despesas_publica": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
     "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
     "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
+    "soja": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
+    "milho_1": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39441/l/v,p%2Bc48,t",
+    "milho_2": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39442/l/v,p%2Bc48,t",
 }
 
 lista_google_trends = [
     'seguro desemprego'
 ]
 
+codigos_fred_padrao = {
+    "nasdaq100": "NASDAQ100",
+    "taxa_cambio_efetiva": "RBBRBIS",
+    "cboe_nasdaq": "VXNCLS",
+    "taxa_juros_interbancaria": "IRSTCI01BRM156N",
+    "atividade_economica_eua": "USPHCI",
+    "indice_confianca_manufatura": "BSCICP03BRM665S",
+    "indice_confianca_exportadores": "BSXRLV02BRM086S",
+    "indice_tendencia_emprego": "BRABREMFT02STSAM",
+    "indice_confianca_consumidor": "CSCICP03BRM665S",
+    "capacidade_instalada": "BSCURT02BRM160S",
+}
+
+
+
 DATA_INICIO = "2000-01-01"
 
-dados = EconomicBrazil(codigos_banco_central=SELIC_CODES, codigos_ibge=variaveis_ibge, codigos_ibge_link=variaveis_ibge, codigos_ipeadata=codigos_ipeadata_padrao, lista_termos_google_trends=lista_google_trends, data_inicio=DATA_INICIO)
+dados = EconomicBrazil(codigos_banco_central=banco_central_codes, 
+                       codigos_ibge=variaveis_ibge_padrao, 
+                       codigos_ibge_link=indicadores_ibge_link_padrao, 
+                       codigos_ipeadata=codigos_ipeadata_padrao, 
+                       lista_termos_google_trends=lista_google_trends, 
+                       codigos_fred=codigos_fred_padrao,
+                       data_inicio=DATA_INICIO)
 
-dados.dados_brazil(salvar=True, diretorio='economic_data_brazil', formato='pickle')
+dados.dados_brazil(dados_fred=True,salvar=True, diretorio='economic_data_brazil', formato='pickle')
 
 print('Coletando dados Brazil')
 
@@ -80,6 +124,10 @@ dados.dados_metas_inflacao(salvar=True, diretorio='dados_metas_inflacao', format
 print('Coletando dados Metas Inflacao')
 
 dados.dados_ibge_link(salvar=True, diretorio='dados_ibge_link', formato='pickle')
+
+print('Coletando dados IBGE Link')
+
+dados.dados_fred(salvar=True, diretorio='dados_fred', formato='pickle')
 
 print('Coleta terminanda com sucesso!')
 

@@ -24,33 +24,33 @@ path_diretorio = os.getcwd()
 #################################################### Carregando dados ############################################################
 try:
     arquivo = path_diretorio+f'/dados_salvos_{variavel}.pkl'
-    dados_salvos = pickle.load(open(arquivo, 'rb'))
+    dados_salvos_ipca = pickle.load(open(arquivo, 'rb'))
 except FileNotFoundError:
     arquivo = f'/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_{variavel}.pkl'
-    dados_salvos = pickle.load(open(arquivo, 'rb'))
+    dados_salvos_ipca = pickle.load(open(arquivo, 'rb'))
 
-if "dados_salvos" not in st.session_state:
-    st.session_state["dados_salvos"] = dados_salvos
-    st.session_state['x_treino'] = dados_salvos['x_treino']
-    st.session_state['x_teste'] = dados_salvos['x_teste']
-    st.session_state['y_treino'] = dados_salvos['y_treino']
-    st.session_state['y_teste'] = dados_salvos['y_teste']
-    st.session_state['index_treino'] = dados_salvos['index_treino']
-    st.session_state['index_teste'] = dados_salvos['index_teste']
-    st.session_state['y_teste_recorrente'] = dados_salvos['y_teste_recorrente']
-    st.session_state['y_treino_recorrente'] = dados_salvos['y_treino_recorrente']
-    st.session_state['x_teste_recorrente'] = dados_salvos['x_teste_recorrente']
-    st.session_state['x_treino_recorrente'] = dados_salvos['x_treino_recorrente']
-    st.session_state['predicoes_treino'] = dados_salvos['predicoes_treino']
-    st.session_state['predicoes_teste'] = dados_salvos['predicoes_teste']
-    st.session_state['metrica_teste'] = dados_salvos['metrica_teste']
-    st.session_state['metrica_treino'] = dados_salvos['metrica_treino']
-    st.session_state['melhor_modelo'] = dados_salvos['melhor_modelo']
-    st.session_state['dados_conformal'] = dados_salvos['dados_conformal']
-    st.session_state['dados_futuro'] = dados_salvos['dados_futuro']
-    st.session_state['modelos_carregados'] = dados_salvos['modelos_carregados']
+if "dados_salvos_ipca" not in st.session_state:
+    st.session_state["dados_salvos"] = dados_salvos_ipca
+    st.session_state['x_treino'] = dados_salvos_ipca['x_treino']
+    st.session_state['x_teste'] = dados_salvos_ipca['x_teste']
+    st.session_state['y_treino'] = dados_salvos_ipca['y_treino']
+    st.session_state['y_teste'] = dados_salvos_ipca['y_teste']
+    st.session_state['index_treino'] = dados_salvos_ipca['index_treino']
+    st.session_state['index_teste'] = dados_salvos_ipca['index_teste']
+    st.session_state['y_teste_recorrente'] = dados_salvos_ipca['y_teste_recorrente']
+    st.session_state['y_treino_recorrente'] = dados_salvos_ipca['y_treino_recorrente']
+    st.session_state['x_teste_recorrente'] = dados_salvos_ipca['x_teste_recorrente']
+    st.session_state['x_treino_recorrente'] = dados_salvos_ipca['x_treino_recorrente']
+    st.session_state['predicoes_treino'] = dados_salvos_ipca['predicoes_treino']
+    st.session_state['predicoes_teste'] = dados_salvos_ipca['predicoes_teste']
+    st.session_state['metrica_teste'] = dados_salvos_ipca['metrica_teste']
+    st.session_state['metrica_treino'] = dados_salvos_ipca['metrica_treino']
+    st.session_state['melhor_modelo'] = dados_salvos_ipca['melhor_modelo']
+    st.session_state['dados_conformal'] = dados_salvos_ipca['dados_conformal']
+    st.session_state['dados_futuro'] = dados_salvos_ipca['dados_futuro']
+    st.session_state['modelos_carregados'] = dados_salvos_ipca['modelos_carregados']
     
-dados_salvos = st.session_state["dados_salvos"]
+dados_salvos_ipca = st.session_state["dados_salvos"]
 x_treino = st.session_state['x_treino']
 x_teste = st.session_state['x_teste']
 y_treino = st.session_state['y_treino']

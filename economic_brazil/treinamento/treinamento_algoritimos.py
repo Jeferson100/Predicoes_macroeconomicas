@@ -28,6 +28,10 @@ class TreinandoModelos:
         tuning_grid_search=False,
         tuning_random_search=False,
         tuning_bayes_search=True,
+        numero_divisoes=10,
+        gap_series=0,
+        max_train_size=100,
+        test_size=10,
         salvar_modelo=False,
         diretorio=None,
     ):
@@ -41,6 +45,10 @@ class TreinandoModelos:
         self.tuning_grid_search = tuning_grid_search
         self.tuning_random_search = tuning_random_search
         self.tuning_bayes_search = tuning_bayes_search
+        self.numero_divisoes = numero_divisoes
+        self.gap_series = gap_series
+        self.max_train_size = max_train_size
+        self.test_size = test_size
         self.salvar_modelo = salvar_modelo
         self.diretorio = diretorio
 
@@ -68,8 +76,20 @@ class TreinandoModelos:
         if gradiente_boosting:
             if param_grid_gradiente is None:
                 param_grid_gradiente = {
-                    "n_estimators": [100, 200, 300, 400, 500],
-                    "learning_rate": [0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
+                    "n_estimators": [2, 10, 20, 30, 50, 100, 200, 300, 400, 500],
+                    "learning_rate": [
+                        0.1,
+                        0.15,
+                        0.2,
+                        0.4,
+                        0.6,
+                        0.8,
+                        1,
+                        1.25,
+                        1.5,
+                        1.75,
+                        2,
+                    ],
                     "max_depth": [1, 3, 5, 7, 9],
                 }
             modelo_gradiente = self._treinar_com_tunagem(
@@ -83,8 +103,20 @@ class TreinandoModelos:
         if xg_boost:
             if param_grid_xgboost is None:
                 param_grid_xgboost = {
-                    "n_estimators": [100, 200, 300, 400, 500],
-                    "learning_rate": [0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
+                    "n_estimators": [2, 10, 20, 30, 50, 100, 200, 300, 400, 500],
+                    "learning_rate": [
+                        0.1,
+                        0.15,
+                        0.2,
+                        0.4,
+                        0.6,
+                        0.8,
+                        1,
+                        1.25,
+                        1.5,
+                        1.75,
+                        2,
+                    ],
                     "max_depth": [1, 3, 5, 7, 9],
                 }
             modelo_xgboost = self._treinar_com_tunagem(
@@ -98,8 +130,16 @@ class TreinandoModelos:
         if cat_boost:
             if param_grid_catboost is None:
                 param_grid_catboost = {
-                    "iterations": [1, 2, 10, 50, 100],
-                    "learning_rate": [0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2],
+                    "iterations": [2, 10, 20, 30, 50, 100, 200, 300, 400, 500],
+                    "learning_rate": [
+                        0.1,
+                        0.15,
+                        0.2,
+                        0.4,
+                        0.6,
+                        0.8,
+                        1
+                    ],
                     "depth": [1, 3, 5, 7, 9],
                 }
             modelo_catboost = self._treinar_com_tunagem(
@@ -151,7 +191,15 @@ class TreinandoModelos:
 
         :return: Modelo treinado.
         """
-        tuning = TimeSeriesModelTuner(modelo, self.x_treino, self.y_treino)
+        tuning = TimeSeriesModelTuner(
+            modelo,
+            self.x_treino,
+            self.y_treino,
+            self.numero_divisoes,
+            self.gap_series,
+            self.max_train_size,
+            self.test_size,
+        )
 
         if self.tuning_grid_search:
             best_params, _ = tuning.grid_search(param_grid)

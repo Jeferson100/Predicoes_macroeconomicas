@@ -1,7 +1,7 @@
 import sys
 sys.path.append('..')
-from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
-from economic_brazil.processando_dados.tratando_dados import TratandoDados
+#from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
+#from economic_brazil.processando_dados.tratando_dados import TratandoDados
 from economic_brazil.treinamento.treinamento_algoritimos import carregar
 from economic_brazil.analisando_modelos.analise_modelos_regressao import MetricasModelosDicionario,PredicaosModelos
 from economic_brazil.analisando_modelos.regressao_conformal import ConformalRegressionPlotter
@@ -14,7 +14,7 @@ import os
 warnings.filterwarnings("ignore", category=UserWarning)
 path_codigos_rodando = os.path.join(os.getcwd())
 
-variavel = 'ipca'
+variavel_predicao = 'ipca'
 
 SELIC_CODES = {
     "cambio": 3698,
@@ -71,17 +71,28 @@ lista = [
 
 ]
 
-economic_brazil = EconomicBrazil(codigos_banco_central=SELIC_CODES, codigos_ibge=variaveis_ibge, codigos_ipeadata=codigos_ipeadata_padrao, lista_termos_google_trends=lista, data_inicio="2000-01-01")
+#economic_brazil = EconomicBrazil(codigos_banco_central=SELIC_CODES, codigos_ibge=variaveis_ibge, codigos_ipeadata=codigos_ipeadata_padrao, lista_termos_google_trends=lista, data_inicio="2000-01-01")
 
-dados = economic_brazil.dados_brazil(dados_bcb= True, dados_expectativas_inflacao=True, dados_ibge_codigos=True, dados_metas_inflacao=True, dados_ibge_link=True, dados_ipeadata=True, dados_google_trends=True)
+#dados = economic_brazil.dados_brazil(dados_bcb= True, dados_expectativas_inflacao=True, dados_ibge_codigos=True, dados_metas_inflacao=True, dados_ibge_link=True, dados_ipeadata=True, dados_google_trends=True)
 
-tratando = TratandoDados(dados,coluna_label="ipca")
+arquivo_selic = path_codigos_rodando+f'/avaliacao_modelos/apresentacao_streamlit/dados_treinamento_{variavel_predicao}.pkl'
+dados_carregados = pickle.load(open(arquivo_selic, 'rb'))
 
-x_treino, x_teste, y_treino, y_teste,pca, scaler = tratando.tratando_dados()
-data_divisao_treino_teste = tratando.data_divisao_treino_teste()
+#tratando = TratandoDados(dados,coluna_label="ipca")
+dados = dados_carregados['dados']
+x_treino = dados_carregados['x_treino']
+x_teste = dados_carregados['x_teste']
+y_treino = dados_carregados['y_treino']
+y_teste = dados_carregados['y_teste']
+pca = dados_carregados['pca']
+if 'pca' in dados_carregados.keys():    
+    scaler = dados_carregados['scaler']
+data_divisao_treino_teste = dados_carregados['data_divisao_treino_teste']
+tratando = dados_carregados['tratando']
 
 
-modelos_carregados = carregar(diretorio=path_codigos_rodando+f'/modelos_salvos/modelos_{variavel}/',gradiente_boosting=True, xg_boost=True, cat_boost=True, regressao_linear=True, redes_neurais=True, sarimax=False)
+
+modelos_carregados = carregar(diretorio=path_codigos_rodando+f'/modelos_salvos/modelos_{variavel_predicao}/',gradiente_boosting=True, xg_boost=True, cat_boost=True, regressao_linear=True, redes_neurais=True, sarimax=False)
 
 #Prevendo os dados de treino e teste
 predi = PredicaosModelos(modelos_carregados, x_treino, y_treino, x_teste, y_teste)
@@ -103,7 +114,7 @@ metri.plotando_predicoes(
     index=index_treino,
     title="Predições nos dados de treino",
     save=True,
-    diretorio=path_codigos_rodando+f'/avaliacao_modelos/predicao_treino_{variavel}.png',
+    diretorio=path_codigos_rodando+f'/avaliacao_modelos/predicao_treino_{variavel_predicao}.png',
 )
 
 metri.plotando_predicoes(
@@ -112,7 +123,7 @@ metri.plotando_predicoes(
     index=index_teste,
     title="Predições nos dados de teste",
     save=True,
-    diretorio=path_codigos_rodando+f'/avaliacao_modelos/predicao_teste_{variavel}.png',
+    diretorio=path_codigos_rodando+f'/avaliacao_modelos/predicao_teste_{variavel_predicao}.png',
 )
 
 metri.plotando_predicoes_go_treino_teste(
@@ -123,13 +134,18 @@ metri.plotando_predicoes_go_treino_teste(
     index_treino,
     index_teste,
     save=True,
-    diretorio=path_codigos_rodando+f'/avaliacao_modelos/predicao_treino_teste_{variavel}.png',
+    diretorio=path_codigos_rodando+f'/avaliacao_modelos/predicao_treino_teste_{variavel_predicao}.png',
     type_arquivo='png'
 )
 
 ##melhor modelo baseado em MENOR erro absoluto (MAE)
-melhor_modelo = metrica_teste['MAE'].idxmin()
-print(f'Melhor modelo baseado na MAE mais baixo, com valor de {metrica_teste["MAE"].min()}:',melhor_modelo)
+modelos_validos_teste = metrica_teste[metrica_teste['Variance'] > 0.1]
+if modelos_validos_teste.empty:
+    melhor_modelo = metrica_teste['Variance'].idxmax()
+    print(f'Melhor modelo baseado na Variance mais alta, com valor de {metrica_teste["Variance"].max()}:',melhor_modelo)
+else:
+    melhor_modelo = modelos_validos_teste['MAE'].idxmin()
+    print(f'Melhor modelo baseado na MAE mais baixo, com valor de {metrica_teste["MAE"].min()}:',melhor_modelo)
 
 #Conformal
 index_treino_conformal = dados[dados.index <= data_divisao_treino_teste].index
@@ -139,11 +155,11 @@ with parallel_config(backend='threading', n_jobs=2):
     if melhor_modelo == 'redes_neurais':
         conformal = ConformalRegressionPlotter(KerasTrainedRegressor(modelos_carregados[melhor_modelo]), x_treino_recorrente, x_teste_recorrente, y_treino[1:], y_teste[1:])
         y_pred, y_pis, _,_ = conformal.regressao_conformal()
-        conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio=path_codigos_rodando+f'/avaliacao_modelos/regressao_conforma_teste_{variavel}.png')
+        conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio=path_codigos_rodando+f'/avaliacao_modelos/regressao_conforma_teste_{variavel_predicao}.png')
     else:
         conformal = ConformalRegressionPlotter(modelos_carregados[melhor_modelo], x_treino, x_teste, y_treino, y_teste)
         y_pred, y_pis, _,_ = conformal.regressao_conformal()
-        conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio=path_codigos_rodando+f'/avaliacao_modelos/regressao_conforma_teste_{variavel}.png')
+        conformal.plot_prediction_intervals(index_train=index_treino_conformal, index_test=index_teste_conformal,title=f'Predição Intervals {melhor_modelo}',save=True,diretorio=path_codigos_rodando+f'/avaliacao_modelos/regressao_conforma_teste_{variavel_predicao}.png')
 
 dados_corformal = {
     'data': index_teste[1:],
@@ -153,7 +169,7 @@ dados_corformal = {
 
 ## Predicao futuro
 with parallel_config(backend='threading', n_jobs=2):
-    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],coluna=variavel)
+    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],coluna=variavel_predicao)
     
 dados_corformal = {
     'data': index_teste[1:],
@@ -167,7 +183,9 @@ with parallel_config(backend='threading', n_jobs=2):
 dados_predicao_futuro, _, index_futuro = predicao.criando_dados_futuros()
 dados_predicao = predicao.criando_dataframe_predicoes()
 #dados_predicao.to_csv('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_predicao.csv',index=False)
+
 print(dados_predicao)
+
 data_predicao,intervalo_lower,intervalo_upper,predicao_proximo_mes = predicao.predicao_ultimo_periodo()
 dados_futuro = {
     'data': data_predicao,
@@ -180,6 +198,7 @@ predicao.plotando_predicoes(save=True,diretorio=path_codigos_rodando+'/avaliacao
 
 ###salvando os dados
 dados_salvos = {}
+dados_salvos['dados'] = dados
 dados_salvos['y_treino'] = y_treino
 dados_salvos['x_treino'] = x_treino
 dados_salvos['y_treino_recorrente'] = y_treino_recorrente
@@ -200,5 +219,5 @@ dados_salvos['dados_predicao'] = dados_predicao
 dados_salvos['dados_futuro'] = dados_futuro
 dados_salvos['modelos_carregados'] = list(modelos_carregados.keys())
 
-with open(path_codigos_rodando+f'/avaliacao_modelos/apresentacao_streamlit/dados_salvos_{variavel}.pkl', 'wb') as f:
+with open(path_codigos_rodando+f'/avaliacao_modelos/apresentacao_streamlit/dados_salvos_{variavel_predicao}.pkl', 'wb') as f:
     pickle.dump(dados_salvos, f)

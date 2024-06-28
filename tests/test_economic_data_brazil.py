@@ -11,8 +11,6 @@ def econ_brazil():
 
 
 # pylint: disable=W0621
-
-
 def test_dados_banco_central(econ_brazil):
     # dados_economicos = EconomicBrazil()
     dados = econ_brazil.dados_banco_central()
@@ -56,9 +54,15 @@ def test_dados_google_trends(econ_brazil):
     assert isinstance(dados, pd.DataFrame)
 
 
-def test_dados_dados_brazil(econ_brazil):
+def test_dados_fred(econ_brazil):
+    dados = econ_brazil.dados_fred()
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert isinstance(dados, pd.DataFrame)
+
+
+def test_dados_brazil(econ_brazil):
     dados = econ_brazil.dados_brazil()
-    assert not dados.isna().any().any()
+    assert dados.notnull().all().all()
     assert isinstance(dados.index, pd.DatetimeIndex)
     assert isinstance(dados, pd.DataFrame)
 

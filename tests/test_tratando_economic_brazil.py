@@ -5,6 +5,7 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_metas_inflacao,
     tratatando_dados_ipeadata,
     tratando_dados_google_trends,
+    tratando_dados_ibge_link_producao_agricola,
 )
 import pandas as pd
 
@@ -57,6 +58,16 @@ def test_tratando_dados_ibge_link_columns():
         link="https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/90707/d/v6561%201/l/v,p%2Bc11255,t",
     )
     assert "pib" in dados.columns
+
+
+def test_tratando_dados_ibge_link_producao_agricola():
+    dados = tratando_dados_ibge_link_producao_agricola(
+        url="https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
+        nome_coluna="soja",
+    )
+    assert isinstance(dados.index, pd.DatetimeIndex)
+    assert "soja" in dados.columns
+    assert isinstance(dados, pd.DataFrame)
 
 
 # write tests for tratando_metas_inflacao
