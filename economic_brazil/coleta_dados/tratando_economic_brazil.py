@@ -6,7 +6,6 @@ from .coleta_economic_brazil import (
     dados_ibge_link,
     dados_ibge_codigos,
     dados_expectativas_focus,
-    metas_inflacao,
     dados_ipeadata,
     coleta_google_trends,
 )
@@ -248,34 +247,6 @@ def tratando_dados_expectativas(salvar=False, formato="csv", diretorio=None):
             dados_ipca.to_json(diretorio)
 
     return dados_ipca
-
-
-## Tratando metas de inflação
-
-
-def tratando_metas_inflacao(salvar=False, formato="csv", diretorio=None):
-    historico_inflacao = metas_inflacao()
-    duplicado_ano_2000 = int(
-        historico_inflacao[historico_inflacao["anos"].duplicated()]["anos"].iloc[0]
-    )
-    if duplicado_ano_2000 == 2000:
-        primeira_ocorrencia = historico_inflacao["anos"].duplicated(keep="first")
-        historico_inflacao.loc[primeira_ocorrencia, "anos"] = "2001"
-    historico_inflacao.index = pd.to_datetime(
-        historico_inflacao["anos"].str.strip(), format="%Y"
-    )
-    historico_inflacao.drop("anos", axis=1, inplace=True)
-    historico_inflacao = historico_inflacao.resample("MS").ffill()
-
-    if salvar:
-        if diretorio is None:
-            raise ValueError("Diretório não especificado para salvar o arquivo")
-        if formato == "csv":
-            historico_inflacao.to_csv(diretorio)
-        elif formato == "json":
-            historico_inflacao.to_json(diretorio)
-
-    return historico_inflacao
 
 
 def tratatando_dados_ipeadata(codigo_ipeadata, data="2000-01-01"):

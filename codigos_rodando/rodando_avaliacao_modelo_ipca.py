@@ -29,6 +29,7 @@ SELIC_CODES = {
     "saldo_bc": 22707,
     "vendas_auto": 7384,
     "divida_liquida_spc": 4513,
+    'metas_inflacao': 13521
 }
 
 variaveis_ibge = {
@@ -71,9 +72,7 @@ lista = [
 
 ]
 
-#economic_brazil = EconomicBrazil(codigos_banco_central=SELIC_CODES, codigos_ibge=variaveis_ibge, codigos_ipeadata=codigos_ipeadata_padrao, lista_termos_google_trends=lista, data_inicio="2000-01-01")
 
-#dados = economic_brazil.dados_brazil(dados_bcb= True, dados_expectativas_inflacao=True, dados_ibge_codigos=True, dados_metas_inflacao=True, dados_ibge_link=True, dados_ipeadata=True, dados_google_trends=True)
 
 arquivo_selic = path_codigos_rodando+f'/avaliacao_modelos/apresentacao_streamlit/dados_treinamento_{variavel_predicao}.pkl'
 dados_carregados = pickle.load(open(arquivo_selic, 'rb'))
@@ -139,10 +138,25 @@ metri.plotando_predicoes_go_treino_teste(
 )
 
 ##melhor modelo baseado em MENOR erro absoluto (MAE)
-modelos_validos_teste = metrica_teste[metrica_teste['Variance'] > 0.1]
+modelos_validos_teste = metrica_teste[metrica_teste['Variance'] > 0.06]
 if modelos_validos_teste.empty:
-    melhor_modelo = metrica_teste['Variance'].idxmax()
-    print(f'Melhor modelo baseado na Variance mais alta, com valor de {metrica_teste["Variance"].max()}:',melhor_modelo)
+    # Calcular a diferença absoluta entre métricas de treino e teste
+    metrica_treino = metrica_treino.reindex(metrica_teste.index)
+    metricas_diferenca = pd.DataFrame(index=metrica_treino.index)
+    metricas_diferenca['MAE_diff'] =abs(metrica_treino['MAE'] - metrica_teste['MAE'])
+    metricas_diferenca['MSE_diff'] = abs(metrica_treino['MSE'] - metrica_teste['MSE'])
+    metricas_diferenca['RMSE_diff'] = abs(metrica_treino['RMSE'] - metrica_teste['RMSE'])
+
+    # Calcular a soma das diferenças
+    metricas_diferenca['total_diff'] = (metricas_diferenca['MAE_diff'] +
+                                        metricas_diferenca['MSE_diff'] +
+                                        metricas_diferenca['RMSE_diff'])
+    # Selecionar o modelo com a menor soma das diferenças
+    melhor_modelo = metricas_diferenca['total_diff'].idxmin()
+    menor_diferenca = metricas_diferenca['total_diff'].min()
+
+    print(f'Melhor modelo baseado na menor diferença entre treino e teste, com valor de {menor_diferenca}:', melhor_modelo)
+    print(metricas_diferenca)
 else:
     melhor_modelo = modelos_validos_teste['MAE'].idxmin()
     print(f'Melhor modelo baseado na MAE mais baixo, com valor de {metrica_teste["MAE"].min()}:',melhor_modelo)

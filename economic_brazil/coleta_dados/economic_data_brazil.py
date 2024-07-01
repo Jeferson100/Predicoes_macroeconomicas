@@ -13,7 +13,6 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_dados_expectativas,
     tratando_dados_ibge_link,
     tratando_dados_ibge_codigos,
-    tratando_metas_inflacao,
     tratatando_dados_ipeadata,
     tratando_dados_google_trends,
     tratando_dados_ibge_link_producao_agricola,
@@ -178,14 +177,6 @@ class EconomicBrazil:
         else:
             return dic_expectativas_inflacao
 
-    def dados_metas_inflacao(self, salvar=None, diretorio=None, formato="csv"):
-        dic_metas_inflacao = self.data_index()
-        dic_metas_inflacao = dic_metas_inflacao.join(tratando_metas_inflacao())
-        if salvar:
-            self.salvar_dados(dic_metas_inflacao, diretorio, formato)
-        else:
-            return dic_metas_inflacao
-
     def dados_ibge(self, salvar=False, diretorio=None, formato="pickle"):
         dic_ibge = self.data_index()
         for key, valor in self.codigos_ibge.items():
@@ -333,7 +324,6 @@ class EconomicBrazil:
         dados_expectativas_inflacao=True,
         dados_ibge_link=True,
         dados_ipeadata=True,
-        dados_metas_inflacao=True,
         dados_google_trends=False,
         dados_fred=False,
         sem_dados_faltantes=True,
@@ -352,8 +342,6 @@ class EconomicBrazil:
             dados = dados.join(self.dados_ibge_link())
         if dados_expectativas_inflacao:
             dados = dados.join(self.dados_expectativas_inflacao())
-        if dados_metas_inflacao:
-            dados = dados.join(self.dados_metas_inflacao())
         if dados_ipeadata:
             dados = dados.join(self.dados_ipeadata())
         if dados_google_trends:

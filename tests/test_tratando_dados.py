@@ -22,7 +22,6 @@ def sample_data():
     # pylint: disable=W0621
     economic_brazil = EconomicBrazil(data_inicio="2000-01-01")
     dados = economic_brazil.dados_brazil(
-        dados_metas_inflacao=False,
         dados_ibge_link=False,
         dados_expectativas_inflacao=False,
     )

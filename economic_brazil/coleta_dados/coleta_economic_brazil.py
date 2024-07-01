@@ -1,15 +1,11 @@
 import sys
-
 sys.path.append("..")
 import pandas as pd
 from bcb import sgs
 import sidrapy
 from bcb import Expectativas
 import ipeadatapy as ip
-from bs4 import BeautifulSoup
 from pytrends.request import TrendReq
-import requests
-import math
 import time
 from datetime import date
 import quandl
@@ -98,82 +94,6 @@ def dados_expectativas_focus(
     )
     return ipca_expec
 
-
-# Metas de inflacao
-
-
-def metas_inflacao():
-    # Load the web page and extract the table contents
-    url = (
-        "https://www.bcb.gov.br/api/paginasite/sitebcb/controleinflacao/historicometas"
-    )
-    page = requests.get(url, timeout=10)
-    soup = BeautifulSoup(page.content, "html.parser")
-    table = soup.find_all("table")[0]
-
-    # Extract the data and inflation target columns and remove unwanted rows
-    td = table.find_all("td")
-    # Define regular expressions to extract the year and inflation target values
-    # year_regex = r"<td>(\d{4})<br/></td>"
-    # year_tags = re.findall(year_regex, str(td))
-
-    ##Pergar meta de inflacao
-    meta_inflacao = []
-    ano_inflacao = []
-    inflacao_efetiva = []
-    index = 0
-    for _ in range(3):
-        meta_inflacao.append(td[8 + index].get_text())
-        ano_inflacao.append(td[7 + index].get_text())
-        inflacao_efetiva.append(td[11 + index].get_text())
-        index = index + 5
-        index = 0
-    for _ in range(math.ceil((len(td) - 20) / 7)):
-        meta_inflacao.append(td[20 + index].get_text())
-        ano_inflacao.append(td[17 + index].get_text())
-        inflacao_efetiva.append(td[23 + index].get_text())
-        index = index + 7
-        historico_inflacao = pd.DataFrame()
-        historico_inflacao["meta_inflacao"] = meta_inflacao
-        historico_inflacao["anos"] = ano_inflacao
-        historico_inflacao["inflacao_efetiva"] = inflacao_efetiva
-    # Apagando a linha 2
-    historico_inflacao.drop(2, axis=0, inplace=True)
-    historico_inflacao.loc[4, "inflacao_efetiva"] = historico_inflacao.loc[
-        4, "inflacao_efetiva"
-    ][:3]
-    historico_inflacao.loc[5, "meta_inflacao"] = historico_inflacao.loc[
-        5, "meta_inflacao"
-    ][:3]
-    historico_inflacao.loc[0, "meta_inflacao"] = historico_inflacao.loc[
-        0, "meta_inflacao"
-    ][-1]
-    historico_inflacao.loc[21, "meta_inflacao"] = historico_inflacao.loc[
-        21, "meta_inflacao"
-    ][-1]
-
-    # Funcao para tirar valores \u200b
-    funcao = [lambda x: x.replace("\u200b", "")]
-    funcao_2 = [lambda x: x.replace(",", ".")]
-    funcao_3 = [lambda x: x.replace("*", "")]
-    # Arruma a coluna meta inflacao
-    historico_inflacao["meta_inflacao"] = (
-        historico_inflacao["meta_inflacao"].apply(funcao).apply(funcao_2).astype(float)
-    )
-    # Arruma coluna anos
-    historico_inflacao["anos"] = historico_inflacao["anos"].apply(funcao_3)
-    # Coverte em flutuante a coluna inflacao_efetiva
-    historico_inflacao["inflacao_efetiva"] = (
-        historico_inflacao["inflacao_efetiva"].apply(funcao).apply(funcao_2)
-    )
-    historico_inflacao["inflacao_efetiva"] = pd.to_numeric(
-        historico_inflacao["inflacao_efetiva"], errors="coerce"
-    ).tolist()
-    historico_inflacao["diferenca_meta_efetiva"] = (
-        historico_inflacao["meta_inflacao"] - historico_inflacao["inflacao_efetiva"]
-    )
-
-    return historico_inflacao
 
 
 def dados_ipeadata(codigo="ANBIMA12_TJTLN1212", data="2020-01-01"):

@@ -22,6 +22,8 @@ codigos_banco_central = {
     "saldo_bc": 22707,
     "vendas_auto": 7384,
     "divida_liquida_spc": 4513,
+    'metas_inflacao': 13521,
+    'indice_expectativas_futuras': 4395
 }
 
 variaveis_ibge = {
@@ -70,7 +72,6 @@ variavel_predicao = 'ipca'
 dados_bcb = True
 dados_ibge = True
 dados_expectativas_inflacao = True
-dados_metas_inflacao = True
 dados_ibge_link = True
 dados_ipeadata = True
 dados_google_trends = True
@@ -87,7 +88,6 @@ economic_brazil = EconomicBrazil(codigos_banco_central=codigos_banco_central,
 dados = economic_brazil.dados_brazil(dados_bcb= dados_bcb,
                                      dados_expectativas_inflacao=dados_expectativas_inflacao, 
                                      dados_ibge_codigos=dados_ibge, 
-                                     dados_metas_inflacao=dados_metas_inflacao, 
                                      dados_ibge_link=dados_ibge_link, 
                                      dados_ipeadata=dados_ipeadata, 
                                      dados_google_trends=dados_google_trends,)

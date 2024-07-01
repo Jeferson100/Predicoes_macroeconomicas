@@ -3,6 +3,7 @@ sys.path.append('..')
 from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
 from economic_brazil.processando_dados.tratando_dados import TratandoDados
 from economic_brazil.treinamento.treinamento_algoritimos import TreinandoModelos
+from sklearn.preprocessing import StandardScaler
 import warnings
 import pandas as pd
 import pickle
@@ -18,7 +19,14 @@ banco_central_codes = {
     "venda_veiculos_concessionarias": 1378,
     "indicador_movimento_comercio_prazo": 1453,
     "indice_volume_vendas_varejo": 1455,
-    "imposto_sobre_produtos": 22098
+    "imposto_sobre_produtos": 22098,
+    "divida_liquida_spc": 4513,
+    'metas_inflacao': 13521,
+    'indice_expectativas_futuras': 4395,
+    'indice_cambio_real_efetiva':11752,
+    'rendimento_medio_real_trabalhadores':24381,
+    'massa_rendimento_real_trabalhadores':28544
+    
 }
 
 variaveis_ibge = {
@@ -87,6 +95,7 @@ codigos_ipeadata_padrao = {
     'm_1': 'BM12_M1MN12',
     'taxa_cambio': 'PAN12_ERV12',
     'atividade_economica': 'SGS12_IBCBR12',
+    
 }
 
 lista = [
@@ -123,7 +132,6 @@ variavel_predicao = 'pib'
 dados_bcb = True
 dados_ibge = True
 dados_expectativas_inflacao = False
-dados_metas_inflacao = False
 dados_ibge_link = True
 dados_ipeadata = True
 dados_google_trends = True
@@ -141,7 +149,6 @@ dados = economic_brasil.dados_brazil(
                 dados_bcb=dados_bcb,
                 dados_ipeadata=dados_ipeadata,
                 dados_fred=dados_fred,
-                dados_metas_inflacao=dados_metas_inflacao,
                 dados_google_trends=dados_google_trends,
                 dados_expectativas_inflacao=dados_expectativas_inflacao,
                 dados_ibge_link=dados_ibge_link,
@@ -153,7 +160,7 @@ dados_trimestral = dados.resample('QS').median()
 
 ############################################################################## TRATAMENTO ############################################################################
 
-
+scaler_y = False
 tratando_scaler = True
 tratando_pca = True
 tratando_dummy_covid = True
@@ -178,6 +185,12 @@ x_treino, x_teste, y_treino, y_teste,pca, scaler = tratando.tratando_dados(scale
                                                                            )
 
 data_divisao_treino_teste = tratando.data_divisao_treino_teste()
+
+if scaler_y:
+    stard_y = StandardScaler()
+    stard_y.fit(y_treino.reshape(-1,1))
+    y_treino = stard_y.transform(y_treino.reshape(-1,1)).flatten()
+    y_teste = stard_y.transform(y_teste.reshape(-1,1)).flatten()
 
 ################################################################################## TREINAMENTO ############################################################################
 param_grid_gradiente = {
@@ -216,7 +229,7 @@ modelo_sarimax = False
 modelo_gradient_boosting = True
 modelo_regresao_linear = True
 modelo_xgboost = True
-redes_neurais_tuning = False
+redes_neurais_tuning = True
 
 modelos_tunning = tuning.treinar_modelos(redes_neurais=modelo_redes_neurais,
                                          cat_boost=modelo_cast,

@@ -119,10 +119,6 @@ dados.dados_expectativas_inflacao(salvar=True, diretorio='dados_expectativas_inf
 
 print('Coletando dados Expectativas Inflacao')
 
-dados.dados_metas_inflacao(salvar=True, diretorio='dados_metas_inflacao', formato='pickle')
-
-print('Coletando dados Metas Inflacao')
-
 dados.dados_ibge_link(salvar=True, diretorio='dados_ibge_link', formato='pickle')
 
 print('Coletando dados IBGE Link')

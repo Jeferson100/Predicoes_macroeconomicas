@@ -92,10 +92,26 @@ metri.plotando_predicoes_go_treino_teste(
 
 modelos_validos_teste = metrica_teste[metrica_teste['Variance'] > 0.1]
 if modelos_validos_teste.empty:
-    melhor_modelo = metrica_teste['Variance'].idxmax()
+    # Calcular a diferença absoluta entre métricas de treino e teste
+    metrica_treino = metrica_treino.reindex(metrica_teste.index)
+    metricas_diferenca = pd.DataFrame(index=metrica_treino.index)
+    metricas_diferenca['MAE_diff'] =abs(metrica_treino['MAE'] - metrica_teste['MAE'])
+    metricas_diferenca['MSE_diff'] = abs(metrica_treino['MSE'] - metrica_teste['MSE'])
+    metricas_diferenca['RMSE_diff'] = abs(metrica_treino['RMSE'] - metrica_teste['RMSE'])
+
+    # Calcular a soma das diferenças
+    metricas_diferenca['total_diff'] = (metricas_diferenca['MAE_diff'] +
+                                        metricas_diferenca['MSE_diff'] +
+                                        metricas_diferenca['RMSE_diff'])
+    # Selecionar o modelo com a menor soma das diferenças
+    melhor_modelo = metricas_diferenca['total_diff'].idxmin()
+    menor_diferenca = metricas_diferenca['total_diff'].min()
+
+    print(f'Melhor modelo baseado na menor diferença entre treino e teste, com valor de {menor_diferenca}:', melhor_modelo)
+    print(metricas_diferenca)
 else:
     melhor_modelo = modelos_validos_teste['MAE'].idxmin()
-print(f'Melhor modelo baseado na MAE mais baixo, com valor de {metrica_teste["MAE"].min()}:',melhor_modelo)
+    print(f'Melhor modelo baseado na MAE mais baixo, com valor de {metrica_teste["MAE"].min()}:',melhor_modelo)
 
 #Conformal
 index_treino_conformal = dados[dados.index <= data_divisao_treino_teste].index

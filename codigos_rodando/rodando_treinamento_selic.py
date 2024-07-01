@@ -19,7 +19,16 @@ SELIC_CODES = {
     "IPCA-MA": 11426,
     "IPCA-EX0": 11427,
     "IPCA-EX1": 16121,
-    "IPCA-DP": 16122,}
+    "IPCA-DP": 16122,
+    "divida_liquida_spc": 4513,
+    'metas_inflacao': 13521,
+    'indice_expectativas_futuras': 4395,
+    "divida_liquida_spc": 4513,
+    'metas_inflacao': 13521,
+    'indice_expectativas_futuras': 4395,
+    'indice_cambio_real_efetiva':11752,
+    'rendimento_medio_real_trabalhadores':24381,
+    'massa_rendimento_real_trabalhadores':28544}
 
 variaveis_ibge = {
     'ipca': {'codigo': 1737, 'territorial_level': '1', 'ibge_territorial_code': 'all', 'variable': '63'},}
@@ -29,7 +38,6 @@ variavel_predicao = 'selic'
 dados_bcb = True
 dados_ibge = True
 dados_expectativas_inflacao = True
-dados_metas_inflacao = True
 dados_ibge_link = True
 dados_ipeadata = False
 dados_google_trends = False
@@ -42,7 +50,6 @@ dados = economic_brazil.dados_brazil(dados_ipeadata=dados_ipeadata,
                                      dados_google_trends=dados_google_trends, 
                                      dados_expectativas_inflacao=dados_expectativas_inflacao, 
                                      dados_ibge_codigos=dados_ibge, 
-                                     dados_metas_inflacao=dados_metas_inflacao, 
                                      dados_ibge_link=dados_ibge_link)
 
 tratando_scaler = True

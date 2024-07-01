@@ -24,12 +24,6 @@ def test_dados_expectativas_inflacao(econ_brazil):
     assert isinstance(dados, pd.DataFrame)
 
 
-def test_dados_metas_inflacao(econ_brazil):
-    dados = econ_brazil.dados_metas_inflacao()
-    assert isinstance(dados.index, pd.DatetimeIndex)
-    assert isinstance(dados, pd.DataFrame)
-
-
 def test_dados_ibge(econ_brazil):
     dados = econ_brazil.dados_ibge()
     assert isinstance(dados.index, pd.DatetimeIndex)

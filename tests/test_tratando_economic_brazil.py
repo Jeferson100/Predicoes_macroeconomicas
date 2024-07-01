@@ -2,7 +2,6 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_dados_expectativas,
     tratando_dados_ibge_codigos,
     tratando_dados_ibge_link,
-    tratando_metas_inflacao,
     tratatando_dados_ipeadata,
     tratando_dados_google_trends,
     tratando_dados_ibge_link_producao_agricola,
@@ -68,19 +67,6 @@ def test_tratando_dados_ibge_link_producao_agricola():
     assert isinstance(dados.index, pd.DatetimeIndex)
     assert "soja" in dados.columns
     assert isinstance(dados, pd.DataFrame)
-
-
-# write tests for tratando_metas_inflacao
-def test_tratando_metas_inflacao_time():
-    dados = tratando_metas_inflacao()
-    assert isinstance(dados.index, pd.DatetimeIndex)
-
-
-def test_tratando_metas_inflacao_columns():
-    dados = tratando_metas_inflacao()
-    assert ["meta_inflacao", "inflacao_efetiva", "diferenca_meta_efetiva"] == list(
-        dados.columns
-    )
 
 
 def test_tratatando_dados_ipeadata():

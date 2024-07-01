@@ -146,10 +146,16 @@ with col1:
     fig.add_trace(go.Scatter(x=index_teste, y=y_teste, mode='lines', name='Valores Reais'))
     if len(modelos_filtrados) > 0:
         for modelo in modelos_filtrados_lista:
-            fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=modelo))
+            if modelo == 'redes_neurais': 
+                fig.add_trace(go.Scatter(x=index_teste[1:], y=predicoes_teste[modelo], mode='lines', name=modelo))
+            else:
+                fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=modelo)) 
     else:
         for modelo in predicoes_teste.keys():
-            fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=modelo))
+            if modelo == 'redes_neurais': 
+                fig.add_trace(go.Scatter(x=index_teste[1:], y=predicoes_teste[modelo], mode='lines', name=modelo))
+            else:
+                fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=modelo))
         
     fig.update_layout(
         title="Predição dados de Teste",
@@ -204,17 +210,30 @@ with col1:
     fig.add_trace(go.Scatter(x=index_treino, y=y_treino, mode='lines', name='Valores Reais (Treino)'))
     if len(modelos_filtrados) > 0:
         for modelo in modelos_filtrados_lista:
-            fig.add_trace(go.Scatter(x=index_treino, y=predicoes_treino[modelo], mode='lines', name=f'{modelo} (Treino)'))
+            if modelo == 'redes_neurais': 
+                fig.add_trace(go.Scatter(x=index_treino[1:], y=predicoes_treino[modelo], mode='lines', name=f'{modelo} (Treino)'))
+            else:
+                fig.add_trace(go.Scatter(x=index_treino, y=predicoes_treino[modelo], mode='lines', name=f'{modelo} (Treino)'))
     else:
         for modelo in predicoes_teste.keys():
-            fig.add_trace(go.Scatter(x=index_treino, y=predicoes_treino[modelo], mode='lines', name=f'{modelo} (Treino)'))
+            if modelo == 'redes_neurais': 
+                fig.add_trace(go.Scatter(x=index_treino[1:], y=predicoes_treino[modelo], mode='lines', name=f'{modelo} (Treino)'))
+            else:
+                fig.add_trace(go.Scatter(x=index_treino, y=predicoes_treino[modelo], mode='lines', name=f'{modelo} (Treino)'))
+                
     fig.add_trace(go.Scatter(x=index_teste, y=y_teste, mode='lines', name='Valores Reais (Teste)'))
     if len(modelos_filtrados) > 0:
         for modelo in modelos_filtrados_lista:
-            fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=f'{modelo} (Teste)'))
+            if modelo == 'redes_neurais': 
+                fig.add_trace(go.Scatter(x=index_teste[1:], y=predicoes_teste[modelo], mode='lines', name=f'{modelo} (Teste)'))
+            else:
+                fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=f'{modelo} (Teste)'))
     else:
         for modelo in predicoes_teste.keys():
-            fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=f'{modelo} (Teste)'))
+            if modelo == 'redes_neurais': 
+                fig.add_trace(go.Scatter(x=index_teste[1:], y=predicoes_teste[modelo], mode='lines', name=f'{modelo} (Teste)'))
+            else:
+                fig.add_trace(go.Scatter(x=index_teste, y=predicoes_teste[modelo], mode='lines', name=f'{modelo} (Teste)'))
         
     fig.update_layout(
     
