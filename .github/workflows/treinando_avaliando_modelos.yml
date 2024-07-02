@@ -2,7 +2,7 @@ name: Treinando Modelos e Avaliando Modelos
 on:
 
   schedule:
-    - cron: "* * 2 * *"
+    - cron: "0 7 2 * *"
   workflow_dispatch:
 jobs:
     build:
