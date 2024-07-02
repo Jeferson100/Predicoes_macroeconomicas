@@ -16,64 +16,6 @@ path_codigos_rodando = os.path.join(os.getcwd())
 
 variavel_predicao = 'ipca'
 
-SELIC_CODES = {
-    "cambio": 3698,
-    "pib_mensal": 4380,
-    "igp_m": 189,
-    "igp_di": 190,
-    "m1": 27788,
-    "m2": 27810,
-    "m3": 27813,
-    "m4": 27815,
-    "estoque_caged": 28763,
-    "saldo_bc": 22707,
-    "vendas_auto": 7384,
-    "divida_liquida_spc": 4513,
-    'metas_inflacao': 13521
-}
-
-variaveis_ibge = {
-    "ipca": {
-        "codigo": 1737,
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "63",
-    },
-    "custo_m2": {
-        "codigo": 2296,
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "1198",
-    },
-    "pesquisa_industrial_mensal": {
-        "codigo": 8159,
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "11599",
-    },
-    "pmc_volume": {
-        "codigo": 8186,
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "11709",
-    },
-}
-
-codigos_ipeadata_padrao = {
-    "taja_juros_ltn": "ANBIMA12_TJTLN1212",
-    "imposto_renda": "SRF12_IR12",
-    "ibovespa": "ANBIMA12_IBVSP12",
-    "consumo_energia": "ELETRO12_CEET12",
-    "brent_fob": "EIA366_PBRENT366",
-}
-
-lista = [
-    'seguro desemprego',
-
-]
-
-
-
 arquivo_selic = path_codigos_rodando+f'/avaliacao_modelos/apresentacao_streamlit/dados_treinamento_{variavel_predicao}.pkl'
 dados_carregados = pickle.load(open(arquivo_selic, 'rb'))
 
@@ -83,9 +25,16 @@ x_treino = dados_carregados['x_treino']
 x_teste = dados_carregados['x_teste']
 y_treino = dados_carregados['y_treino']
 y_teste = dados_carregados['y_teste']
-pca = dados_carregados['pca']
-if 'pca' in dados_carregados.keys():    
+if 'scaler' in dados_carregados.keys():    
     scaler = dados_carregados['scaler']
+if 'pca' in dados_carregados.keys():    
+    pca = dados_carregados['pca']
+if 'rfe_model' in dados_carregados.keys():
+    rfe_model = dados_carregados['rfe_model']
+if 'smart_model' in dados_carregados.keys():
+    smart_model = dados_carregados['smart_model']
+if 'variance_model' in dados_carregados.keys():
+    variance_model = dados_carregados['variance_model']
 data_divisao_treino_teste = dados_carregados['data_divisao_treino_teste']
 tratando = dados_carregados['tratando']
 
@@ -193,7 +142,7 @@ dados_corformal = {
 
 ## Predicao futuro
 with parallel_config(backend='threading', n_jobs=2):
-    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],coluna='ipca')
+    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],coluna=variavel_predicao)
 dados_predicao_futuro, _, index_futuro = predicao.criando_dados_futuros()
 dados_predicao = predicao.criando_dataframe_predicoes()
 #dados_predicao.to_csv('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_predicao.csv',index=False)

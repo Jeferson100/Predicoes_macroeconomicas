@@ -95,24 +95,33 @@ dados = economic_brazil.dados_brazil(dados_bcb= dados_bcb,
 
 print(dados.shape)
 
-tratando = TratandoDados(dados,
-                         coluna_label=variavel_predicao,
-                         n_components=10,
-                         numero_defasagens=4)
-
 tratando_scaler = True
-tratando_pca = True
+tratando_pca = False
 tratando_dummy_covid = True
 tratando_defasagens = True
 tratando_datas = True
 tratando_estacionaridade = True
+tratando_rfe = True
+tratando_smart_correlation = True
+tratando_variance = True
+data_divisao = '2020-06-01'
 
-x_treino, x_teste, y_treino, y_teste,pca, scaler = tratando.tratando_dados(scaler=tratando_scaler, 
-                                                                           pca=tratando_pca, 
-                                                                           covid=tratando_dummy_covid, 
-                                                                           datas=tratando_datas, 
-                                                                           defasagens=tratando_defasagens, 
-                                                                           estacionaridade=tratando_estacionaridade)
+tratando = TratandoDados(dados,
+                         coluna_label=variavel_predicao,
+                         data_divisao=data_divisao,
+                         numero_defasagens=4,
+                         n_features_to_select=100,
+                         scaler=tratando_scaler, 
+                        pca=tratando_pca, 
+                        covid=tratando_dummy_covid, 
+                        datas=tratando_datas, 
+                        defasagens=tratando_defasagens, 
+                        estacionaridade=tratando_estacionaridade,
+                        rfe=tratando_rfe,
+                        smart_correlation=tratando_smart_correlation,
+                        variancia=tratando_variance)
+
+x_treino, x_teste, y_treino, y_teste, pca , scaler , rfe_model, variance_model, smart_model = tratando.tratando_dados()
 
 data_divisao_treino_teste = tratando.data_divisao_treino_teste()
 
@@ -143,6 +152,12 @@ if pca:
     dados_salvos['pca'] = pca
 if scaler:
     dados_salvos['scaler'] = scaler
+if rfe_model:
+    dados_salvos['rfe_model'] = rfe_model
+if variance_model:
+    dados_salvos['variance_model'] = variance_model
+if smart_model:
+    dados_salvos['smart_model'] = smart_model
 dados_salvos['data_divisao_treino_teste'] = data_divisao_treino_teste
 dados_salvos['tratando'] = tratando
 

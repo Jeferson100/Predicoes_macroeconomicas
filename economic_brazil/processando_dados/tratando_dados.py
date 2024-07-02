@@ -10,6 +10,9 @@ from economic_brazil.processando_dados.data_processing import (
 from economic_brazil.processando_dados.estacionaridade import Estacionaridade
 from sklearn.decomposition import PCA
 from economic_brazil.processando_dados.divisao_treino_teste import treino_test_dados
+from sklearn.feature_selection import RFE,VarianceThreshold
+from feature_engine.selection import SmartCorrelatedSelection
+from sklearn.linear_model import LinearRegression
 
 
 class TratandoDados:
@@ -20,6 +23,18 @@ class TratandoDados:
         coluna_label=None,
         numero_defasagens=None,
         n_components=None,
+        n_features_to_select=None,
+        variancia_threshold=None,
+        smart_correlated_threshold=None,
+        covid=True,
+        estacionaridade=True,
+        datas=True,
+        defasagens=True,
+        pca=True,
+        scaler=True,
+        rfe=False,
+        variancia=False,
+        smart_correlation=False
     ):
         self.df = df
         self.scaler_modelo = None
@@ -28,6 +43,18 @@ class TratandoDados:
         self.coluna_label = coluna_label
         self.numero_defasagens = numero_defasagens
         self.n_components = n_components
+        self.n_features_to_select = n_features_to_select
+        self.variancia_threshold = variancia_threshold
+        self.smart_correlated_threshold = smart_correlated_threshold
+        self.covid = covid
+        self.estacionaridade = estacionaridade
+        self.datas = datas
+        self.defasagens = defasagens
+        self.pca = pca
+        self.scaler = scaler
+        self.rfe = rfe
+        self.variancia = variancia
+        self.smart_correlation = smart_correlation
 
     def data_divisao_treino_teste(self):
         if self.data_divisao is None:
@@ -134,17 +161,45 @@ class TratandoDados:
         pca = PCA(n_components=self.n_components)
         dados_pca = pca.fit_transform(dados)
         return pca, dados_pca
+    
+    def tratando_RFE(self, dados_x, dados_y):
+        """
+        Aplica RFE aos dados.
+        """
+        dados_x = dados_x.reshape(-1, 1) if dados_x.ndim == 1 else dados_x
+        dados_y = dados_y.reshape(-1, 1) if dados_y.ndim == 1 else dados_y
+        
+        rfe_model = RFE(estimator=LinearRegression(), n_features_to_select=self.n_features_to_select)
+        dados_rfe = rfe_model.fit_transform(dados_x, dados_y)
+        return rfe_model, dados_rfe
+    
+    def tratando_variancia(self, dados):
+        """
+        Aplica variancia para reduzir aos dados.
+        """
+        if self.variancia_threshold is None:
+            self.variancia_threshold = 0.1
+        variancia_model = VarianceThreshold(threshold=self.variancia_threshold)
+        dados_variancia = variancia_model.fit_transform(dados)
+        return variancia_model, dados_variancia
+    
+    def tratando_smart_correlation(self, dados):
+        """
+        Aplica smart correlation para reduzir aos dados.
+        """
+        if self.smart_correlated_threshold is None:
+            self.smart_correlated_threshold = 0.7
+        smart_correlation_model = SmartCorrelatedSelection(selection_method="variance", threshold=self.smart_correlated_threshold)
+        dados_smart_correlation = smart_correlation_model.fit_transform(dados)
+        return smart_correlation_model, dados_smart_correlation
 
     def tratando_dados(
         self,
         treino_teste=True,
-        covid=True,
-        estacionaridade=True,
-        datas=True,
-        defasagens=True,
-        pca=True,
-        scaler=True,
+        
     ):
+        
+        
         """
         Executa todas as etapas de tratamento de dados em ordem.
         """
@@ -152,16 +207,16 @@ class TratandoDados:
         treino, teste = self.tratando_divisao(self.df, treino_teste=treino_teste)
 
         # Aplicação das etapas de tratamento de dados
-        if covid:
+        if self.covid:
             treino = self.tratando_covid(treino)
             teste = self.tratando_covid(teste)
-        if estacionaridade:
+        if self.estacionaridade:
             treino = self.tratando_estacionaridade(treino)
             teste = self.tratando_estacionaridade(teste)
-        if datas:
+        if self.datas:
             treino = self.tratando_datas(treino)
             teste = self.tratando_datas(teste)
-        if defasagens:
+        if self.defasagens:
             treino = self.tratando_defasagens(treino)
             teste = self.tratando_defasagens(teste)
 
@@ -170,40 +225,52 @@ class TratandoDados:
         x_teste, y_teste = self.tratando_divisao_x_y(teste, label=self.coluna_label)
 
         # Escalonamento dos dados
-        if scaler:
+        if self.scaler:
             x_treino, self.scaler_modelo = self.tratando_scaler(x_treino)
             x_teste = self.scaler_modelo.transform(x_teste)
-
-        # Aplicação do PCA
-        if pca:
+        
+        if self.variancia:
+            self.variancia_modelo, x_treino = self.tratando_variancia(x_treino)
+            x_teste = self.variancia_modelo.transform(x_teste)
+            
+        if self.smart_correlation:
+            self.smart_correlation_modelo, x_treino = self.tratando_smart_correlation(x_treino)
+            x_teste = self.smart_correlation_modelo.transform(x_teste)
+            
+        if self.rfe:
+            self.rfe_modelo, x_treino = self.tratando_RFE(x_treino, y_treino)
+            x_teste = self.rfe_modelo.transform(x_teste)
+        
+         # Aplicação do PCA
+        if self.pca:
             self.pca_modelo, x_treino = self.tratando_pca(x_treino)
             x_teste = self.pca_modelo.transform(x_teste)
 
-        return x_treino, x_teste, y_treino, y_teste, self.pca_modelo, self.scaler_modelo
+        return  x_treino, x_teste, y_treino, y_teste, self.pca_modelo if self.pca else None, self.scaler_modelo if self.scaler else None, self.rfe_modelo if self.rfe else None, self.variancia_modelo if self.variancia else None, self.smart_correlation_modelo if self.smart_correlation else None
 
     def dados_futuros(
         self,
         dados_entrada,
-        covid=True,
-        estacionaridade=True,
-        datas=True,
-        defasagens=True,
-        pca=True,
-        scaler=True,
         ultimas_colunas=-10,
     ):
-        if covid:
+        if self.covid:
             dados = self.tratando_covid(dados_entrada)
-        if estacionaridade:
+        if self.estacionaridade:
             dados = self.tratando_estacionaridade(dados)
-        if datas:
+        if self.datas:
             dados = self.tratando_datas(dados)
-        if defasagens:
+        if self.defasagens:
             dados = self.tratando_defasagens(dados)
         dados = dados.drop(self.coluna_label, axis=1)
         dados = dados.iloc[ultimas_colunas:]
-        if scaler:
+        if self.scaler:
             dados = self.scaler_modelo.transform(dados)
-        if pca:
+        if self.variancia:
+            dados = self.variancia_modelo.transform(dados)
+        if self.smart_correlation:
+            dados = self.smart_correlation_modelo.transform(dados)
+        if self.rfe:
+            dados = self.rfe_modelo.transform(dados)
+        if self.pca:
             dados = self.pca_modelo.transform(dados)
         return dados

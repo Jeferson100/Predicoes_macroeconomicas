@@ -32,6 +32,12 @@ if 'pca' in dados_carregados.keys():
     pca = dados_carregados['pca']
 if 'scaler' in dados_carregados.keys():    
     scaler = dados_carregados['scaler']
+if 'rfe_model' in dados_carregados.keys():
+    rfe_model = dados_carregados['rfe_model']
+if 'smart_model' in dados_carregados.keys():
+    smart_model = dados_carregados['smart_model']
+if 'variance_model' in dados_carregados.keys():
+    variance_model = dados_carregados['variance_model']
 data_divisao_treino_teste = dados_carregados['data_divisao_treino_teste']
 tratando = dados_carregados['tratando']
 

@@ -23,7 +23,7 @@ class KerasTrainedRegressor(BaseEstimator, RegressorMixin):
 
 
 class Predicao:
-    def __init__(self, x_treino, y_treino, tratando_dados,dados, modelo, modelo_carregado, periodo=None, coluna=None, tratando_pca=True,tratando_scaler=True):
+    def __init__(self, x_treino, y_treino, tratando_dados,dados, modelo, modelo_carregado, periodo=None, coluna=None):
         self.x_treino = x_treino
         self.y_treino = y_treino
         self.tratando_dados = tratando_dados
@@ -32,8 +32,8 @@ class Predicao:
         self.modelo_carregado = modelo_carregado
         self.periodo = periodo
         self.coluna = coluna
-        self.tratando_pca = tratando_pca
-        self.tratando_scaler = tratando_scaler
+        #self.tratando_pca = tratando_pca
+        #self.tratando_scaler = tratando_scaler
         self.neurais = RnnModel()
         self.mascara_sklearn = KerasTrainedRegressor(self.modelo_carregado)
         self.x_treino_recorrente, self.y_treino_recorrente = self.neurais.create_dataset(self.x_treino, self.y_treino)
@@ -60,7 +60,7 @@ class Predicao:
         dados_futuro.loc[new_index] = np.nan
         dados_futuro = dados_futuro.ffill()
         index_futuro = dados_futuro.index
-        dados_predicao_futuro = self.tratando_dados.dados_futuros(dados_futuro, pca=self.tratando_pca, scaler=self.tratando_scaler)
+        dados_predicao_futuro = self.tratando_dados.dados_futuros(dados_futuro)
         return dados_predicao_futuro, dados_futuro[self.coluna].values, index_futuro
 
     def tratando_dados_futuros(self):
