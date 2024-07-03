@@ -87,7 +87,7 @@ metri.plotando_predicoes_go_treino_teste(
 )
 
 ##melhor modelo baseado em MENOR erro absoluto (MAE)
-modelos_validos_teste = metrica_teste[metrica_teste['Variance'] > 0.06]
+modelos_validos_teste = metrica_teste[metrica_teste['Variance'] >= 0.05]
 if modelos_validos_teste.empty:
     # Calcular a diferença absoluta entre métricas de treino e teste
     metrica_treino = metrica_treino.reindex(metrica_teste.index)
