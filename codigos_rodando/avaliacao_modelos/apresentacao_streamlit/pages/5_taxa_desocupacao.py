@@ -11,7 +11,7 @@ import os
 warnings.filterwarnings("ignore")
 
 ###############################################################################################Defina a variável##########################################################################
-variavel = 'ipca'
+variavel = 'taxa_desocupacao'
 
 st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel {variavel.replace('_',' ').title()}",
                    page_icon="https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg",
@@ -24,33 +24,33 @@ path_diretorio = os.getcwd()
 #################################################### Carregando dados ############################################################
 try:
     arquivo = path_diretorio+f'/dados_salvos_{variavel}.pkl'
-    dados_salvos_ipca = pickle.load(open(arquivo, 'rb'))
+    dados_salvos_desocupacao = pickle.load(open(arquivo, 'rb'))
 except FileNotFoundError:
     arquivo = f'/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_{variavel}.pkl'
-    dados_salvos_ipca = pickle.load(open(arquivo, 'rb'))
+    dados_salvos_desocupacao = pickle.load(open(arquivo, 'rb'))
 
-if "dados_salvos_ipca" not in st.session_state:
-    st.session_state["dados_salvos"] = dados_salvos_ipca
-    st.session_state['x_treino'] = dados_salvos_ipca['x_treino']
-    st.session_state['x_teste'] = dados_salvos_ipca['x_teste']
-    st.session_state['y_treino'] = dados_salvos_ipca['y_treino']
-    st.session_state['y_teste'] = dados_salvos_ipca['y_teste']
-    st.session_state['index_treino'] = dados_salvos_ipca['index_treino']
-    st.session_state['index_teste'] = dados_salvos_ipca['index_teste']
-    st.session_state['y_teste_recorrente'] = dados_salvos_ipca['y_teste_recorrente']
-    st.session_state['y_treino_recorrente'] = dados_salvos_ipca['y_treino_recorrente']
-    st.session_state['x_teste_recorrente'] = dados_salvos_ipca['x_teste_recorrente']
-    st.session_state['x_treino_recorrente'] = dados_salvos_ipca['x_treino_recorrente']
-    st.session_state['predicoes_treino'] = dados_salvos_ipca['predicoes_treino']
-    st.session_state['predicoes_teste'] = dados_salvos_ipca['predicoes_teste']
-    st.session_state['metrica_teste'] = dados_salvos_ipca['metrica_teste']
-    st.session_state['metrica_treino'] = dados_salvos_ipca['metrica_treino']
-    st.session_state['melhor_modelo'] = dados_salvos_ipca['melhor_modelo']
-    st.session_state['dados_conformal'] = dados_salvos_ipca['dados_conformal']
-    st.session_state['dados_futuro'] = dados_salvos_ipca['dados_futuro']
-    st.session_state['modelos_carregados'] = dados_salvos_ipca['modelos_carregados']
+if "dados_salvos_desocupacao" not in st.session_state:
+    st.session_state["dados_salvos"] = dados_salvos_desocupacao
+    st.session_state['x_treino'] = dados_salvos_desocupacao['x_treino']
+    st.session_state['x_teste'] = dados_salvos_desocupacao['x_teste']
+    st.session_state['y_treino'] = dados_salvos_desocupacao['y_treino']
+    st.session_state['y_teste'] = dados_salvos_desocupacao['y_teste']
+    st.session_state['index_treino'] = dados_salvos_desocupacao['index_treino']
+    st.session_state['index_teste'] = dados_salvos_desocupacao['index_teste']
+    st.session_state['y_teste_recorrente'] = dados_salvos_desocupacao['y_teste_recorrente']
+    st.session_state['y_treino_recorrente'] = dados_salvos_desocupacao['y_treino_recorrente']
+    st.session_state['x_teste_recorrente'] = dados_salvos_desocupacao['x_teste_recorrente']
+    st.session_state['x_treino_recorrente'] = dados_salvos_desocupacao['x_treino_recorrente']
+    st.session_state['predicoes_treino'] = dados_salvos_desocupacao['predicoes_treino']
+    st.session_state['predicoes_teste'] = dados_salvos_desocupacao['predicoes_teste']
+    st.session_state['metrica_teste'] = dados_salvos_desocupacao['metrica_teste']
+    st.session_state['metrica_treino'] = dados_salvos_desocupacao['metrica_treino']
+    st.session_state['melhor_modelo'] = dados_salvos_desocupacao['melhor_modelo']
+    st.session_state['dados_conformal'] = dados_salvos_desocupacao['dados_conformal']
+    st.session_state['dados_futuro'] = dados_salvos_desocupacao['dados_futuro']
+    st.session_state['modelos_carregados'] = dados_salvos_desocupacao['modelos_carregados']
     
-dados_salvos_ipca = st.session_state["dados_salvos"]
+dados_salvos = st.session_state["dados_salvos"]
 x_treino = st.session_state['x_treino']
 x_teste = st.session_state['x_teste']
 y_treino = st.session_state['y_treino']
@@ -73,6 +73,7 @@ modelos_carregados = st.session_state['modelos_carregados']
 
 
 ###################################################################### Titulo da Apresentação ########################################################
+metrica_teste = st.session_state['metrica_teste']
 st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôeconomicas: Variável {variavel.replace('_',' ').title()} para a data {dados_futuros['data']}</h1>", unsafe_allow_html=True)
 
 
@@ -281,12 +282,9 @@ with col2:
     fig.update_layout(
     
         xaxis_title="Datas",
-        yaxis_title=variavel,
+        yaxis_title="Selic",
         height=600,
         width=800,
         yaxis=dict(range=[0, max(y_teste) * 2]),
         )
     st.plotly_chart(fig,use_container_width=True, height = 600, width = 2000)
-
-    
-###################################################### Terceiro graficos ########################################################################

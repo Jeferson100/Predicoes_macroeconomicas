@@ -27,6 +27,17 @@ banco_central_codes = {
     'saldo_bc': 22707,
     'vendas_auto':7384,
     'divida_liquida_spc':4513,  
+    "indice_condicoes_economicas": 4394,
+    "indice_valores_garantias_imoveis_residencias_financiados": 21340,
+    "venda_veiculos_concessionarias": 1378,
+    "indicador_movimento_comercio_prazo": 1453,
+    "indice_volume_vendas_varejo": 1455,
+    "imposto_sobre_produtos": 22098,
+    'metas_inflacao': 13521,
+    'indice_expectativas_futuras': 4395,
+    'indice_confianca_empresarial_industrial': 7343,
+    'selic': 4189,
+    'ibc':24364
 }
 
 variaveis_ibge_padrao = {
@@ -54,6 +65,44 @@ variaveis_ibge_padrao = {
         "ibge_territorial_code": "all",
         "variable": "11709",
     },
+    "producao_fisica_industrial": {
+        "codigo": '8159',
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11599",},
+
+    "producao_fisica_para_construcao_civil": {
+        "codigo": '7980',
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11599",},
+    
+    "producao_soja_milho": {    
+        "codigo": '6588',
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "35",},
+    
+    "precos_construcao_civil": {
+        "codigo": '2296',
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "1198",},
+    "volume_servicos_(pms)": {
+        "codigo": '8162',
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11621",
+        
+    }, 
+    
+    "taxa_desocupacao": { 
+        "codigo": '6381',
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "4099",
+            
+            }
 }
 
 codigos_ipeadata_padrao = {
@@ -62,6 +111,15 @@ codigos_ipeadata_padrao = {
     "ibovespa": "ANBIMA12_IBVSP12",
     "consumo_energia": "ELETRO12_CEET12",
     "brent_fob": "EIA366_PBRENT366",
+    "rendimento_real_medio": "PNADC12_RRTH12",
+    "pessoas_forca_trabalho": "PNADC12_FT12",
+    "caged_novo": "CAGED12_SALDON12",
+    "caged_antigo": "CAGED12_SALDO12",
+    "exportacoes": "PAN12_XTV12",
+    "importacoes": "PAN12_MTV12",
+    "m_1": "BM12_M1MN12",
+    "taxa_cambio": "PAN12_ERV12",
+    "atividade_economica": "SGS12_IBCBR12",
 }
 
 indicadores_ibge_link_padrao = {
@@ -72,11 +130,13 @@ indicadores_ibge_link_padrao = {
     "soja": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
     "milho_1": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39441/l/v,p%2Bc48,t",
     "milho_2": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39442/l/v,p%2Bc48,t",
+    'pms': 'https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8162.xlsx&terr=N&rank=-&query=t/8162/n1/all/v/11622/p/all/c11046/56726/c12355/107071/d/v11622%205/l/v,p%2Bc11046,t%2Bc12355'
 }
 
-lista_google_trends = [
-    'seguro desemprego'
-]
+lista_google_trends = ['seguro desemprego', 
+         'empregos',
+         'FGTS',
+         'INSS']
 
 codigos_fred_padrao = {
     "nasdaq100": "NASDAQ100",

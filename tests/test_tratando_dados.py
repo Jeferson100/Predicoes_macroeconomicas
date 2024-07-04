@@ -109,7 +109,7 @@ def test_tratando_pca(sample_data):
 
 def test_tratando_dados(sample_data):
     coluna_label = sample_data.columns[0]
-    data_processor = TratandoDados(sample_data, coluna_label=coluna_label)
+    data_processor = TratandoDados(sample_data, coluna_label=coluna_label,rfe=True,variancia=True,smart_correlation=True)
     (
         x_treino,
         x_teste,
@@ -117,10 +117,17 @@ def test_tratando_dados(sample_data):
         y_teste,
         pca_modelo,
         scaler_modelo,
+        rfe_modelo,
+        variancia_modelo,
+        smart_correlation_modelo,
+        
     ) = data_processor.tratando_dados()
     assert x_treino.shape[0] == y_treino.shape[0]
     assert x_teste.shape[0] == y_teste.shape[0]
     assert pca_modelo is not None
+    assert rfe_modelo is not None
+    assert variancia_modelo is not None
+    assert smart_correlation_modelo is not None
     assert scaler_modelo is not None
     assert isinstance(scaler_modelo, (MinMaxScaler, StandardScaler))
     assert isinstance(pca_modelo, PCA)

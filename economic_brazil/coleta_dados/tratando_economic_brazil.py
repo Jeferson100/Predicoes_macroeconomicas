@@ -114,7 +114,11 @@ def transforme_data(data):
 
 ###Tratando dados IBGE
 def tratando_dados_ibge_codigos(
-    codigos=None, period="all", salvar=None, formato="csv", diretorio=None
+    codigos=None, 
+    period="all", 
+    salvar=None, 
+    formato="csv", 
+    diretorio=None
 ):
     if codigos is None:
         ibge_codigos = dados_ibge_codigos(period="all")
@@ -125,7 +129,10 @@ def tratando_dados_ibge_codigos(
         raise ValueError("O DataFrame está vazio. Verifique os códigos fornecidos.")
     ibge_codigos.columns = ibge_codigos.iloc[0, :]
     ibge_codigos = ibge_codigos.iloc[1:, :]
-    ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(converter_mes_para_data)
+    if ibge_codigos.columns.str.contains("Trimestre Móvel").any():
+        ibge_codigos["data"] = ibge_codigos["Trimestre Móvel (Código)"].apply(converter_mes_para_data)
+    else:
+        ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(converter_mes_para_data)
     ibge_codigos.index = ibge_codigos["data"]
     try:
         ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)

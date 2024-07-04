@@ -39,6 +39,9 @@ class TratandoDados:
         self.df = df
         self.scaler_modelo = None
         self.pca_modelo = None
+        self.rfe_modelo = None
+        self.variancia_modelo = None
+        self.smart_correlation_modelo = None
         self.data_divisao = data_divisao
         self.coluna_label = coluna_label
         self.numero_defasagens = numero_defasagens
@@ -211,8 +214,8 @@ class TratandoDados:
             treino = self.tratando_covid(treino)
             teste = self.tratando_covid(teste)
         if self.estacionaridade:
-            treino = self.tratando_estacionaridade(treino)
-            teste = self.tratando_estacionaridade(teste)
+            treino = self.tratando_estacionaridade(treino, coluna_label=self.coluna_label)
+            teste = self.tratando_estacionaridade(teste, coluna_label=self.coluna_label)
         if self.datas:
             treino = self.tratando_datas(treino)
             teste = self.tratando_datas(teste)

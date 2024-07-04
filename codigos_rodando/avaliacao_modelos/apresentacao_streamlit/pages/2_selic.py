@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore")
 ###############################################################################################Defina a variável##########################################################################
 variavel = 'selic'
 
-st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel {variavel}",
+st.set_page_config(page_title=f"Predicao Macroeconomicas: Variavel {variavel.replace('_',' ').title()}",
                    page_icon="https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg",
                    layout="wide")
 
@@ -73,7 +73,7 @@ modelos_carregados = st.session_state['modelos_carregados']
 
 
 ###################################################################### Titulo da Apresentação ########################################################
-st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôeconomicas: Variável {variavel} para a data {dados_futuros['data']}</h1>", unsafe_allow_html=True)
+st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôeconomicas: Variável {variavel.replace('_',' ').title()} para a data {dados_futuros['data']}</h1>", unsafe_allow_html=True)
 
 
 ###################################################### Sidebar github ########################################################
