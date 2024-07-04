@@ -36,8 +36,8 @@ except FileNotFoundError:
     dados_salvos_ipca = pickle.load(open(arquivo_ipca, 'rb'))
     arquivo_pib = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_pib.pkl'
     dados_salvos_pib = pickle.load(open(arquivo_pib, 'rb'))
-    dados_taxa_desocupacao = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_taxa_descocupacao.pkl'
-    dados_salvos_taxa_desocupacao = pickle.load(open(dados_taxa_desocupacao, 'rb'))
+    arquivo_taxa_desocupacao = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_taxa_desocupacao.pkl'
+    dados_salvos_taxa_desocupacao = pickle.load(open(arquivo_taxa_desocupacao, 'rb'))
     
 try:
     arquivo = '/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.pkl'
