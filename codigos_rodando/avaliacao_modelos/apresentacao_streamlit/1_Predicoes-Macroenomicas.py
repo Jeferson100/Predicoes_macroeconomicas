@@ -28,6 +28,8 @@ try:
     dados_salvos_pib = pickle.load(open(arquivo_pib, 'rb'))
     arquivo_taxa_desocupacao = path_diretorio+'/dados_salvos_taxa_desocupacao.pkl'
     dados_salvos_taxa_desocupacao = pickle.load(open(arquivo_taxa_desocupacao, 'rb'))
+    arquivo_producao_industrial = path_diretorio+'/dados_salvos_producao_industrial.pkl'
+    dados_salvos_producao_industrial = pickle.load(open(arquivo_producao_industrial, 'rb'))
     
 except FileNotFoundError:
     arquivo_selic = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_selic.pkl'
@@ -38,6 +40,8 @@ except FileNotFoundError:
     dados_salvos_pib = pickle.load(open(arquivo_pib, 'rb'))
     arquivo_taxa_desocupacao = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_taxa_desocupacao.pkl'
     dados_salvos_taxa_desocupacao = pickle.load(open(arquivo_taxa_desocupacao, 'rb'))
+    arquivo_producao_industrial = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_producao_industrial.pkl'
+    dados_salvos_producao_industrial = pickle.load(open(arquivo_producao_industrial, 'rb'))
     
 try:
     arquivo = '/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.pkl'
@@ -59,6 +63,9 @@ if "dados_salvos_pib" not in st.session_state:
 if "dados_salvos_taxa_desocupacao" not in st.session_state:
     st.session_state['dados_futuro_taxa_desocupacao'] = dados_salvos_taxa_desocupacao['dados_futuro']
     
+if "dados_salvos_producao_industrial" not in st.session_state:
+    st.session_state['dados_futuro_producao_industrial'] = dados_salvos_producao_industrial['dados_futuro']
+    
 if "dados_economicos" not in st.session_state:
     st.session_state['dados_economicos'] = dados_economicos
    
@@ -66,6 +73,7 @@ dados_futuros_selic = st.session_state['dados_futuro_selic']
 dados_futuros_ipca = st.session_state['dados_futuro_ipca']
 dados_futuros_pib = st.session_state['dados_futuro_pib']
 dados_futuros_taxa_desocupacao = st.session_state['dados_futuro_taxa_desocupacao']
+dados_futuros_producao_industrial = st.session_state['dados_futuro_producao_industrial']
 dados_economicos = st.session_state['dados_economicos']
 
 
@@ -85,6 +93,7 @@ def juntar_dados(primeira_vez=True,recebe_data=None,dicionario_1=None, dicionari
 predicoes = juntar_dados(primeira_vez=True,recebe_data=None,dicionario_1=dados_futuros_selic, dicionario_2=dados_futuros_ipca,variavel_1='selic',variavel_2='ipca')
 predicoes = juntar_dados(primeira_vez=False,recebe_data=predicoes,dicionario_1=dados_futuros_pib,variavel_1='pib')
 predicoes = juntar_dados(primeira_vez=False,recebe_data=predicoes,dicionario_1=dados_futuros_taxa_desocupacao,variavel_1='taxa_desocupacao')
+predicoes = juntar_dados(primeira_vez=False,recebe_data=predicoes,dicionario_1=dados_futuros_producao_industrial,variavel_1='producao_industrial')
 predicoes.index = predicoes['Variavel']
 data = predicoes['data'].iloc[0]
 predicoes.drop(['Variavel','data'],axis=1,inplace=True)
@@ -170,6 +179,8 @@ if filtro_variaveis == 'pib':
 fig = go.Figure()
 if filtro_variaveis == 'taxa_desocupacao':
     fig.add_trace(go.Scatter(x=dados_salvos_taxa_desocupacao['dados'].index, y=dados_salvos_taxa_desocupacao['dados']['taxa_desocupacao'], mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
+elif filtro_variaveis == 'producao_industrial': 
+    fig.add_trace(go.Scatter(x=dados_salvos_producao_industrial['dados'].index, y=dados_salvos_producao_industrial['dados']['producao_industrial'], mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
 else:
     fig.add_trace(go.Scatter(x=dados_economicos_filtrados.index, y=dados_economicos_filtrados, mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
 fig.update_layout(

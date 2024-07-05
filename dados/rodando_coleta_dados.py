@@ -120,6 +120,17 @@ codigos_ipeadata_padrao = {
     "m_1": "BM12_M1MN12",
     "taxa_cambio": "PAN12_ERV12",
     "atividade_economica": "SGS12_IBCBR12",
+    'producao_industrial': 'PAN12_QIIGG12',
+    'producao_industrial_intermediario': 'PIMPFN12_QIBIN12',
+    'capcidade_instalada': 'CNI12_NUCAP12',
+    'caixas_papelao': 'ABPO12_PAPEL12',
+    'faturamento_industrial': 'CNI12_VENREA12',
+    'importacoes_industrial': 'FUNCEX12_MDQT12',
+    'importacoes_intermediario': 'FUNCEX12_MDQBIGCE12',
+    'confianca_empresario_exportador': 'CNI12_ICEIEXP12',
+    'confianca_empresario_atual': 'CNI12_ICEICA12',
+    'confianca_consumidor':'FCESP12_IIC12',
+    'ettj_26': 'ANBIMA366_TJTLN6366',  
 }
 
 indicadores_ibge_link_padrao = {

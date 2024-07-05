@@ -77,7 +77,7 @@ def test_tratatando_dados_ipeadata():
 
 
 def test_tratatando_dados_google_trends():
-    lista = ["seguro desemprego"]
+    lista = ["seguro desemprego", "empregos", "FGTS", "INSS"]
     dados = tratando_dados_google_trends(kw_list=lista)
     assert isinstance(dados.index, pd.DatetimeIndex)
     assert not dados.empty

@@ -66,7 +66,7 @@ index_teste = dados[dados.index > data_divisao_treino_teste][4:].index
 #############################################################################################################PLOTANDO METRICAS################################################################################
 
 ################################################################################################AVALIANDO MODELOS################################################################################
-modelos_validos_teste = metrica_teste[metrica_teste['Variance'] > 0.1]
+modelos_validos_teste = metrica_teste[metrica_teste['Variance'] > 0.05]
 
 if modelos_validos_teste.empty:
     # Calcular a diferença absoluta entre métricas de treino e teste

@@ -236,6 +236,10 @@ class EconomicBrazil:
                 print(
                     f"Erro na coleta da variavel {codigo}. Verifique se o codigo esta ativo: http://www.ipeadata.gov.br/Default.aspx"
                 )
+            except KeyError:
+                print(
+                    f"Erro na coleta da variavel {codigo}. Verifique se o codigo esta ativo: http://www.ipeadata.gov.br/Default.aspx"
+                )
         try:
             if (
                 "caged_antigo" in dic_ipeadata.columns
