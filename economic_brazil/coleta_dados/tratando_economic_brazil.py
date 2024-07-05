@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("..")
 from .coleta_economic_brazil import (
     dados_bcb,
@@ -12,7 +13,9 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, date
 import requests
-  
+from io import BytesIO
+
+
 # Tratando dados IBGE/SIDRAPY
 def trimestral_para_mensal(df):
     """
@@ -111,11 +114,7 @@ def transforme_data(data):
 
 ###Tratando dados IBGE
 def tratando_dados_ibge_codigos(
-    codigos=None, 
-    period="all", 
-    salvar=None, 
-    formato="csv", 
-    diretorio=None
+    codigos=None, period="all", salvar=None, formato="csv", diretorio=None
 ):
     if codigos is None:
         ibge_codigos = dados_ibge_codigos(period="all")
@@ -127,9 +126,13 @@ def tratando_dados_ibge_codigos(
     ibge_codigos.columns = ibge_codigos.iloc[0, :]
     ibge_codigos = ibge_codigos.iloc[1:, :]
     if ibge_codigos.columns.str.contains("Trimestre Móvel").any():
-        ibge_codigos["data"] = ibge_codigos["Trimestre Móvel (Código)"].apply(converter_mes_para_data)
+        ibge_codigos["data"] = ibge_codigos["Trimestre Móvel (Código)"].apply(
+            converter_mes_para_data
+        )
     else:
-        ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(converter_mes_para_data)
+        ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(
+            converter_mes_para_data
+        )
     ibge_codigos.index = ibge_codigos["data"]
     try:
         ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
@@ -344,60 +347,103 @@ def tratando_dados_ibge_link_colum_brazil(
 
     return ibge_link
 
-import pandas as pd
-import requests
-from io import BytesIO
 
 def read_indice_abcr():
 
-    url = 'https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls'
+    url = "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
 
     # Cabeçalhos para simular um navegador
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers,timeout=10)
 
     if response.status_code == 200:
         # Usar BytesIO para ler os dados binários
         data = BytesIO(response.content)
         try:
-            df = pd.read_excel(data, sheet_name='(C) Original', header=2)
-            df = df.iloc[:,:4]
-            df.columns = ['data', 'ibcr_leves', 'ibcr_pesados', 'ibcr_total']
-            df.index = df['data']
-            df.drop('data', axis=1, inplace=True)
+            df = pd.read_excel(data, sheet_name="(C) Original", header=2)
+            df = df.iloc[:, :4]
+            df.columns = ["data", "ibcr_leves", "ibcr_pesados", "ibcr_total"]
+            df.index = df["data"]
+            df.drop("data", axis=1, inplace=True)
             return df
-        except Exception as e:
-            print(f"Erro ao ler o arquivo Excel: {e}")
+        except ValueError:
+            print("Erro ao ler o arquivo Excel:")
     else:
         print(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
-    
+
 
 def sondagem_industria(sheet, variable):
-  ##pagina para fazer web scraping
-  url = 'https://static.portaldaindustria.com.br/media/filer_public/62/24/6224e62d-7f5d-419d-ab6f-edd21e05cdf5/sondagemindustrial_serie-recente_maio2024.xls'
+    ##pagina para fazer web scraping
+    url = "https://static.portaldaindustria.com.br/media/filer_public/62/24/6224e62d-7f5d-419d-ab6f-edd21e05cdf5/sondagemindustrial_serie-recente_maio2024.xls"
 
-  response = requests.get(url)
-  open(f"si.xls", "wb").write(response.content)
-  df = pd.read_excel("si.xls", sheet_name=sheet,skiprows=7)
-  df = df.iloc[0:1,1:]
-  df =pd.DataFrame(df.iloc[0,:])
-  df.columns = [variable]
-  lista=[]
-  for i in df.index:
-    if type(i) == str:
-      b= np.where(i[0:3] == 'jan','01',np.where(i[0:3] == 'fev','02',np.where(i[0:3] == 'mar','03',np.where(i[0:3] == 'abr','04',np.where(i[0:3] == 'mai','05',np.where(i[0:3] == 'jun','06',
-      np.where(i[0:3] == 'jul','07',np.where(i[0:3] == 'ago','08',np.where(i[0:3] == 'set','09',np.where(i[0:3] == 'out','10',np.where(i[0:3] == 'nov','11',np.where(i[0:3] == 'dez','12',i[0:3]))))))))))))
-      lista.append("20"+str(i)[3:5]+"-"+str(b)+"-01")
-    else:
-      lista.append(str(i))
-  df['data'] = lista
-  df['data'] = df['data'].str.replace('20t1','2017')
-  df.dropna(axis=0,inplace=True)
-  df.index = pd.to_datetime(df['data'].str.split(' ').str[0].values)
-  df.drop(columns='data',inplace=True)
-  df[variable] = df[variable].astype(float)
-  return df
-
+    response = requests.get(url,timeout=10)
+    open("si.xls", "wb").write(response.content)
+    df = pd.read_excel("si.xls", sheet_name=sheet, skiprows=7)
+    df = df.iloc[0:1, 1:]
+    df = pd.DataFrame(df.iloc[0, :])
+    df.columns = [variable]
+    lista = []
+    for i in df.index:
+        if type(i) == str:
+            b = np.where(
+                i[0:3] == "jan",
+                "01",
+                np.where(
+                    i[0:3] == "fev",
+                    "02",
+                    np.where(
+                        i[0:3] == "mar",
+                        "03",
+                        np.where(
+                            i[0:3] == "abr",
+                            "04",
+                            np.where(
+                                i[0:3] == "mai",
+                                "05",
+                                np.where(
+                                    i[0:3] == "jun",
+                                    "06",
+                                    np.where(
+                                        i[0:3] == "jul",
+                                        "07",
+                                        np.where(
+                                            i[0:3] == "ago",
+                                            "08",
+                                            np.where(
+                                                i[0:3] == "set",
+                                                "09",
+                                                np.where(
+                                                    i[0:3] == "out",
+                                                    "10",
+                                                    np.where(
+                                                        i[0:3] == "nov",
+                                                        "11",
+                                                        np.where(
+                                                            i[0:3] == "dez",
+                                                            "12",
+                                                            i[0:3],
+                                                        ),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+            lista.append("20" + str(i)[3:5] + "-" + str(b) + "-01")
+        else:
+            lista.append(str(i))
+    df["data"] = lista
+    df["data"] = df["data"].str.replace("20t1", "2017")
+    df.dropna(axis=0, inplace=True)
+    df.index = pd.to_datetime(df["data"].str.split(" ").str[0].values)
+    df.drop(columns="data", inplace=True)
+    df[variable] = df[variable].astype(float)
+    return df

@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("..")
 import pandas as pd
 from bcb import sgs
@@ -93,7 +94,6 @@ def dados_expectativas_focus(
         .collect()
     )
     return ipca_expec
-
 
 
 def dados_ipeadata(codigo="ANBIMA12_TJTLN1212", data="2020-01-01"):

@@ -31,6 +31,8 @@ jobs:
             python rodando_treinamento_selic.py
             python rodando_treinamento_ipca.py
             python rodando_treinamento_pib.py
+            python rodando_treinamento_producao_industrial.py
+            python rodando_treinamento_taxa_desocupacao.py
           env:
             FRED_API_KEY : ${{ secrets.FRED_API_KEY }}
         - name: Avaliando modelos
@@ -40,6 +42,8 @@ jobs:
             python rodando_avaliacao_modelo_selic.py
             python rodando_avaliacao_modelo_ipca.py
             python rodando_avaliacao_modelo_pib.py
+            python rodando_avaliacao_modelo_producao_industrial.py
+            python rodando_avaliacao_modelo_taxa_desocupacao.py
         - name: Configure Git
           run: |
             git config --global user.email "sehnemjeferson@gmail.com"

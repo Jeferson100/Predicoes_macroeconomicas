@@ -33,3 +33,4 @@ quandl==3.7.0
 fredapi==0.5.1
 feature-engine
 xlrd
+#dtype_diet

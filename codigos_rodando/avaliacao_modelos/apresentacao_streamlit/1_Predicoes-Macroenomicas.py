@@ -95,14 +95,9 @@ predicoes = juntar_dados(primeira_vez=False,recebe_data=predicoes,dicionario_1=d
 predicoes = juntar_dados(primeira_vez=False,recebe_data=predicoes,dicionario_1=dados_futuros_taxa_desocupacao,variavel_1='taxa_desocupacao')
 predicoes = juntar_dados(primeira_vez=False,recebe_data=predicoes,dicionario_1=dados_futuros_producao_industrial,variavel_1='producao_industrial')
 predicoes.index = predicoes['Variavel']
-data = predicoes['data'].iloc[0]
-predicoes.drop(['Variavel','data'],axis=1,inplace=True)
-predicoes = predicoes[['predicao', 'intervalo_upper', 'intervalo_lower']]
-
-
-###################################################################### Titulo da Apresentação ########################################################
-st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôeconomicas para a data {data}</h1>", unsafe_allow_html=True)
-
+#data = predicoes['data'].iloc[0]
+predicoes.drop(['Variavel'],axis=1,inplace=True)
+#predicoes = predicoes[['predicao', 'intervalo_upper', 'intervalo_lower']]
 
 ###################################################### Sidebar github ########################################################
 
@@ -137,6 +132,8 @@ else:
     dados_economicos_filtrados = dados_economicos['selic']
     predicoes_filtradas = predicoes[predicoes.index.unique() == 'selic']
 
+###################################################################### Titulo da Apresentação ########################################################
+st.markdown(f"<h1 style='text-align: center; color: black;'>Predições Macrôeconomicas para a data {predicoes['data'][filtro_variaveis]}</h1>", unsafe_allow_html=True)
     
 ###################################################### Informacoes Futuras ########################################################################
 
@@ -161,7 +158,7 @@ else:
     st.markdown(f"## Previsão da Variável Selic:")
 col1,col2,col3,col4 = st.columns(4)
 with col1:
-    st.markdown(create_colored_box("Data da Previsão", data, "#D3D3D3"), unsafe_allow_html=True)
+    st.markdown(create_colored_box("Data da Previsão", predicoes['data'][filtro_variaveis], "#D3D3D3"), unsafe_allow_html=True)
 with col2:
     st.markdown(create_colored_box("Previsão", np.round(predicoes_filtradas['predicao'].squeeze(), 2), "#ADD8E6"), unsafe_allow_html=True)
 with col3:

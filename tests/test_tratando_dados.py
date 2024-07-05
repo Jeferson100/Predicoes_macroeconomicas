@@ -109,7 +109,13 @@ def test_tratando_pca(sample_data):
 
 def test_tratando_dados(sample_data):
     coluna_label = sample_data.columns[0]
-    data_processor = TratandoDados(sample_data, coluna_label=coluna_label,rfe=True,variancia=True,smart_correlation=True)
+    data_processor = TratandoDados(
+        sample_data,
+        coluna_label=coluna_label,
+        rfe=True,
+        variancia=True,
+        smart_correlation=True,
+    )
     (
         x_treino,
         x_teste,
@@ -120,7 +126,6 @@ def test_tratando_dados(sample_data):
         rfe_modelo,
         variancia_modelo,
         smart_correlation_modelo,
-        
     ) = data_processor.tratando_dados()
     assert x_treino.shape[0] == y_treino.shape[0]
     assert x_teste.shape[0] == y_teste.shape[0]

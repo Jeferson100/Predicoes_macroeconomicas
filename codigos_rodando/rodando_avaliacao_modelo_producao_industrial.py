@@ -111,7 +111,7 @@ dados_corformal = {
     'intervalo_upper': y_pis.squeeze()[0:,1],}    
 ## Predicao futuro
 with parallel_config(backend='threading', n_jobs=2):
-    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],periodo='Trimestral',coluna=variavel_predicao)
+    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],periodo='Mensal',coluna=variavel_predicao)
     
 dados_predicao_futuro, _, index_futuro = predicao.criando_dados_futuros()
 dados_predicao = predicao.criando_dataframe_predicoes()

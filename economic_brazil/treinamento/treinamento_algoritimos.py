@@ -131,15 +131,7 @@ class TreinandoModelos:
             if param_grid_catboost is None:
                 param_grid_catboost = {
                     "iterations": [2, 10, 20, 30, 50, 100, 200, 300, 400, 500],
-                    "learning_rate": [
-                        0.1,
-                        0.15,
-                        0.2,
-                        0.4,
-                        0.6,
-                        0.8,
-                        1
-                    ],
+                    "learning_rate": [0.1, 0.15, 0.2, 0.4, 0.6, 0.8, 1],
                     "depth": [1, 3, 5, 7, 9],
                 }
             modelo_catboost = self._treinar_com_tunagem(

@@ -205,6 +205,7 @@ tratando_estacionaridade = True
 tratando_rfe = True
 tratando_smart_correlation = True
 tratando_variance = True
+tratando_estacionaridade_log = True
 data_divisao = '2020-06-01'
 
 tratando = TratandoDados(dados,
@@ -220,7 +221,8 @@ tratando = TratandoDados(dados,
                         estacionaridade=tratando_estacionaridade,
                         rfe=tratando_rfe,
                         smart_correlation=tratando_smart_correlation,
-                        variancia=tratando_variance)
+                        variancia=tratando_variance,
+                        estacionaridade_log=tratando_estacionaridade_log)
 
 x_treino, x_teste, y_treino, y_teste, pca , scaler , rfe_model, variance_model, smart_model = tratando.tratando_dados()
            
