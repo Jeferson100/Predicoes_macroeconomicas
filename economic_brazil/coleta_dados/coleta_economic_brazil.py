@@ -1,6 +1,3 @@
-import sys
-
-sys.path.append("..")
 import pandas as pd
 from bcb import sgs
 import sidrapy
@@ -10,6 +7,7 @@ from pytrends.request import TrendReq
 import time
 from datetime import date
 import quandl
+from typing import List, Dict, Union, Optional
 
 
 # Dados BCB
@@ -27,7 +25,10 @@ SELIC_CODES = {
 DATA_INICIO = "2000-01-01"
 
 
-def dados_bcb(codigos_banco_central=None, data_inicio="2000-01-01"):
+def dados_bcb(
+    codigos_banco_central: Optional[Dict[str, int]] = None,
+    data_inicio: str = "2000-01-01",
+) -> pd.DataFrame:
     dados = pd.DataFrame()
     if codigos_banco_central is None:
         codigos_banco_central = SELIC_CODES
@@ -36,15 +37,13 @@ def dados_bcb(codigos_banco_central=None, data_inicio="2000-01-01"):
 
 
 # DADOS IBGE
-
-
 def dados_ibge_codigos(
-    codigo="1737",
-    territorial_level="1",
-    ibge_territorial_code="all",
-    variable="63",
-    period="all",
-):
+    codigo: str = "1737",
+    territorial_level: str = "1",
+    ibge_territorial_code: str = "all",
+    variable: str = "63",
+    period: str = "all",
+) -> pd.DataFrame:
     ipca = sidrapy.get_table(
         table_code=codigo,
         territorial_level=territorial_level,
@@ -56,9 +55,9 @@ def dados_ibge_codigos(
 
 
 def dados_ibge_link(
-    cabecalho=3,
-    url="https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
-):
+    cabecalho: int = 3,
+    url: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
+) -> pd.DataFrame:
     # carregar a tabela em um DataFrame
     dados_link = pd.read_excel(url, header=cabecalho)
     return dados_link
@@ -68,10 +67,10 @@ def dados_ibge_link(
 
 
 def dados_expectativas_focus(
-    indicador="IPCA",
-    tipo_expectativa="ExpectativaMercadoMensais",
-    data_inicio="2000-01-01",
-):
+    indicador: str = "IPCA",
+    tipo_expectativa: str = "ExpectativaMercadoMensais",
+    data_inicio: str = "2000-01-01",
+) -> pd.DataFrame:
     # End point
     em = Expectativas()
     ep = em.get_endpoint(tipo_expectativa)
@@ -96,12 +95,18 @@ def dados_expectativas_focus(
     return ipca_expec
 
 
-def dados_ipeadata(codigo="ANBIMA12_TJTLN1212", data="2020-01-01"):
+def dados_ipeadata(
+    codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01"
+) -> pd.DataFrame:
     dados_ipea = ip.timeseries(codigo, yearGreaterThan=int(data[0:4]) - 1)
     return dados_ipea
 
 
-def coleta_google_trends(kw_list=None, start_date=None, end_date=None):
+def coleta_google_trends(
+    kw_list: Optional[List[str]] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+):
     if start_date is None:
         start_date = "2004-01-01"
     if end_date is None:
@@ -133,6 +138,6 @@ def coleta_google_trends(kw_list=None, start_date=None, end_date=None):
     return data
 
 
-def coleta_quandl(codes=None):
+def coleta_quandl(codes: Optional[str] = None):
     data = quandl.get(codes)
     return data

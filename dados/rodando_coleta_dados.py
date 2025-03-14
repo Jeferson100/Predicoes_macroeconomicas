@@ -1,7 +1,6 @@
 import sys
 sys.path.append('..')
-from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
-#from economic_brazil.coleta_dados.tratando_economic_brazil import tratando_dados_bcb, tratando_dados_ibge_link, tratando_metas_inflacao, tratando_dados_expectativas, tratando_dados_ibge_codigos
+from economic_brazil import EconomicBrazil
 import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
@@ -174,7 +173,7 @@ dados = EconomicBrazil(codigos_banco_central=banco_central_codes,
                        codigos_fred=codigos_fred_padrao,
                        data_inicio=DATA_INICIO)
 
-dados.dados_brazil(dados_fred=True,salvar=True, diretorio='economic_data_brazil', formato='pickle')
+dados.dados_brazil(dados_fred=False,salvar=True, diretorio='economic_data_brazil', formato='pickle')
 
 print('Coletando dados Brazil')
 
@@ -194,7 +193,7 @@ dados.dados_ibge_link(salvar=True, diretorio='dados_ibge_link', formato='pickle'
 
 print('Coletando dados IBGE Link')
 
-dados.dados_fred(salvar=True, diretorio='dados_fred', formato='pickle')
+#dados.dados_fred(salvar=True, diretorio='dados_fred', formato='pickle')
 
 print('Coleta terminanda com sucesso!')
 

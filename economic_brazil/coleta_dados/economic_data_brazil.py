@@ -21,6 +21,7 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
 from fredapi import Fred
 from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
 from pytrends.exceptions import TooManyRequestsError
+import asyncio
 
 warnings.filterwarnings("ignore")
 
@@ -292,7 +293,7 @@ class EconomicBrazil:
 
     def dados_fred(self, salvar=None, diretorio=None, formato="csv"):
         dic_fred = self.data_index()
-        base_dir = "/workspaces/Predicoes_macroeconomicas"
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         dotenv_path = os.path.abspath(os.path.join(base_dir, ".env"))
         if os.path.exists(dotenv_path):
             load_dotenv(dotenv_path)

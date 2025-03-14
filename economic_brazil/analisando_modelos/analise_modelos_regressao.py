@@ -9,7 +9,13 @@ from economic_brazil.treinamento.redes_neurais_recorrentes import RnnModel
 
 class MetricasModelos:
     def evaluate_regression(
-        self, y_true, y_pred, algorithm, dados=None, save=None, diretorio=None
+        self,
+        y_true: np.ndarray,
+        y_pred: np.ndarray,
+        algorithm: str,
+        dados: pd.DataFrame = None,
+        save: bool = None,
+        diretorio: str = None,
     ):
         # Calculando métricas básicas
         MAE = mean_absolute_error(y_true, y_pred)

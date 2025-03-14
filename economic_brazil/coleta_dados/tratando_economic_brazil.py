@@ -357,7 +357,7 @@ def read_indice_abcr():
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
     }
 
-    response = requests.get(url, headers=headers,timeout=10)
+    response = requests.get(url, headers=headers, timeout=10)
 
     if response.status_code == 200:
         # Usar BytesIO para ler os dados binários
@@ -379,7 +379,7 @@ def sondagem_industria(sheet, variable):
     ##pagina para fazer web scraping
     url = "https://static.portaldaindustria.com.br/media/filer_public/62/24/6224e62d-7f5d-419d-ab6f-edd21e05cdf5/sondagemindustrial_serie-recente_maio2024.xls"
 
-    response = requests.get(url,timeout=10)
+    response = requests.get(url, timeout=10)
     open("si.xls", "wb").write(response.content)
     df = pd.read_excel("si.xls", sheet_name=sheet, skiprows=7)
     df = df.iloc[0:1, 1:]

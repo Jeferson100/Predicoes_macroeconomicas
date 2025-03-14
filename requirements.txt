@@ -3,8 +3,10 @@ click==8.1.3
 pytest==7.1.3
 black==22.8.0
 pytest-cov==4.0.0
+mypy==1.15.0
+pyright==1.1.393
 pandas == 2.2.2
-python-bcb==0.2.0
+python-bcb==0.3.2
 pmdarima==2.0.4
 sidrapy==0.1.4
 openpyxl==3.1.2
@@ -33,4 +35,5 @@ quandl==3.7.0
 fredapi==0.5.1
 feature-engine
 xlrd
-#dtype_diet
+aiohttp
+

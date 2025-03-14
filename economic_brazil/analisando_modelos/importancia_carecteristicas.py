@@ -15,7 +15,7 @@ from random import randint
 shap.initjs()
 
 
-class TratandoDados:
+class TratandoDadosImportancia:
     def __init__(self, df):
         self.df = df
 
