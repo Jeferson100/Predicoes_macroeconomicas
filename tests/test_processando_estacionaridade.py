@@ -41,14 +41,6 @@ def test_report_ndiffs(sample_data: pd.DataFrame) -> None:
     ), "A coluna 'Ndifis' deve estar presente no resultado"
 
 
-"""def test_plot_test_stationarity(sample_data: pd.DataFrame) -> None:
-    est = Estacionaridade()
-    # Este teste apenas verifica se a função roda sem erros
-    try:
-        est.plot_test_stationarity(sample_data)
-    except Exception as e:  # pylint: disable=broad-except
-        pytest.fail(f"Falha ao executar plot_test_stationarity: {e}")"""
-
 
 def test_corrigindo_nao_estacionaridade(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
