@@ -8,14 +8,15 @@ from pmdarima import arima
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
+from typing import Optional
 
 warnings.filterwarnings("ignore")
 
 
 class Estacionaridade:
-    def test_kpss_adf(self, dados):
+    def test_kpss_adf(self, dados: pd.DataFrame) -> pd.DataFrame:
         # https://www.statsmodels.org/dev/examples/notebooks/generated/stationarity_detrending_adf_kpss.html
-        def kpss_test(timeseries):
+        def kpss_test(timeseries: pd.Series) -> pd.Series:
             # print("Results of KPSS Test:")
             kpsstest = kpss(timeseries, regression="c", nlags="auto")
             kpss_output = pd.Series(
@@ -25,7 +26,7 @@ class Estacionaridade:
                 kpss_output["Critical Value (%s)" % key] = value
             return kpss_output
 
-        def adf_test(timeseries):
+        def adf_test(timeseries: pd.Series) -> pd.Series:
             # print("Results of Dickey-Fuller Test:")
             dftest = adfuller(timeseries, autolag="AIC")
             dfoutput = pd.Series(
@@ -37,7 +38,7 @@ class Estacionaridade:
                     "Number of Observations Used",
                 ],
             )
-            for key, value in dftest[4].items():
+            for key, value in dftest[4].items():  # type:ignore
                 dfoutput["Critical Value (%s)" % key] = value
             return dfoutput
 
@@ -63,7 +64,9 @@ class Estacionaridade:
         )
         return test_est
 
-    def report_ndiffs(self, dados, test=None, alpha=0.05):
+    def report_ndiffs(
+        self, dados: pd.DataFrame, test: Optional[list] = None, alpha=0.05
+    ) -> pd.DataFrame:
         if test is None:
             test = ["kpss", "adf", "pp"]
         dat_ndifis = pd.DataFrame(index=dados.columns)
@@ -80,18 +83,18 @@ class Estacionaridade:
             result.append(
                 np.where(
                     dat_ndifis.iloc[k, 0] == dat_ndifis.iloc[k, 1],
-                    dat_ndifis.iloc[k, 0],
+                    dat_ndifis.iloc[k, 0],  # type:ignore
                     np.where(
                         dat_ndifis.iloc[k, 1] == dat_ndifis.iloc[k, 2],
-                        dat_ndifis.iloc[k, 1],
+                        dat_ndifis.iloc[k, 1],  # type:ignore
                         np.where(
                             dat_ndifis.iloc[k, 0] == dat_ndifis.iloc[k, 2],
-                            dat_ndifis.iloc[k, 2],
+                            dat_ndifis.iloc[k, 2],  # type:ignore
                             np.where(
                                 dat_ndifis.iloc[k, 0]
                                 != dat_ndifis.iloc[k, 1]
                                 != dat_ndifis.iloc[k, 2],
-                                dat_ndifis.iloc[k, 0],
+                                dat_ndifis.iloc[k, 0],  # type:ignore
                                 "",
                             ),
                         ),
@@ -103,7 +106,7 @@ class Estacionaridade:
         dat_ndifis["Ndifis"] = dat_ndifis["Ndifis"].astype(int)
         return dat_ndifis
 
-    def plot_test_stationarity(self, timeseries):
+    def plot_test_stationarity(self, timeseries: pd.DataFrame) -> None:
         for i in range(len(timeseries.columns)):
             # Determing rolling statistics
             rolmean = (
@@ -135,11 +138,13 @@ class Estacionaridade:
                     "Number of Observations Used",
                 ],
             )
-            for key, value in dftest[4].items():
+            for key, value in dftest[4].items():  # type:ignore
                 dfoutput["Critical Value (%s)" % key] = value
             print(dfoutput)
 
-    def corrigindo_nao_estacionaridade(self, base, valor_predicao):
+    def corrigindo_nao_estacionaridade(
+        self, base: pd.DataFrame, valor_predicao: str
+    ) -> pd.DataFrame:
         """
         Corrigindo não estacionaridade function.
 
@@ -160,7 +165,7 @@ class Estacionaridade:
                 dados_est[i] = dados_est[i]
             else:
                 j = 0
-                while j < n_difis["Ndifis"][i]:
+                while j < n_difis["Ndifis"][i]:  # type:ignore
                     dados_est[i] = dados_est[i].diff(periods=1)
                     j = j + 1
         dados_est = dados_est.iloc[1:]

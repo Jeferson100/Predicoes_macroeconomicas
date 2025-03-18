@@ -5,7 +5,7 @@ from dotenv import load_dotenv, set_key
 def set_fred_api_key():
     api_key = input("Por favor, insira sua chave de API do FRED: ").strip()
     
-    base_dir = '/workspaces/Predicoes_macroeconomicas'
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     
     dotenv_path = os.path.abspath(os.path.join(base_dir, '.env'))
     

@@ -66,7 +66,7 @@ class ImportanciaRandomForest:
     def tratando_dados_random(
         self, colunas_label="selic", divisao_treino_teste="2020-04-01"
     ):
-        x_train, y_train, x_test, y_test, colunas = TratandoDados(
+        x_train, y_train, x_test, y_test, colunas = TratandoDadosImportancia(
             self.df
         ).tratando_dados(
             colunas_label=colunas_label, divisao_treino_teste=divisao_treino_teste
@@ -116,7 +116,7 @@ class ImportanciaShap:
     def tratando_dados_shap(
         self, colunas_label="selic", divisao_treino_teste="2020-04-01"
     ):
-        x_train, y_train, x_test, y_test, colunas = TratandoDados(
+        x_train, y_train, x_test, y_test, colunas = TratandoDadosImportancia(
             self.df
         ).tratando_dados(
             colunas_label=colunas_label, divisao_treino_teste=divisao_treino_teste

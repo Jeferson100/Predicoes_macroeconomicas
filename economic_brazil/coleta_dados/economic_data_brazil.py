@@ -7,8 +7,8 @@ import pickle
 import os
 from dotenv import load_dotenv
 
-sys.path.append("..")
-from economic_brazil.coleta_dados.tratando_economic_brazil import (
+# sys.path.append("..")
+from ..coleta_dados.tratando_economic_brazil import (
     tratando_dados_bcb,
     tratando_dados_expectativas,
     tratando_dados_ibge_link,
@@ -21,7 +21,7 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
 from fredapi import Fred
 from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
 from pytrends.exceptions import TooManyRequestsError
-import asyncio
+from typing import List, Dict, Optional, cast
 
 warnings.filterwarnings("ignore")
 
@@ -116,14 +116,14 @@ codigos_fred_padrao = {
 class EconomicBrazil:
     def __init__(
         self,
-        codigos_banco_central=None,
-        codigos_ibge=None,
-        codigos_ibge_link=None,
-        codigos_ipeadata=None,
-        codigos_fred=None,
-        lista_termos_google_trends=None,
+        codigos_banco_central: Optional[Dict[str, int]] = None,
+        codigos_ibge: Optional[Dict[str, int]] = None,
+        codigos_ibge_link: Optional[Dict[str, str]] = None,
+        codigos_ipeadata: Optional[Dict[str, str]] = None,
+        codigos_fred: Optional[Dict[str, str]] = None,
+        lista_termos_google_trends: Optional[List[str]] = None,
         data_inicio=None,
-    ):
+    ) -> None:
         self.codigos_banco_central = (
             codigos_banco_central or variaveis_banco_central_padrao
         )
@@ -136,16 +136,21 @@ class EconomicBrazil:
         self.codigos_fred = codigos_fred or codigos_fred_padrao
         self.data_inicio = data_inicio or DATA_INICIO
 
-    def fetch_data_for_code(self, link, column):
-        return tratando_dados_ibge_link(coluna=column, link=link)
+    def fetch_data_for_code(self, link: str, column: str) -> pd.DataFrame:
+        return cast(pd.DataFrame, tratando_dados_ibge_link(coluna=column, link=link))
 
-    def data_index(self):
+    def data_index(self) -> pd.DataFrame:
         data_index = pd.date_range(
             start=self.data_inicio, end=datetime.today().strftime("%Y-%m-%d"), freq="MS"
         )
         return pd.DataFrame(index=data_index)
 
-    def dados_banco_central(self, salvar=None, diretorio=None, formato="csv"):
+    def dados_banco_central(
+        self,
+        salvar: bool = False,
+        diretorio: Optional[str] = None,
+        formato: str = "csv",
+    ) -> pd.DataFrame:
         dados = pd.DataFrame()
         for nome, codigo in self.codigos_banco_central.items():
             try:
@@ -161,10 +166,14 @@ class EconomicBrazil:
                 )
         if salvar:
             self.salvar_dados(dados, diretorio, formato)
-        else:
-            return dados
+        return dados
 
-    def dados_expectativas_inflacao(self, salvar=None, diretorio=None, formato="csv"):
+    def dados_expectativas_inflacao(
+        self,
+        salvar: bool = False,
+        diretorio: Optional[str] = None,
+        formato: str = "csv",
+    ) -> pd.DataFrame:
         dic_expectativas_inflacao = self.data_index()
         dic_expectativas_inflacao = dic_expectativas_inflacao.join(
             tratando_dados_expectativas()
@@ -175,26 +184,36 @@ class EconomicBrazil:
             )
         if salvar:
             self.salvar_dados(dic_expectativas_inflacao, diretorio, formato)
-        else:
-            return dic_expectativas_inflacao
+        return dic_expectativas_inflacao
 
-    def dados_ibge(self, salvar=False, diretorio=None, formato="pickle"):
+    def dados_ibge(
+        self,
+        salvar: bool = False,
+        diretorio: Optional[str] = None,
+        formato: str = "pickle",
+    ) -> pd.DataFrame:
         dic_ibge = self.data_index()
         for key, valor in self.codigos_ibge.items():
             try:
-                dic_ibge[key] = tratando_dados_ibge_codigos(
-                    codigos=valor, period="all"
-                )["Valor"]
+                if isinstance(valor, dict):
+                    resultado = tratando_dados_ibge_codigos(codigos=valor, period="all")
+                    dic_ibge[key] = resultado["Valor"]
+                else:
+                    print(f"Tipo de valor não suportado para {key}: {type(valor)}")
             except ValueError:
                 print(
                     f"Erro na coleta de dados da variável {key}. Verifique se os códigos {valor} estão ativos em https://sidra.ibge.gov.br/home/pms/brasil."
                 )
         if salvar:
             self.salvar_dados(dic_ibge, diretorio, formato)
-        else:
-            return dic_ibge
+        return dic_ibge
 
-    def dados_ibge_link(self, salvar=None, diretorio=None, formato="csv"):
+    def dados_ibge_link(
+        self,
+        salvar: bool = False,
+        diretorio: Optional[str] = None,
+        formato: str = "csv",
+    ) -> pd.DataFrame:
         dic_ibge_link = self.data_index()
         for key, link in self.codigos_ibge_link.items():
             try:
@@ -210,9 +229,8 @@ class EconomicBrazil:
                     f"Erro na coleta da variável {key}. Verifique se o link está ativo: {link}."
                 )
             try:
-                if (
-                    key not in dic_ibge_link.columns
-                    or dic_ibge_link[key].isnull().all()
+                if key not in dic_ibge_link.columns or bool(
+                    dic_ibge_link[key].isnull().all()
                 ):
                     dic_ibge_link[key] = tratando_dados_ibge_link_colum_brazil(
                         key, link
@@ -223,10 +241,14 @@ class EconomicBrazil:
                 )
         if salvar:
             self.salvar_dados(dic_ibge_link, diretorio, formato)
-        else:
-            return dic_ibge_link
+        return dic_ibge_link
 
-    def dados_ipeadata(self, salvar=None, diretorio=None, formato="csv"):
+    def dados_ipeadata(
+        self,
+        salvar: bool = False,
+        diretorio: Optional[str] = None,
+        formato: str = "csv",
+    ) -> pd.DataFrame:
         dic_ipeadata = self.data_index()
         for nome, codigo in self.codigos_ipeadata.items():
             try:
@@ -259,12 +281,15 @@ class EconomicBrazil:
             )
         if salvar:
             self.salvar_dados(dic_ipeadata, diretorio, formato)
-        else:
-            return dic_ipeadata
+        return dic_ipeadata
 
     def dados_google_trends(
-        self, frequencia_datas=None, salvar=None, diretorio=None, formato="csv"
-    ):
+        self,
+        frequencia_datas: Optional[str] = None,
+        salvar: bool = False,
+        diretorio: Optional[str] = None,
+        formato: str = "csv",
+    ) -> pd.DataFrame:
         if frequencia_datas is None:
             frequencia_datas = "MS"
         dic_google_trends = self.data_index()
@@ -288,10 +313,14 @@ class EconomicBrazil:
 
         if salvar:
             self.salvar_dados(dic_google_trends, diretorio, formato)
-        else:
-            return dic_google_trends
+        return dic_google_trends
 
-    def dados_fred(self, salvar=None, diretorio=None, formato="csv"):
+    def dados_fred(
+        self,
+        salvar: bool = False,
+        diretorio: Optional[str] = None,
+        formato: str = "csv",
+    ) -> pd.DataFrame:
         dic_fred = self.data_index()
         base_dir = os.path.dirname(os.path.abspath(__file__))
         dotenv_path = os.path.abspath(os.path.join(base_dir, ".env"))
@@ -319,24 +348,23 @@ class EconomicBrazil:
 
         if salvar:
             self.salvar_dados(dic_fred, diretorio, formato)
-        else:
-            return dic_fred
+        return dic_fred
 
     def dados_brazil(
         self,
-        dados_bcb=True,
-        dados_ibge_codigos=True,
-        dados_expectativas_inflacao=True,
-        dados_ibge_link=True,
-        dados_ipeadata=True,
-        dados_google_trends=False,
-        dados_fred=False,
-        sem_dados_faltantes=True,
-        metodo_preenchimento="ffill",
-        salvar=None,
-        diretorio=None,
-        formato="csv",
-    ):
+        dados_bcb: bool = True,
+        dados_ibge_codigos: bool = True,
+        dados_expectativas_inflacao: bool = True,
+        dados_ibge_link: bool = True,
+        dados_ipeadata: bool = True,
+        dados_google_trends: bool = False,
+        dados_fred: bool = False,
+        sem_dados_faltantes: bool = True,
+        metodo_preenchimento: str = "ffill",
+        salvar: Optional[bool] = None,
+        diretorio: Optional[str] = None,
+        formato: str = "csv",
+    ) -> pd.DataFrame:
 
         dados = self.data_index()
         if dados_bcb:
@@ -359,8 +387,7 @@ class EconomicBrazil:
                 dados = dados.bfill()
         if salvar:
             self.salvar_dados(dados, diretorio, formato)
-        else:
-            return dados
+        return dados
 
     def salvar_dados(self, dados, diretorio=None, formato="csv"):
         if not diretorio:

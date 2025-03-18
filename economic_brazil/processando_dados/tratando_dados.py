@@ -13,31 +13,35 @@ from economic_brazil.processando_dados.divisao_treino_teste import treino_test_d
 from sklearn.feature_selection import RFE, VarianceThreshold
 from feature_engine.selection import SmartCorrelatedSelection
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 import numpy as np
+import pandas as pd
+from typing import Optional, Union, List, Any
+import scipy.sparse
 
 
 class TratandoDados:
     def __init__(
         self,
-        df,
-        data_divisao=None,
-        coluna_label=None,
-        numero_defasagens=None,
-        n_components=None,
-        n_features_to_select=None,
-        variancia_threshold=None,
-        smart_correlated_threshold=None,
-        covid=True,
-        estacionaridade=True,
-        datas=True,
-        estacionaridade_log=False,
-        defasagens=True,
-        pca=True,
-        scaler=True,
-        rfe=False,
-        variancia=False,
-        smart_correlation=False,
-    ):
+        df: pd.DataFrame,
+        data_divisao: Optional[str] = None,
+        coluna_label: Optional[str] = None,
+        numero_defasagens: Optional[int] = None,
+        n_components: Optional[int] = None,
+        n_features_to_select: Optional[int] = None,
+        variancia_threshold: Optional[float] = None,
+        smart_correlated_threshold: Optional[float] = None,
+        covid: Optional[bool] = True,
+        estacionaridade: Optional[bool] = True,
+        datas: Optional[bool] = True,
+        estacionaridade_log: bool = False,
+        defasagens: bool = True,
+        pca: bool = True,
+        scaler: bool = True,
+        rfe: bool = False,
+        variancia: bool = False,
+        smart_correlation: bool = False,
+    ) -> None:
         self.df = df
         self.scaler_modelo = None
         self.pca_modelo = None
@@ -62,7 +66,7 @@ class TratandoDados:
         self.smart_correlation = smart_correlation
         self.estacionaridade_log = estacionaridade_log
 
-    def data_divisao_treino_teste(self):
+    def data_divisao_treino_teste(self) -> str:
         if self.data_divisao is None:
             data_inicio = self.df[-50:].index[1].strftime("%Y-%m-%d")
             print("Data divisao de treino e teste:", data_inicio)
@@ -72,7 +76,12 @@ class TratandoDados:
             return self.data_divisao
 
     # pylint: disable=W0632
-    def tratando_divisao(self, dados, treino_teste=True, divisao_treino_teste=None):
+    def tratando_divisao(
+        self,
+        dados: pd.DataFrame,
+        treino_teste: bool = True,
+        divisao_treino_teste: Optional[str] = None,
+    ) -> Any:
         """
         Divide os dados em conjuntos de treino e teste.
 
@@ -98,8 +107,11 @@ class TratandoDados:
 
     # pylint: disable=W0632
     def tratando_covid(
-        self, dados, inicio_periodo="2020-04-01", fim_periodo="2020-05-01"
-    ):
+        self,
+        dados: pd.DataFrame,
+        inicio_periodo: str = "2020-04-01",
+        fim_periodo: str = "2020-05-01",
+    ) -> pd.DataFrame:
         """
         Adiciona variáveis dummy para o período COVID.
         """
@@ -108,7 +120,9 @@ class TratandoDados:
         )
         return dados_covid
 
-    def tratando_estacionaridade(self, dados, coluna_label="selic"):
+    def tratando_estacionaridade(
+        self, dados: pd.DataFrame, coluna_label: str = "selic"
+    ) -> pd.DataFrame:
         """
         Corrige a não-estacionaridade dos dados.
         """
@@ -116,7 +130,14 @@ class TratandoDados:
         dados_est = estacionaridade.corrigindo_nao_estacionaridade(dados, coluna_label)
         return dados_est
 
-    def tratando_datas(self, dados, mes=True, trimestre=True, dummy=True, colunas=None):
+    def tratando_datas(
+        self,
+        dados: pd.DataFrame,
+        mes: bool = True,
+        trimestre: bool = True,
+        dummy: bool = True,
+        colunas: Optional[List[str]] = None,
+    ) -> pd.DataFrame:
         """
         Adiciona colunas de mês, trimestre e dummies aos dados.
         """
@@ -127,7 +148,7 @@ class TratandoDados:
         )
         return dados_datas
 
-    def tratando_defasagens(self, dados):
+    def tratando_defasagens(self, dados: pd.DataFrame) -> pd.DataFrame:
         """
         Cria defasagens nos dados.
         """
@@ -143,7 +164,9 @@ class TratandoDados:
             dados_defas = dados_defas.bfill()
         return dados_defas
 
-    def tratando_divisao_x_y(self, dados, label="selic"):
+    def tratando_divisao_x_y(
+        self, dados: pd.DataFrame, label: str = "selic"
+    ) -> tuple[np.ndarray, Any]:
         """
         Separa as variáveis independentes e dependentes.
         """
@@ -151,59 +174,93 @@ class TratandoDados:
         x = dados.loc[:, dados.columns != label].values
         return x, y
 
-    def tratando_scaler(self, dados, tipo="scaler"):
+    def tratando_scaler(
+        self, dados: Union[pd.DataFrame, np.ndarray], tipo: str = "scaler"
+    ) -> tuple[np.ndarray, StandardScaler]:
         """
         Escala os dados usando o método especificado.
         """
-        dados_scaler, scaler = escalando_dados(dados, tipo=tipo)
+        if isinstance(dados, pd.DataFrame):
+            dados_numpy = dados.values
+        else:
+            dados_numpy = dados
+        dados_scaler, scaler = escalando_dados(dados_numpy, tipo=tipo)
         return dados_scaler, scaler
 
-    def tratando_pca(self, dados):
+    def tratando_pca(
+        self, dados: Union[pd.DataFrame, np.ndarray]
+    ) -> tuple[PCA, np.ndarray]:
         """
         Aplica PCA aos dados.
         """
         if self.n_components is None:
             self.n_components = 6
+        if isinstance(dados, pd.DataFrame):
+            pd_dados_pca = dados.values
+        else:
+            pd_dados_pca = dados
         pca = PCA(n_components=self.n_components)
-        dados_pca = pca.fit_transform(dados)
+        dados_pca = pca.fit_transform(pd_dados_pca)
         return pca, dados_pca
 
-    def tratando_RFE(self, dados_x, dados_y):
+    def tratando_RFE(
+        self, dados_x: Union[pd.DataFrame, np.ndarray], dados_y: pd.DataFrame
+    ) -> tuple[RFE, np.ndarray]:
         """
         Aplica RFE aos dados.
+
         """
-        dados_x = dados_x.reshape(-1, 1) if dados_x.ndim == 1 else dados_x
-        dados_y = dados_y.reshape(-1, 1) if dados_y.ndim == 1 else dados_y
+        if isinstance(dados_x, pd.DataFrame):
+            pd_dados_x = dados_x.values
+        else:
+            pd_dados_x = dados_x
+
+        dados_x = pd_dados_x.reshape(-1, 1) if dados_x.ndim == 1 else dados_x
+        dados_y = (
+            dados_y.reshape(-1, 1) if dados_y.ndim == 1 else dados_y  # type:ignore
+        )  # type:ignore
 
         rfe_model = RFE(
             estimator=LinearRegression(), n_features_to_select=self.n_features_to_select
         )
-        dados_rfe = rfe_model.fit_transform(dados_x, dados_y)
+        dados_rfe = rfe_model.fit_transform(pd_dados_x, dados_y)
         return rfe_model, dados_rfe
 
-    def tratando_variancia(self, dados):
+    def tratando_variancia(
+        self, dados: Union[pd.DataFrame, np.ndarray]
+    ) -> tuple[VarianceThreshold, np.ndarray]:
         """
         Aplica variancia para reduzir aos dados.
         """
         if self.variancia_threshold is None:
             self.variancia_threshold = 0.1
         variancia_model = VarianceThreshold(threshold=self.variancia_threshold)
-        dados_variancia = variancia_model.fit_transform(dados)
+        if isinstance(dados, pd.DataFrame):
+            pd_dados = dados.values
+        else:
+            pd_dados = dados
+        dados_variancia = variancia_model.fit_transform(pd_dados)
         return variancia_model, dados_variancia
 
-    def tratando_smart_correlation(self, dados):
+    def tratando_smart_correlation(
+        self, dados: Union[pd.DataFrame, np.ndarray]
+    ) -> tuple[SmartCorrelatedSelection, np.ndarray]:
         """
         Aplica smart correlation para reduzir aos dados.
         """
         if self.smart_correlated_threshold is None:
             self.smart_correlated_threshold = 0.7
+
         smart_correlation_model = SmartCorrelatedSelection(
             selection_method="variance", threshold=self.smart_correlated_threshold
         )
         dados_smart_correlation = smart_correlation_model.fit_transform(dados)
+
         return smart_correlation_model, dados_smart_correlation
 
-    def diferenciacao_log(self, dados, variavel_predicao=None):
+    def diferenciacao_log(
+        self, dados: pd.DataFrame, variavel_predicao: str
+    ) -> pd.DataFrame:
         for i in dados.columns:
             if i == variavel_predicao:
                 dados[i] = dados[i]
@@ -213,8 +270,18 @@ class TratandoDados:
 
     def tratando_dados(
         self,
-        treino_teste=True,
-    ):
+        treino_teste: bool = True,
+    ) -> tuple[
+        Union[np.ndarray, pd.DataFrame, scipy.sparse.csr_matrix],
+        Union[np.ndarray, pd.DataFrame, scipy.sparse.csr_matrix],
+        np.ndarray,
+        np.ndarray,
+        Any,
+        Any,
+        Any,
+        Any,
+        Any,
+    ]:
 
         """
         Executa todas as etapas de tratamento de dados em ordem.
@@ -224,14 +291,19 @@ class TratandoDados:
 
         # Aplicação das etapas de tratamento de dados
         if self.covid:
+
             treino = self.tratando_covid(treino)
             teste = self.tratando_covid(teste)
         if self.estacionaridade:
+            if self.coluna_label is None:
+                self.coluna_label = "selic"
             treino = self.tratando_estacionaridade(
                 treino, coluna_label=self.coluna_label
             )
             teste = self.tratando_estacionaridade(teste, coluna_label=self.coluna_label)
         if self.estacionaridade_log:
+            if self.coluna_label is None:
+                self.coluna_label = "selic"
             treino = self.diferenciacao_log(treino, self.coluna_label)
             teste = self.diferenciacao_log(teste, self.coluna_label)
         if self.datas:
@@ -242,6 +314,8 @@ class TratandoDados:
             teste = self.tratando_defasagens(teste)
 
         # Separação das variáveis independentes e dependentes
+        if self.coluna_label is None:
+            self.coluna_label = "selic"
         x_treino, y_treino = self.tratando_divisao_x_y(treino, label=self.coluna_label)
         x_teste, y_teste = self.tratando_divisao_x_y(teste, label=self.coluna_label)
 
@@ -258,6 +332,11 @@ class TratandoDados:
             self.smart_correlation_modelo, x_treino = self.tratando_smart_correlation(
                 x_treino
             )
+            if not isinstance(x_teste, pd.DataFrame):
+                if isinstance(x_teste, scipy.sparse.csr_matrix):
+                    x_teste = pd.DataFrame(x_teste.toarray(), index=x_teste.index)
+                else:
+                    x_teste = pd.DataFrame(x_teste)
             x_teste = self.smart_correlation_modelo.transform(x_teste)
 
         if self.rfe:
@@ -283,15 +362,18 @@ class TratandoDados:
 
     def dados_futuros(
         self,
-        dados_entrada,
-        ultimas_colunas=-10,
-    ):
+        dados_entrada: pd.DataFrame,
+        ultimas_colunas: int = -10,
+    ) -> pd.DataFrame:
+        dados = dados_entrada.copy()
         if self.covid:
             dados = self.tratando_covid(dados_entrada)
         if self.estacionaridade:
             dados = self.tratando_estacionaridade(dados)
         if self.estacionaridade_log:
-            dados = self.diferenciacao_log(dados)
+            if self.coluna_label is None:
+                self.coluna_label = "selic"
+            dados = self.diferenciacao_log(dados, self.coluna_label)
         if self.datas:
             dados = self.tratando_datas(dados)
         if self.defasagens:
@@ -299,13 +381,28 @@ class TratandoDados:
         dados = dados.drop(self.coluna_label, axis=1)
         dados = dados.iloc[ultimas_colunas:]
         if self.scaler:
-            dados = self.scaler_modelo.transform(dados)
+            if self.scaler_modelo is not None:
+                dados = self.scaler_modelo.transform(dados)
         if self.variancia:
-            dados = self.variancia_modelo.transform(dados)
+            if self.variancia_modelo is not None:
+                dados = self.variancia_modelo.transform(dados)
         if self.smart_correlation:
-            dados = self.smart_correlation_modelo.transform(dados)
+            if self.smart_correlation_modelo is not None:
+                if not isinstance(dados, pd.DataFrame):
+                    if isinstance(dados, scipy.sparse.csr_matrix):
+                        dados = pd.DataFrame(dados.toarray(), index=dados.index)
+                    else:
+                        dados = pd.DataFrame(dados)
+                dados = self.smart_correlation_modelo.transform(dados)
         if self.rfe:
-            dados = self.rfe_modelo.transform(dados)
+            if self.rfe_modelo is not None:
+                dados = self.rfe_modelo.transform(dados)
         if self.pca:
-            dados = self.pca_modelo.transform(dados)
+            if self.pca_modelo is not None:
+                dados = self.pca_modelo.transform(dados)
+        if not isinstance(dados, pd.DataFrame):
+            if isinstance(dados, scipy.sparse.csr_matrix):
+                dados = pd.DataFrame(dados.toarray(), index=dados.index)
+            else:
+                dados = pd.DataFrame(dados)
         return dados

@@ -7,6 +7,7 @@ import numpy as np
 from pmdarima import arima
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import warnings
+from typing import Optional, List, Any
 
 warnings.filterwarnings("ignore")
 
@@ -28,7 +29,7 @@ def criando_dummy_covid(dados, inicio_periodo: str, fim_periodo: str) -> pd.Data
     return dados
 
 
-def backcasting_nan(dados):
+def backcasting_nan(dados: pd.DataFrame) -> pd.DataFrame:
     """
     Fills missing values in the input DataFrame with interpolated values using the XGBoost regressor model.
 
@@ -65,7 +66,9 @@ def backcasting_nan(dados):
 
         Y_treino = Y_treino[Y_treino.index.isin(treino_interpolacao.index)]
 
-        treino_interpolacao = treino_interpolacao.loc[:, predicao_interpolacao.columns]
+        treino_interpolacao = treino_interpolacao.loc[
+            :, predicao_interpolacao.columns.tolist()
+        ]
 
         # Fill NaN values in remaining columns with the mean
         treino_interpolacao = treino_interpolacao.fillna(treino_interpolacao.mean())
@@ -77,7 +80,7 @@ def backcasting_nan(dados):
         model = XGBRegressor(random_state=0)
 
         # Train the model
-        model.fit(treino_interpolacao.values, Y_treino.values.reshape(-1, 1))
+        model.fit(treino_interpolacao.values, Y_treino.to_numpy().reshape(-1, 1))
         predicao = model.predict(predicao_interpolacao.values)
         interpolados = pd.DataFrame(predicao, index=predicao_interpolacao.index)
         try:
@@ -89,7 +92,7 @@ def backcasting_nan(dados):
     return dados_bac
 
 
-def criando_defasagens(base, numero_defasagens=4):
+def criando_defasagens(base: pd.DataFrame, numero_defasagens: int = 4) -> pd.DataFrame:
     base_def = base.copy()
     for j in range(numero_defasagens):
         for i in base.columns:
@@ -101,18 +104,18 @@ def criando_defasagens(base, numero_defasagens=4):
 def corrigindo_nan_arima(
     dados_est,
     coluna: str,
-    test_arima="adf",
-    max_p_arima=3,
-    max_q_arima=3,
-    d_arima=None,
-    seasonal_arima=False,
-    start_p_arima=0,
-    D_arima=0,
-    trace_arima=True,
-    error_action_arima="ignore",
-    suppress_warnings_arima=True,
-    stepwise_arima=True,
-):
+    test_arima: str = "adf",
+    max_p_arima: int = 3,
+    max_q_arima: int = 3,
+    d_arima: Optional[int] = None,
+    seasonal_arima: bool = False,
+    start_p_arima: int = 0,
+    D_arima: int = 0,
+    trace_arima: bool = True,
+    error_action_arima: str = "ignore",
+    suppress_warnings_arima: bool = True,
+    stepwise_arima: bool = True,
+) -> pd.DataFrame:
     dados_sem = dados_est.loc[:, dados_est.columns != coluna].copy()
     for k in dados_est.loc[:, dados_est.columns != coluna].columns[
         dados_sem.isnull().sum() > 0
@@ -142,22 +145,22 @@ def corrigindo_nan_arima(
 
 
 def criando_mes_ano_dia(
-    dados,
-    mes=None,
-    ano=None,
-    dia=None,
-    dummy=None,
-    trimestre=None,
-    coluns=None,
+    dados: pd.DataFrame,
+    mes: bool = False,
+    ano: bool = False,
+    dia: bool = False,
+    dummy: bool = False,
+    trimestre: bool = False,
+    coluns: Optional[List[str]] = None,
 ):
     if mes:
-        dados["mes"] = dados.index.month
+        dados["mes"] = pd.to_datetime(dados.index).month  # type: ignore
     if ano:
-        dados["ano"] = dados.index.year
+        dados["ano"] = pd.to_datetime(dados.index).year  # type: ignore
     if dia:
-        dados["dia"] = dados.index.day
+        dados["dia"] = pd.to_datetime(dados.index).day  # type: ignore
     if trimestre:
-        dados["trimestre"] = dados.index.quarter
+        dados["trimestre"] = pd.to_datetime(dados.index).quarter  # type: ignore
     if dummy:
         if coluns is None:
             coluns = ["mes", "ano", "dia", "trimestre"]
@@ -174,7 +177,7 @@ def criando_mes_ano_dia(
     return dados
 
 
-def escalando_dados(dados, tipo="minmax"):
+def escalando_dados(dados: np.ndarray, tipo: str = "minmax") -> tuple[np.ndarray, Any]:
     if tipo == "minmax":
         scaler = MinMaxScaler()
         scaler.fit(dados)

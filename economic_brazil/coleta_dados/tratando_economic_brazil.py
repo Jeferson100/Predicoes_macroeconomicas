@@ -14,10 +14,11 @@ import numpy as np
 from datetime import datetime, date
 import requests
 from io import BytesIO
+from typing import Optional, Dict, List, Any
 
 
 # Tratando dados IBGE/SIDRAPY
-def trimestral_para_mensal(df):
+def trimestral_para_mensal(df: pd.DataFrame) -> pd.DataFrame:
     """
     A função recebe um DataFrame df com valores trimestrais do PIB. Primeiro, ela aplica a interpolação para obter os valores mensais, usando o método resample com uma frequência de 'M' e o método interpolate para preencher os valores faltantes.
     Em seguida, ela percorre os valores de cada trimestre e distribui a variação trimestral em cada um dos três meses dentro do trimestre, adicionando um terço do valor trimestral aos dois meses intermediários. Finalmente, ela retorna o DataFrame
@@ -38,7 +39,7 @@ def trimestral_para_mensal(df):
     return df_mensal
 
 
-def converter_mes_para_data(mes):
+def converter_mes_para_data(mes: int) -> datetime:
     mes_texto = str(mes)
     ano = int(mes_texto[:4])
     mes = int(mes_texto[4:])
@@ -46,25 +47,28 @@ def converter_mes_para_data(mes):
     return data
 
 
-def trimestre_string_int(dados):
+def trimestre_string_int(dados: pd.DataFrame) -> list:
     lista_trimestre = []
     for i in range(len(dados.index)):
-        if int(dados.index[i][0]) * 3 == 12:
-            lista_trimestre.append(
-                dados.index[i][-4:] + "-" + str(int(dados.index[i][0]) * 3)
-            )
+        trimestre_str = str(dados.index[i][0])
+        trimestre_int = int(trimestre_str)
+        if trimestre_int * 3 == 12:
+            lista_trimestre.append(dados.index[i][-4:] + "-" + str(trimestre_int * 3))
         else:
             lista_trimestre.append(
-                dados.index[i][-4:] + "-" + "0" + str(int(dados.index[i][0]) * 3)
+                dados.index[i][-4:] + "-" + "0" + str(trimestre_int * 3)
             )
     return lista_trimestre
 
 
-def transforma_para_mes_incial_trimestre(dados):
+def transforma_para_mes_incial_trimestre(dados: pd.DataFrame) -> list:
     lista_mes = []
+    if not isinstance(dados.index, pd.DatetimeIndex):
+        raise TypeError("O índice do DataFrame deve ser um DatetimeIndex")
     for i in range(len(dados.index)):
-        trimestre = dados.index.month[i]
-        ano = str(dados.index.year[i])
+        data = dados.index[i]  # type:ignore
+        trimestre = data.month  # type:ignore
+        ano = str(data.year)  # type:ignore
         lista_mes.append(
             str(
                 np.where(
@@ -85,7 +89,7 @@ def transforma_para_mes_incial_trimestre(dados):
     return lista_mes
 
 
-def transforme_data(data):
+def transforme_data(data: pd.DataFrame) -> pd.DataFrame:
     months = {
         "janeiro": "january",
         "fevereiro": "february",
@@ -108,17 +112,23 @@ def transforme_data(data):
         formatted_date = f"{formatted_month} {date_components[1]}"
         date_object = datetime.strptime(formatted_date, "%B %Y")
         lista_data.append(date_object.strftime("%Y-%m-%d"))
-    data.index = lista_data
+    data.index = lista_data  # type:ignore
     return data
 
 
 ###Tratando dados IBGE
 def tratando_dados_ibge_codigos(
-    codigos=None, period="all", salvar=None, formato="csv", diretorio=None
-):
+    codigos: Optional[Dict[str, Any]] = None,
+    period: str = "all",
+    salvar: bool = False,
+    formato: str = "csv",
+    diretorio: Optional[str] = None,
+) -> pd.DataFrame:
     if codigos is None:
         ibge_codigos = dados_ibge_codigos(period="all")
     else:
+        if not isinstance(codigos, dict):
+            raise TypeError("codigos deve ser um dicionário com chaves do tipo string")
         ibge_codigos = dados_ibge_codigos(**codigos, period=period)
     # Verificar se o DataFrame não está vazio
     if ibge_codigos.empty:
@@ -133,7 +143,7 @@ def tratando_dados_ibge_codigos(
         ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(
             converter_mes_para_data
         )
-    ibge_codigos.index = ibge_codigos["data"]
+    ibge_codigos.index = ibge_codigos["data"]  # type:ignore
     try:
         ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
     except ValueError as exc:
@@ -163,16 +173,16 @@ def tratando_dados_ibge_codigos(
 
 
 def tratando_dados_ibge_link(
-    coluna=None,
-    link=None,
-    salvar=None,
-    formato="csv",
-    diretorio=None,
-):
+    coluna: Optional[str] = None,
+    salvar: bool = False,
+    formato: str = "csv",
+    diretorio: Optional[str] = None,
+    link: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
+) -> pd.DataFrame:
     dado_ibge = dados_ibge_link(url=link)
-    ibge_link = dado_ibge.T
-    ibge_link = ibge_link[[1]]
-    ibge_link = ibge_link[3:]
+    ibge_link = pd.DataFrame(dado_ibge.T)
+    ibge_link = pd.DataFrame(ibge_link[[1]])
+    ibge_link = pd.DataFrame(ibge_link[3:])
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
@@ -205,13 +215,13 @@ selic = {
 
 
 def tratando_dados_bcb(
-    codigo_bcb_tratado=None,
-    data_inicio_tratada="2000-01-01",
-    salvar=False,
-    diretorio=None,
-    formato="csv",
+    codigo_bcb_tratado: Optional[Dict[str, int]] = None,
+    data_inicio_tratada: str = "2000-01-01",
+    salvar: bool = False,
+    diretorio: Optional[str] = None,
+    formato: str = "csv",
     **kwargs,
-):
+) -> pd.DataFrame:
     if codigo_bcb_tratado is None:
         codigo_bcb_tratado = selic
     if not isinstance(codigo_bcb_tratado, dict):
@@ -231,16 +241,18 @@ def tratando_dados_bcb(
 ###Tratando dados Expectativas
 
 
-def tratando_dados_expectativas(salvar=False, formato="csv", diretorio=None):
+def tratando_dados_expectativas(
+    salvar: bool = False, formato: str = "csv", diretorio: Optional[str] = None
+) -> pd.DataFrame:
     ipca_expec = dados_expectativas_focus()
     dados_ipca = ipca_expec.copy()
     dados_ipca = dados_ipca[::-1]
-    dados_ipca["monthyear"] = pd.to_datetime(dados_ipca["Data"]).apply(
-        lambda x: x.strftime("%Y-%m")
-    )
-    dados_ipca = dados_ipca.groupby("monthyear")["Mediana"].mean()
+    dados_ipca["monthyear"] = pd.to_datetime(dados_ipca["Data"]).apply(  # type:ignore
+        lambda x: x.strftime("%Y-%m")  # type:ignore
+    )  # type:ignore
+    dados_ipca = dados_ipca.groupby("monthyear")["Mediana"].mean().to_frame()
     # criar índice com o formato "YYYY-MM"
-    dados_ipca.index = pd.to_datetime(dados_ipca.index, format="%Y-%m")
+    dados_ipca.index = pd.to_datetime(dados_ipca.index, format="%Y-%m", errors="coerce")
 
     # adicionar o dia como "01"
     dados_ipca.index = dados_ipca.index.to_period("M").to_timestamp()
@@ -252,32 +264,41 @@ def tratando_dados_expectativas(salvar=False, formato="csv", diretorio=None):
             dados_ipca.to_csv(diretorio)
         elif formato == "json":
             dados_ipca.to_json(diretorio)
+    return pd.DataFrame(dados_ipca)
 
-    return dados_ipca
 
-
-def tratatando_dados_ipeadata(codigo_ipeadata, data="2000-01-01"):
+def tratatando_dados_ipeadata(
+    codigo_ipeadata: Dict[str, str], data: str = "2000-01-01"
+) -> pd.DataFrame:
     ((nome_coluna, codigo),) = codigo_ipeadata.items()
     dados_ipea = dados_ipeadata(codigo=codigo, data=data)
     coluna = dados_ipea.filter(like="VALUE").columns[0]
     dados_ipea = dados_ipea[[coluna]]
-    if (dados_ipea.index.day == 1).all():
-        pass
+    if isinstance(dados_ipea.index, pd.DatetimeIndex):
+        if (dados_ipea.index.day == 1).all():  # type: ignore
+            pass
+        else:
+            dados_ipea = dados_ipea.resample("MS").mean()
     else:
-        dados_ipea = dados_ipea.resample("MS").mean()
+        print("Index is not a DatetimeIndex")
     try:
         dados_ipea = dados_ipea[dados_ipea.index >= pd.to_datetime(data)]
     except ValueError:
         print(
             f"Data inicial posterior a {data} definida, o conjunto de dados {codigo} tem data inicial em {dados_ipea.index[0]}"
         )
+    if not isinstance(dados_ipea, pd.DataFrame):
+        dados_ipea = pd.DataFrame(dados_ipea)
     dados_ipea.columns = [nome_coluna]
     return dados_ipea
 
 
 def tratando_dados_google_trends(
-    kw_list, frequencia_data=None, start_date=None, end_date=None
-):
+    kw_list: List[str],
+    frequencia_data: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+) -> pd.DataFrame:
     if frequencia_data is None:
         frequencia_data = "MS"
     if start_date is None:
@@ -291,7 +312,9 @@ def tratando_dados_google_trends(
     return data
 
 
-def tratando_dados_ibge_link_producao_agricola(url, nome_coluna, header=3):
+def tratando_dados_ibge_link_producao_agricola(
+    url: str, nome_coluna: str, header: int = 3
+) -> pd.DataFrame:
     dados = pd.read_excel(url, header=header)
     dados = dados.T
     dados = dados.iloc[1:]
@@ -305,23 +328,25 @@ def tratando_dados_ibge_link_producao_agricola(url, nome_coluna, header=3):
     data = data[[nome_coluna]]
     data.index = pd.to_datetime(data.index)
     data[nome_coluna] = pd.to_numeric(data[nome_coluna], errors="coerce")
+    if not isinstance(data, pd.DataFrame):
+        data = pd.DataFrame(data)
     return data
 
 
 def tratando_dados_ibge_link_colum_brazil(
-    coluna=None,
-    link=None,
-    salvar=None,
-    formato="csv",
-    diretorio=None,
-):
+    coluna: Optional[str] = None,
+    link: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
+    salvar: bool = False,
+    formato: str = "csv",
+    diretorio: Optional[str] = None,
+) -> pd.DataFrame:
     dado_ibge = dados_ibge_link(url=link)
     ibge_link = dado_ibge.T
     ibge_link.columns = ibge_link.iloc[0]
-    ibge_link = ibge_link[
-        ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]
-    ]
-    ibge_link = ibge_link[3:]
+    ibge_link = pd.DataFrame(
+        ibge_link[ibge_link.columns[ibge_link.columns.str.contains("Brasil", na=False)]]
+    )
+    ibge_link = pd.DataFrame(ibge_link[3:])
     ibge_link.columns = [coluna]
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
@@ -348,7 +373,7 @@ def tratando_dados_ibge_link_colum_brazil(
     return ibge_link
 
 
-def read_indice_abcr():
+def read_indice_abcr() -> pd.DataFrame | None:
 
     url = "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
 
@@ -366,7 +391,7 @@ def read_indice_abcr():
             df = pd.read_excel(data, sheet_name="(C) Original", header=2)
             df = df.iloc[:, :4]
             df.columns = ["data", "ibcr_leves", "ibcr_pesados", "ibcr_total"]
-            df.index = df["data"]
+            df.index = df["data"]  # type:ignore
             df.drop("data", axis=1, inplace=True)
             return df
         except ValueError:
@@ -375,7 +400,7 @@ def read_indice_abcr():
         print(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
 
 
-def sondagem_industria(sheet, variable):
+def sondagem_industria(sheet: str, variable: str) -> pd.DataFrame:
     ##pagina para fazer web scraping
     url = "https://static.portaldaindustria.com.br/media/filer_public/62/24/6224e62d-7f5d-419d-ab6f-edd21e05cdf5/sondagemindustrial_serie-recente_maio2024.xls"
 

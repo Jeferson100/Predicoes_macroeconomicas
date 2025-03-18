@@ -1,18 +1,21 @@
 from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
 from skopt import BayesSearchCV
+import numpy as np
+from typing import Union, Any
+from sklearn.base import BaseEstimator
 
 
 class TimeSeriesModelTuner:
     def __init__(
         self,
-        model,
-        X_train,
-        y_train,
-        numero_divisoes=10,
-        gap_series=0,
-        max_train_size=100,
-        test_size=10,
-    ):
+        model: Union[BaseEstimator, Any],
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        numero_divisoes: int = 10,
+        gap_series: int = 0,
+        max_train_size: int = 100,
+        test_size: int = 10,
+    ) -> None:
         self.model = model
         self.X_train = X_train
         self.y_train = y_train
@@ -67,8 +70,8 @@ class TimeSeriesModelTuner:
         bayes_search.fit(self.X_train, self.y_train)
         print(
             "Best Bayesian Optimization Params:",
-            bayes_search.best_params_,
+            bayes_search.best_params_,  # type: ignore
             "Score:",
-            bayes_search.best_score_,
+            bayes_search.best_score_,  # type: ignore
         )
-        return bayes_search.best_params_, bayes_search.best_score_
+        return bayes_search.best_params_, bayes_search.best_score_  # type: ignore

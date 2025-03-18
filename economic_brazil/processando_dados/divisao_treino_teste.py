@@ -1,8 +1,15 @@
 import pandas as pd
 from sklearn.model_selection import TimeSeriesSplit
+from typing import Optional, Union
 
 
-def treino_test_dados(dados, data_divisao, coluna=None, treino_teste=None, tipo=None):
+def treino_test_dados(
+    dados: pd.DataFrame,
+    data_divisao: str,
+    coluna: Optional[str] = None,
+    treino_teste: Optional[bool] = None,
+    tipo: Optional[bool] = None,
+) -> Union[pd.DataFrame, tuple]:
     treino = dados[dados.index < pd.to_datetime(data_divisao)]
     teste = dados[dados.index >= pd.to_datetime(data_divisao)]
     if treino_teste:
@@ -34,13 +41,13 @@ def treino_test_dados(dados, data_divisao, coluna=None, treino_teste=None, tipo=
 
 
 def treino_teste_seies_temporal(
-    x_train,
-    y_train,
-    numero_divisoes=5,
-    gap_series=5,
-    max_train_size=100,
-    test_size=10,
-):
+    x_train: pd.DataFrame,
+    y_train: pd.DataFrame,
+    numero_divisoes: int = 5,
+    gap_series: int = 5,
+    max_train_size: int = 100,
+    test_size: int = 10,
+) -> list:
     ts_cv = TimeSeriesSplit(
         n_splits=numero_divisoes,  # to keep the notebook fast enough on common laptops
         gap=gap_series,  # 2 days data gap between train and test

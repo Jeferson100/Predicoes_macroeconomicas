@@ -7,7 +7,7 @@ from pytrends.request import TrendReq
 import time
 from datetime import date
 import quandl
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Optional
 
 
 # Dados BCB
@@ -33,6 +33,9 @@ def dados_bcb(
     if codigos_banco_central is None:
         codigos_banco_central = SELIC_CODES
     dados = sgs.get(codigos_banco_central, start=data_inicio)
+    if not isinstance(dados, pd.DataFrame):
+        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        return pd.DataFrame()
     return dados
 
 
@@ -51,6 +54,9 @@ def dados_ibge_codigos(
         variable=variable,
         period=period,
     )
+    if not isinstance(ipca, pd.DataFrame):
+        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        return pd.DataFrame()
     return ipca
 
 
@@ -78,20 +84,23 @@ def dados_expectativas_focus(
     # Dados do IPCA
 
     ipca_expec = (
-        ep.query()
-        .filter(ep.Indicador == indicador)
-        .filter(ep.Data >= data_inicio)
-        .filter(ep.baseCalculo == 0)
+        ep.query()  # type: ignore
+        .filter(ep.Indicador == indicador)  # type: ignore
+        .filter(ep.Data >= data_inicio)  # type: ignore
+        .filter(ep.baseCalculo == 0)  # type: ignore
         .select(
-            ep.Indicador,
-            ep.Data,
-            ep.Media,
-            ep.Mediana,
-            ep.DataReferencia,
-            ep.baseCalculo,
+            ep.Indicador,  # type: ignore
+            ep.Data,  # type: ignore
+            ep.Media,  # type: ignore
+            ep.Mediana,  # type: ignore
+            ep.DataReferencia,  # type: ignore
+            ep.baseCalculo,  # type: ignore
         )
         .collect()
     )
+    if not isinstance(ipca_expec, pd.DataFrame):
+        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        return pd.DataFrame()
     return ipca_expec
 
 
@@ -99,6 +108,9 @@ def dados_ipeadata(
     codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01"
 ) -> pd.DataFrame:
     dados_ipea = ip.timeseries(codigo, yearGreaterThan=int(data[0:4]) - 1)
+    if not isinstance(dados_ipea, pd.DataFrame):
+        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        return pd.DataFrame()
     return dados_ipea
 
 
@@ -117,7 +129,8 @@ def coleta_google_trends(
     # Dividindo a pesquisa em vários períodos de 5 anos
     periods = pd.date_range(start=start_date, end=end_date, freq="5YE")
     if periods[-1] < pd.to_datetime(end_date):
-        periods = periods.append(pd.Index([pd.to_datetime(end_date)]))
+        # periods = periods.append(pd.Index([pd.to_datetime(end_date)]))
+        periods = pd.DatetimeIndex(list(periods) + [pd.to_datetime(end_date)])
 
     # Criando uma instância do TrendReq
     pytrends = TrendReq()
@@ -138,6 +151,9 @@ def coleta_google_trends(
     return data
 
 
-def coleta_quandl(codes: Optional[str] = None):
+def coleta_quandl(codes: Optional[str] = None) -> pd.DataFrame:
     data = quandl.get(codes)
+    if not isinstance(data, pd.DataFrame):
+        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        return pd.DataFrame()
     return data

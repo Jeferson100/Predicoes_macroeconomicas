@@ -1,16 +1,17 @@
 # write test for all imports
 
 
-def test_imports_economic_brazil():
+def test_imports_economic_brazil() -> None:
+    # pylint: disable=unused-import:
     # pylint: disable=unused-import
-    from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
+    from economic_brazil import EconomicBrazil
 
     # pylint: disable=unused-import
 
 
-def test_data_processing():
+def test_data_processing() -> None:
     # pylint: disable=unused-import
-    from economic_brazil.processando_dados.data_processing import (
+    from economic_brazil import (
         criando_dummy_covid,
         criando_defasagens,
         criando_mes_ano_dia,
@@ -20,9 +21,9 @@ def test_data_processing():
     # pylint: disable=unused-import
 
 
-def test_divisao_treino_teste():
+def test_divisao_treino_teste() -> None:
     # pylint: disable=unused-import
-    from economic_brazil.processando_dados.divisao_treino_teste import (
+    from economic_brazil import (
         treino_test_dados,
         treino_teste_seies_temporal,
     )
@@ -30,51 +31,44 @@ def test_divisao_treino_teste():
     # pylint: disable=unused-import
 
 
-def test_estacionaridade():
+def test_estacionaridade() -> None:
     # pylint: disable=unused-import
-    from economic_brazil.processando_dados.estacionaridade import Estacionaridade
-
-    # pylint: disable=unused-import
-
-
-def test_arima_treinamento():
-    # pylint: disable=unused-import
-    from economic_brazil.treinamento.arima_treinamento import Arima
+    from economic_brazil import Estacionaridade
 
     # pylint: disable=unused-import
 
 
-def test_modelos_treinamento():
+def test_arima_treinamento() -> None:
     # pylint: disable=unused-import
-    from economic_brazil.treinamento.modelos_treinamento import TreinamentoModelos
-
-    # pylint: disable=unused-import
-
-
-def test_redes_neurais_treinamento():
-    # pylint: disable=unused-import
-    from economic_brazil.treinamento.redes_neurais_recorrentes import RnnModel
+    from economic_brazil import Arima
 
     # pylint: disable=unused-import
 
 
-def test_treinamento_modelos_tuning():
+def test_modelos_treinamento() -> None:
     # pylint: disable=unused-import
-    from economic_brazil.treinamento.treinamento_modelos_tuning import (
+    from economic_brazil import TreinamentoModelos
+
+    # pylint: disable=unused-import
+
+
+def test_redes_neurais_treinamento() -> None:
+    # pylint: disable=unused-import
+    from economic_brazil import RnnModel
+
+    # pylint: disable=unused-import
+
+
+def test_treinamento_modelos_tuning() -> None:
+    # pylint: disable=unused-import
+    from economic_brazil import (
         TimeSeriesModelTuner,
     )
 
     # pylint: disable=unused-import
 
 
-def test_codigos_graficos():
-    # pylint: disable=unused-import
-    from economic_brazil.visualizacoes_graficas.codigos_graficos import Graficos
-
-    # pylint: disable=unused-import
-
-
-def test_analise_modelos_regressao():
+def test_analise_modelos_regressao() -> None:
     # pylint: disable=unused-import
     from economic_brazil.analisando_modelos.analise_modelos_regressao import (
         MetricasModelos,
@@ -95,7 +89,7 @@ def test_importancia_caracteristicas():
     # pylint: disable=unused-import
 
 
-def test_regressao_conformal():
+def test_regressao_conformal() -> None:
     # pylint: disable=unused-import
     from economic_brazil.analisando_modelos.regressao_conformal import (
         ConformalRegressionPlotter,
@@ -105,7 +99,7 @@ def test_regressao_conformal():
     # pylint: disable=unused-import
 
 
-def test_treinamento_algoritmos():
+def test_treinamento_algoritmos() -> None:
     # pylint: disable=unused-import
     from economic_brazil.treinamento.treinamento_algoritimos import (
         carregar,
@@ -115,7 +109,7 @@ def test_treinamento_algoritmos():
     # pylint: disable=unused-import
 
 
-def test_tratando_dados():
+def test_tratando_dados() -> None:
     # pylint: disable=unused-import
     from economic_brazil.processando_dados.tratando_dados import TratandoDados
 

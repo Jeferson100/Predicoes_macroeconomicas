@@ -12,8 +12,9 @@ from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
 
 # pylint: disable=E0401
-from keras.models import load_model
-from keras.losses import MeanSquaredError
+from keras.models import load_model  # type: ignore
+from keras.losses import MeanSquaredError  # type: ignore
+from typing import Optional
 
 # pylint: disable=E0401
 
@@ -21,20 +22,20 @@ from keras.losses import MeanSquaredError
 class TreinandoModelos:
     def __init__(
         self,
-        x_treino,
-        y_treino,
-        x_teste,
-        y_teste,
-        tuning_grid_search=False,
-        tuning_random_search=False,
-        tuning_bayes_search=True,
-        numero_divisoes=10,
-        gap_series=0,
-        max_train_size=100,
-        test_size=10,
-        salvar_modelo=False,
-        diretorio=None,
-    ):
+        x_treino: Any,
+        y_treino: Any,
+        x_teste: Any,
+        y_teste: Any,
+        tuning_grid_search: bool = False,
+        tuning_random_search: bool = False,
+        tuning_bayes_search: bool = True,
+        numero_divisoes: int = 10,
+        gap_series: int = 0,
+        max_train_size: int = 100,
+        test_size: int = 10,
+        salvar_modelo: bool = False,
+        diretorio: Optional[str] = None,
+    ) -> None:
         self.x_treino = x_treino
         self.y_treino = y_treino
         self.x_teste = x_teste
@@ -54,17 +55,17 @@ class TreinandoModelos:
 
     def treinar_modelos(
         self,
-        gradiente_boosting=True,
-        xg_boost=True,
-        cat_boost=True,
-        regressao_linear=True,
-        redes_neurais=True,
-        redes_neurais_tuning=None,
-        sarimax=True,
-        tuning_sarimax=None,
-        param_grid_gradiente=None,
-        param_grid_xgboost=None,
-        param_grid_catboost=None,
+        gradiente_boosting: bool = True,
+        xg_boost: bool = True,
+        cat_boost: bool = True,
+        regressao_linear: bool = True,
+        redes_neurais: bool = True,
+        redes_neurais_tuning: Optional[Dict[str, Any]] = None,
+        sarimax: bool = True,
+        tuning_sarimax: Optional[bool] = None,
+        param_grid_gradiente: Optional[Dict[str, Any]] = None,
+        param_grid_xgboost: Optional[Dict[str, Any]] = None,
+        param_grid_catboost: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Treina vários modelos de machine learning com a possibilidade de tunagem de hiperparâmetros.
@@ -160,7 +161,7 @@ class TreinandoModelos:
 
         if self.salvar_modelo:
             self.salvar(
-                diretorio=self.diretorio,
+                diretorio=self.diretorio if self.diretorio is not None else "",
                 resultados=resultados,
                 gradiente_boosting=gradiente_boosting,
                 xg_boost=xg_boost,
@@ -174,9 +175,9 @@ class TreinandoModelos:
 
     def _treinar_com_tunagem(
         self,
-        modelo,
-        treinar_func,
-        param_grid,
+        modelo: Any,
+        treinar_func: Any,
+        param_grid: Dict[str, Any],
     ) -> Any:
         """
         Função auxiliar para treinar o modelo com tunagem de hiperparâmetros.
@@ -204,7 +205,9 @@ class TreinandoModelos:
 
         return treinar_func(**best_params)
 
-    def redes_neurais(self, redes_neurais_tuning=None):
+    def redes_neurais(
+        self, redes_neurais_tuning: Optional[Dict[str, Any]] = None
+    ) -> Any:
         """
         Treina uma rede neural recorrente (RNN) com os dados fornecidos.
 
@@ -236,7 +239,7 @@ class TreinandoModelos:
 
         return model_neural
 
-    def treinar_sarimax(self, tuning_sarimax=None):
+    def treinar_sarimax(self, tuning_sarimax: Optional[bool] = None) -> Any:
         """
         Treina o modelo SARIMAX com os dados fornecidos.
 
@@ -257,15 +260,15 @@ class TreinandoModelos:
 
     def salvar(
         self,
-        diretorio,
-        resultados,
-        gradiente_boosting=False,
-        xg_boost=False,
-        cat_boost=False,
-        regressao_linear=False,
-        redes_neurais=False,
-        sarimax=False,
-    ):
+        diretorio: str,
+        resultados: Dict[str, Any],
+        gradiente_boosting: bool = False,
+        xg_boost: bool = False,
+        cat_boost: bool = False,
+        regressao_linear: bool = False,
+        redes_neurais: bool = False,
+        sarimax: bool = False,
+    ) -> None:
         if gradiente_boosting:
             joblib.dump(
                 resultados["gradiente_boosting"],
@@ -292,14 +295,14 @@ class TreinandoModelos:
 
 
 def carregar(
-    diretorio,
-    gradiente_boosting=True,
-    xg_boost=True,
-    cat_boost=True,
-    regressao_linear=True,
-    redes_neurais=True,
-    sarimax=True,
-):
+    diretorio: str,
+    gradiente_boosting: bool = True,
+    xg_boost: bool = True,
+    cat_boost: bool = True,
+    regressao_linear: bool = True,
+    redes_neurais: bool = True,
+    sarimax: bool = True,
+) -> Dict[str, Any]:
     resultados = {}
 
     if gradiente_boosting:

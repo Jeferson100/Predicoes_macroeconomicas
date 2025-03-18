@@ -3,10 +3,13 @@ import matplotlib.pyplot as plt
 import keras_tuner
 import pandas as pd
 import numpy as np
+from typing import Optional
 
 
 class RnnModel:
-    def create_dataset(self, data_x, data_y, time_step=1):
+    def create_dataset(
+        self, data_x: pd.DataFrame, data_y: pd.DataFrame, time_step: int = 1
+    ) -> tuple:
         X, Y = [], []
         for i in range(len(data_x) - time_step):
             a = data_x[i : (i + time_step)]
@@ -16,16 +19,16 @@ class RnnModel:
 
     def create_rnn_model(
         self,
-        input_shape,
-        num_layers=2,
-        units=50,
-        dropout_rate=0.2,
-        num_outputs=1,
-        optimizer="adam",
-        loss="mean_squared_error",
-        activation="relu",
-        metrics=None,
-    ):
+        input_shape: tuple,
+        num_layers: int = 2,
+        units: int = 50,
+        dropout_rate: float = 0.2,
+        num_outputs: int = 1,
+        optimizer: str = "adam",
+        loss: str = "mean_squared_error",
+        activation: str = "relu",
+        metrics: Optional[list] = None,
+    ) -> keras.Model:
         """
         Cria uma rede neural recorrente com um número configurável de camadas LSTM.
 
@@ -66,15 +69,15 @@ class RnnModel:
 
     def treinar_modelo(
         self,
-        model,
-        X_train,
-        y_train,
-        epochs=100,
-        batch_size=32,
-        test_data=None,
-        X_test=None,
-        y_test=None,
-    ):
+        model: keras.Model,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        epochs: int = 100,
+        batch_size: int = 32,
+        test_data: Optional[bool] = None,
+        X_test: Optional[np.ndarray] = None,
+        y_test: Optional[np.ndarray] = None,
+    ) -> keras.Model:
         if test_data:
             model.fit(
                 X_train,
@@ -87,19 +90,24 @@ class RnnModel:
             model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
         return model
 
-    def predizer_modelo(self, model, dados):
+    def predizer_modelo(self, model: keras.Model, dados: np.ndarray) -> np.ndarray:
         return model.predict(dados)
 
-    def avaliar_modelo(self, model, X_test, y_test):
+    def avaliar_modelo(
+        self, model: keras.Model, X_test: np.ndarray, y_test: np.ndarray
+    ) -> list:
         return model.evaluate(X_test, y_test)
 
-    def plotar_grafico(self, dataset, tamanho=(10, 5)):
-        history = pd.DataFrame(dataset.history.history)
+    def plotar_grafico(
+        self, dataset: keras.callbacks.History, tamanho: tuple = (10, 5)
+    ) -> None:
+
+        history = pd.DataFrame(dataset.history)
 
         plt.figure(figsize=tamanho)
         plt.subplot(1, 2, 1)
         plt.plot(history.loss, label="Training Loss")
-        plt.axvline(history.val_loss.idxmax(), ls="--", lw=1, c="k")
+        plt.axvline(float(history.val_loss.idxmax()), ls="--", lw=1, c="k")
         plt.plot(history.val_loss, label="Validation Loss")
         plt.title("Training and Validation Loss")
         plt.xlabel("Epochs")
@@ -121,7 +129,14 @@ class RnnModel:
 
 
 class HyperTurnerModel:
-    def __init__(self, x_train, y_train, x_test, y_test, camadas_sequenciais=3):
+    def __init__(
+        self,
+        x_train: np.ndarray,
+        y_train: np.ndarray,
+        x_test: np.ndarray,
+        y_test: np.ndarray,
+        camadas_sequenciais: int = 3,
+    ) -> None:
         self.x_train = x_train
         self.y_train = y_train
         self.x_test = x_test
@@ -130,12 +145,12 @@ class HyperTurnerModel:
 
     def build_model(
         self,
-        hp,
-        learning_rate=None,
-        neuronios_camada_1=None,
-        neuronios_camada_sequenciais=None,
-        neuronios_camada_final=1,
-    ):
+        hp: keras_tuner.HyperParameters,
+        learning_rate: Optional[float] = None,
+        neuronios_camada_1: Optional[int] = None,
+        neuronios_camada_sequenciais: Optional[int] = None,
+        neuronios_camada_final: int = 1,
+    ) -> keras.Model:
         if learning_rate is None:
             learning_rate = hp.Choice("learning_rate", [1e-2, 1e-3, 1e-4, 1e-5, 1e-6])
         if neuronios_camada_1 is None:
@@ -172,12 +187,12 @@ class HyperTurnerModel:
             )
 
         model.add(keras.layers.Dense(neuronios_camada_final))
-        model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate=learning_rate), loss="mse"
+        model.compile(  # type: ignore
+            optimizer=keras.optimizers.Adam(learning_rate=learning_rate), loss="mse"  # type: ignore
         )
         return model
 
-    def tuner(self, epochs=100, batch_size=32):
+    def tuner(self, epochs: int = 100, batch_size: int = 32) -> keras.Model:
         tuner = keras_tuner.RandomSearch(
             hypermodel=self.build_model,
             objective="val_loss",

@@ -8,22 +8,23 @@ from economic_brazil.treinamento.redes_neurais_recorrentes import RnnModel
 from economic_brazil.analisando_modelos.regressao_conformal import ConformalRegressionPlotter
 import matplotlib.pyplot as plt
 import warnings
+from typing import Any, Optional
 warnings.filterwarnings("ignore")
 
 class KerasTrainedRegressor(BaseEstimator, RegressorMixin):
-    def __init__(self, model):
+    def __init__(self, model: Any) -> None:
         self.model = model
         
-    def fit(self, X, y):
+    def fit(self, X: Any, y: Any)  -> None:
         # Este método não será chamado, pois o modelo já está treinado
         pass
     
-    def predict(self, X):
+    def predict(self, X: Any) -> Any:
         return self.model.predict(X).squeeze()
 
 
 class Predicao:
-    def __init__(self, x_treino, y_treino, tratando_dados,dados, modelo, modelo_carregado, periodo=None, coluna=None):
+    def __init__(self, x_treino: pd.DataFrame, y_treino: pd.DataFrame, tratando_dados: Any,dados: pd.DataFrame, modelo: str, modelo_carregado: Any, periodo:Optional[str]=None, coluna:Optional[str]=None):
         self.x_treino = x_treino
         self.y_treino = y_treino
         self.tratando_dados = tratando_dados
@@ -40,7 +41,7 @@ class Predicao:
         self.dados_predicao_futuro, self.dados_futuro, self.index_futuro = self.tratando_dados_futuros()
         self.y_pred_best_model, self.y_pis_best_model, _, _ = self.conformal_predicoes()
 
-    def criando_dados_futuros(self):
+    def criando_dados_futuros(self) -> Any:
         if self.periodo == None:
             self.periodo = 'Mensal'
             
@@ -57,13 +58,13 @@ class Predicao:
         else:
             print('Periodo invalido:Apenas mensal, anual, trimestral e semestral')
 
-        dados_futuro.loc[new_index] = np.nan
+        dados_futuro.loc[new_index] = np.nan #type: ignore
         dados_futuro = dados_futuro.ffill()
         index_futuro = dados_futuro.index
         dados_predicao_futuro = self.tratando_dados.dados_futuros(dados_futuro)
         return dados_predicao_futuro, dados_futuro[self.coluna].values, index_futuro
 
-    def tratando_dados_futuros(self):
+    def tratando_dados_futuros(self) -> Any:
         if self.modelo == 'redes_neurais':
             dados_predicao_futuro, dados_futuro, index_futuro = self.criando_dados_futuros()
             dados_recorrente, _ = self.neurais.create_dataset(dados_predicao_futuro, dados_futuro)
@@ -72,7 +73,7 @@ class Predicao:
             dados_predicao_futuro, dados_futuro, index_futuro = self.criando_dados_futuros()
             return dados_predicao_futuro, dados_futuro, index_futuro
 
-    def conformal_predicoes(self):
+    def conformal_predicoes(self) -> Any:
         if self.modelo == 'redes_neurais':
             conformal = ConformalRegressionPlotter(self.mascara_sklearn, self.x_treino_recorrente, self.dados_predicao_futuro[-9:], self.y_treino_recorrente, self.dados_futuro[-9:])
         else:
@@ -81,7 +82,7 @@ class Predicao:
         y_pred_best_model, y_pis_best_model, _, _ = conformal.regressao_conformal()
         return y_pred_best_model, y_pis_best_model, _, _
 
-    def criando_dataframe_predicoes(self):
+    def criando_dataframe_predicoes(self) -> pd.DataFrame:
         
         y_pis_best_model_squeezed = self.y_pis_best_model.squeeze()
         y_pred_best_model_squeezed = self.y_pred_best_model.squeeze()
@@ -97,7 +98,7 @@ class Predicao:
             index=index_futuro_adjusted)
         return resultados_best
     
-    def predicao_ultimo_periodo(self):
+    def predicao_ultimo_periodo(self) -> Any:
         dados_predicao = self.criando_dataframe_predicoes()
         data = dados_predicao.index[-1].strftime('%Y-%m-%d')
         intervalo_lower = dados_predicao['intervalo_lower'][-1]
@@ -105,7 +106,7 @@ class Predicao:
         predicao_proximo_mes = dados_predicao['predicao'][-1]
         return data,intervalo_lower,intervalo_upper,predicao_proximo_mes
 
-    def plotando_predicoes(self, save=False, diretorio=None):
+    def plotando_predicoes(self, save: bool=False, diretorio: Optional[str]=None):
         resultados_best = self.criando_dataframe_predicoes()
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=resultados_best.index, y=resultados_best['predicao'], mode='lines', name='Predições'))
