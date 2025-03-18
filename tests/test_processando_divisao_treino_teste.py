@@ -12,7 +12,7 @@ import pytest
 
 @pytest.fixture
 # pylint: disable=W0621
-def sample_data():
+def sample_data() -> pd.DataFrame:
     # Dados de exemplo para os testes
     dates = pd.date_range(start="2020-01-01", periods=20, freq="D")
     data = {"A": np.arange(20), "B": np.random.rand(20)}
@@ -23,27 +23,27 @@ def sample_data():
 # pylint: disable=W0621
 
 
-def test_treino_test_dados(sample_data):
+def test_treino_test_dados(sample_data: pd.DataFrame) -> None:
     # Teste básico para a função treino_test_dados
     treino, teste = treino_test_dados(sample_data, "2020-01-11", treino_teste=True)
-    assert treino.shape[0] == 10, "O conjunto de treino deve ter 10 linhas"
-    assert teste.shape[0] == 10, "O conjunto de teste deve ter 10 linhas"
+    assert treino.shape[0] == 10, "O conjunto de treino deve ter 10 linhas"  # type: ignore
+    assert teste.shape[0] == 10, "O conjunto de teste deve ter 10 linhas"  # type: ignore
 
     # pylint: disable=W0632
     x_treino, y_treino, x_teste, y_teste = treino_test_dados(
         sample_data, "2020-01-11", coluna="A", treino_teste=False
     )
     # pylint: disable=W0632
-    assert y_treino.shape[0] == 10, "O conjunto y_treino deve ter 10 linhas"
-    assert x_treino.shape[0] == 10, "O conjunto x_treino deve ter 10 linhas"
-    assert y_teste.shape[0] == 10, "O conjunto y_teste deve ter 10 linhas"
-    assert x_teste.shape[0] == 10, "O conjunto x_teste deve ter 10 linhas"
+    assert y_treino.shape[0] == 10, "O conjunto y_treino deve ter 10 linhas"  # type: ignore
+    assert x_treino.shape[0] == 10, "O conjunto x_treino deve ter 10 linhas"  # type: ignore
+    assert y_teste.shape[0] == 10, "O conjunto y_teste deve ter 10 linhas"  # type: ignore
+    assert x_teste.shape[0] == 10, "O conjunto x_teste deve ter 10 linhas"  # type: ignore
 
 
-def test_treino_teste_seies_temporal(sample_data):
+def test_treino_teste_seies_temporal(sample_data: pd.DataFrame) -> None:
     # Dados de treino
-    x_treino = sample_data.drop(columns=["A"]).values
-    y_treino = sample_data["A"].values
+    x_treino = sample_data.drop(columns=["A"])
+    y_treino = sample_data[["A"]]
 
     # Teste básico para a função treino_teste_seies_temporal
     splits = treino_teste_seies_temporal(

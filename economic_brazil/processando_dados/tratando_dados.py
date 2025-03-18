@@ -332,12 +332,7 @@ class TratandoDados:
             self.smart_correlation_modelo, x_treino = self.tratando_smart_correlation(
                 x_treino
             )
-            if not isinstance(x_teste, pd.DataFrame):
-                if isinstance(x_teste, scipy.sparse.csr_matrix):
-                    x_teste = pd.DataFrame(x_teste.toarray(), index=x_teste.index)
-                else:
-                    x_teste = pd.DataFrame(x_teste)
-            x_teste = self.smart_correlation_modelo.transform(x_teste)
+            x_teste = self.smart_correlation_modelo.transform(x_teste)# type:ignore
 
         if self.rfe:
             self.rfe_modelo, x_treino = self.tratando_RFE(x_treino, y_treino)

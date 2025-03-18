@@ -8,7 +8,7 @@ from economic_brazil.treinamento.treinamento_algoritimos import (
 
 @pytest.fixture
 # pylint: disable=W0621
-def sample_data():
+def sample_data() -> tuple:
     # Cria dados de exemplo para teste
     n_samples = 200
     x_treino = np.random.rand(n_samples, 10)
@@ -22,7 +22,7 @@ def sample_data():
 
 
 @pytest.fixture
-def data_processor(sample_data):
+def data_processor(sample_data) -> TreinandoModelos:
     x_treino, y_treino, x_teste, y_teste = sample_data
     return TreinandoModelos(
         x_treino=x_treino,
@@ -37,7 +37,7 @@ def data_processor(sample_data):
     )
 
 
-def test_treinar_modelos(data_processor):
+def test_treinar_modelos(data_processor: TreinandoModelos) -> None:
     resultados = data_processor.treinar_modelos(
         gradiente_boosting=True,
         xg_boost=True,
@@ -52,17 +52,17 @@ def test_treinar_modelos(data_processor):
     assert "regressao_linear" in resultados
 
 
-def test_redes_neurais(data_processor):
+def test_redes_neurais(data_processor: TreinandoModelos) -> None:
     model_neural = data_processor.redes_neurais(redes_neurais_tuning=False)
     assert model_neural is not None
 
 
-def test_treinar_sarimax(data_processor):
+def test_treinar_sarimax(data_processor: TreinandoModelos) -> None:
     model_sarimax = data_processor.treinar_sarimax(tuning_sarimax=False)
     assert model_sarimax is not None
 
 
-def test_salvar_e_carregar_modelo(data_processor, tmpdir):
+def test_salvar_e_carregar_modelo(data_processor: TreinandoModelos, tmpdir) -> None:  # type: ignore
     resultados = data_processor.treinar_modelos(
         gradiente_boosting=True,
         xg_boost=True,

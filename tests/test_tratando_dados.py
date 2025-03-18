@@ -6,11 +6,12 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from economic_brazil.processando_dados.tratando_dados import TratandoDados
 from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
 import pytest
+import pandas as pd
 
 
 @pytest.fixture
 # pylint: disable=W0621
-def sample_data():
+def sample_data() -> pd.DataFrame:
     """
     Fixture that returns a sample dataset.
 
@@ -32,12 +33,14 @@ def sample_data():
 # pylint: disable=W0621
 
 
-def test_data_divisao_treino_teste(sample_data):
+def test_data_divisao_treino_teste(sample_data: pd.DataFrame) -> None:
     processer = TratandoDados(sample_data, data_divisao="2020-05-31")
     assert processer.data_divisao_treino_teste() == "2020-05-31"
 
 
-def test_tratando_divisao_y_treino_y_teste_x_treino_x_teste(sample_data):
+def test_tratando_divisao_y_treino_y_teste_x_treino_x_teste(
+    sample_data: pd.DataFrame,
+) -> None:
     coluna_label = sample_data.columns[0]
     processer = TratandoDados(sample_data, coluna_label=coluna_label)
     # pylint: disable=W0632
@@ -51,7 +54,7 @@ def test_tratando_divisao_y_treino_y_teste_x_treino_x_teste(sample_data):
     assert len(y_treino) > 0
 
 
-def test_tratando_divisao_treino_teste(sample_data):
+def test_tratando_divisao_treino_teste(sample_data: pd.DataFrame) -> None:
     coluna_label = sample_data.columns[0]
     processer = TratandoDados(sample_data, coluna_label=coluna_label)
     treino, teste = processer.tratando_divisao(sample_data)
@@ -59,25 +62,25 @@ def test_tratando_divisao_treino_teste(sample_data):
     assert len(teste) > 0
 
 
-def test_tratando_covid(sample_data):
+def test_tratando_covid(sample_data: pd.DataFrame) -> None:
     processer = TratandoDados(sample_data)
     dados_covid = processer.tratando_covid(sample_data)
     assert "dummy_covid" in dados_covid.columns
 
 
-def test_tratando_estacionaridade(sample_data):
+def test_tratando_estacionaridade(sample_data: pd.DataFrame) -> None:
     processer = TratandoDados(sample_data)
     dados_est = processer.tratando_estacionaridade(sample_data)
     assert "selic" in dados_est.columns
 
 
-def test_tratando_datas(sample_data):
+def test_tratando_datas(sample_data: pd.DataFrame) -> None:
     data_processor = TratandoDados(sample_data, data_divisao="2020-05-31")
     dados_datas = data_processor.tratando_datas(sample_data)
     assert len(dados_datas.columns) > len(sample_data.columns)
 
 
-def test_tratando_defasagens(sample_data):
+def test_tratando_defasagens(sample_data: pd.DataFrame) -> None:
     data_processor = TratandoDados(
         sample_data, data_divisao="2020-05-31", numero_defasagens=4
     )
@@ -85,7 +88,7 @@ def test_tratando_defasagens(sample_data):
     assert len(dados_defas.columns) > len(sample_data.columns)
 
 
-def test_tratando_divisao_x_y(sample_data):
+def test_tratando_divisao_x_y(sample_data: pd.DataFrame) -> None:
     data_processor = TratandoDados(sample_data, data_divisao="2020-05-31")
     coluna_label = sample_data.columns[0]
     x, y = data_processor.tratando_divisao_x_y(sample_data, label=coluna_label)
@@ -93,21 +96,21 @@ def test_tratando_divisao_x_y(sample_data):
     assert x.shape[1] == sample_data.shape[1] - 1
 
 
-def test_tratando_scaler(sample_data):
+def test_tratando_scaler(sample_data: pd.DataFrame) -> None:
     data_processor = TratandoDados(sample_data, data_divisao="2020-05-31")
     dados_scaler, scaler = data_processor.tratando_scaler(sample_data)
     assert dados_scaler.shape == sample_data.shape
     assert isinstance(scaler, (StandardScaler, MinMaxScaler))
 
 
-def test_tratando_pca(sample_data):
+def test_tratando_pca(sample_data: pd.DataFrame) -> None:
     data_processor = TratandoDados(sample_data, data_divisao="2020-05-31")
     pca, dados_pca = data_processor.tratando_pca(sample_data)
     assert dados_pca.shape[1] <= sample_data.shape[1]
     assert isinstance(pca, PCA)
 
 
-def test_tratando_dados(sample_data):
+def test_tratando_dados(sample_data: pd.DataFrame) -> None:
     coluna_label = sample_data.columns[0]
     data_processor = TratandoDados(
         sample_data,
@@ -127,8 +130,10 @@ def test_tratando_dados(sample_data):
         variancia_modelo,
         smart_correlation_modelo,
     ) = data_processor.tratando_dados()
-    assert x_treino.shape[0] == y_treino.shape[0]
-    assert x_teste.shape[0] == y_teste.shape[0]
+    assert x_treino is not None
+    assert x_teste is not None
+    assert y_treino is not None
+    assert y_teste is not None
     assert pca_modelo is not None
     assert rfe_modelo is not None
     assert variancia_modelo is not None

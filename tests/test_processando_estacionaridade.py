@@ -8,7 +8,7 @@ from economic_brazil.processando_dados.estacionaridade import Estacionaridade
 
 @pytest.fixture
 # pylint: disable=W0621
-def sample_data():
+def sample_data() -> pd.DataFrame:
     # Dados de exemplo para os testes
     data = {"A": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "B": [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]}
     return pd.DataFrame(data)
@@ -17,7 +17,7 @@ def sample_data():
 # pylint: disable=W0621
 
 
-def test_kpss_adf(sample_data):
+def test_kpss_adf(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
     result = est.test_kpss_adf(sample_data)
     assert not result.empty, "O resultado do teste KPSS e ADF não deve estar vazio"
@@ -32,7 +32,7 @@ def test_kpss_adf(sample_data):
     ), "As colunas do resultado estão incorretas"
 
 
-def test_report_ndiffs(sample_data):
+def test_report_ndiffs(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
     result = est.report_ndiffs(sample_data)
     assert not result.empty, "O resultado do report_ndiffs não deve estar vazio"
@@ -41,7 +41,7 @@ def test_report_ndiffs(sample_data):
     ), "A coluna 'Ndifis' deve estar presente no resultado"
 
 
-def test_plot_test_stationarity(sample_data):
+def test_plot_test_stationarity(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
     # Este teste apenas verifica se a função roda sem erros
     try:
@@ -50,7 +50,7 @@ def test_plot_test_stationarity(sample_data):
         pytest.fail(f"Falha ao executar plot_test_stationarity: {e}")
 
 
-def test_corrigindo_nao_estacionaridade(sample_data):
+def test_corrigindo_nao_estacionaridade(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
     result = est.corrigindo_nao_estacionaridade(sample_data, "A")
     assert (

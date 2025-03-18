@@ -10,7 +10,7 @@ path = os.path.abspath("../Predicoes_macroeconomicas")
 
 # pylint: disable=W0621
 @pytest.fixture(scope="module")
-def app_test():
+def app_test() -> AppTest:
     # Retorna uma instância de AppTest apontando para o script principal do Streamlit
     return AppTest.from_file(
         path
@@ -22,6 +22,6 @@ def app_test():
 # pylint: disable=W0621
 
 
-def test_streamlit_app_rodando(app_test):
+def test_streamlit_app_rodando(app_test: AppTest) -> None:
     # Testa se o app foi iniciado corretamente
     assert app_test is not None

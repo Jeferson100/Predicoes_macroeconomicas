@@ -60,7 +60,7 @@ class TreinandoModelos:
         cat_boost: bool = True,
         regressao_linear: bool = True,
         redes_neurais: bool = True,
-        redes_neurais_tuning: Optional[Dict[str, Any]] = None,
+        redes_neurais_tuning: Optional[bool] = None,
         sarimax: bool = True,
         tuning_sarimax: Optional[bool] = None,
         param_grid_gradiente: Optional[Dict[str, Any]] = None,
@@ -205,9 +205,7 @@ class TreinandoModelos:
 
         return treinar_func(**best_params)
 
-    def redes_neurais(
-        self, redes_neurais_tuning: Optional[Dict[str, Any]] = None
-    ) -> Any:
+    def redes_neurais(self, redes_neurais_tuning: Optional[bool] = None) -> Any:
         """
         Treina uma rede neural recorrente (RNN) com os dados fornecidos.
 
