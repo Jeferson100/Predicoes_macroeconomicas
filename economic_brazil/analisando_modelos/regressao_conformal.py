@@ -3,7 +3,6 @@ import plotly.io as pio
 from mapie.regression import MapieRegressor
 from mapie.metrics import regression_coverage_score, regression_mean_width_score
 from typing import Union, Optional, List, Dict
-from typing_extensions import TypedDict
 from mapie.quantile_regression import MapieQuantileRegressor
 from mapie.subsample import Subsample
 import numpy as np
