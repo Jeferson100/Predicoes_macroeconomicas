@@ -10,10 +10,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression, QuantileRegressor
+from typing import Tuple
 
 
 class ConformalRegressionPlotter:
-    def __init__(self, model, X_train, X_test, y_train, y_test):
+    def __init__(self, model: Union[LinearRegression, QuantileRegressor], X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray) -> None:
         self.model = model
         self.X_train = X_train
         self.X_test = X_test
@@ -23,8 +24,8 @@ class ConformalRegressionPlotter:
         self.y_pis = None
 
     def regressao_conformal(
-        self, method="plus", n_splits=5, agg_function="median", n_jobs=-1, alpha=0.05
-    ):
+        self, method: str="plus", n_splits: int=5, agg_function: str="median", n_jobs: int=-1, alpha: float=0.05
+    ) -> Tuple[np.ndarray, np.ndarray, float, float]:
         mapie = MapieRegressor(
             self.model,
             method=method,
@@ -46,14 +47,14 @@ class ConformalRegressionPlotter:
 
     def plot_prediction_intervals(
         self,
-        index_test,
-        index_train,
-        legend="Prediction Intervals",
-        y_label="Response Variable",
-        title="Prediction Intervals",
-        save=None,
-        diretorio=None,
-    ):
+        index_test: np.ndarray,
+        index_train: np.ndarray,
+        legend: str="Prediction Intervals",
+        y_label: str="Response Variable",
+        title: str="Prediction Intervals",
+        save: bool=False,
+        diretorio: Optional[str]=None,
+    ) -> None:
         if self.y_pred is None or self.y_pis is None:
             raise ValueError(
                 "Predictions and intervals not calculated. Please run regressao_conformal first."
@@ -129,8 +130,8 @@ class ConformalRegressionPlotter:
 
 class ConformalAvaliandoMetodo:
     def __init__(
-        self, X_train, X_test, y_train, y_test, strategies: Optional[Dict] = None
-    ):
+        self, X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray, strategies: Optional[Dict] = None
+    ) -> None:
         self.X_train = X_train
         self.X_test = X_test
         self.y_train = y_train
@@ -142,33 +143,25 @@ class ConformalAvaliandoMetodo:
         else:
             self.STRATEGIES = strategies
 
-    def default_strategies(self):
-        Params = TypedDict(
-            "Params",
-            {"method": str, "cv": Union[int, str, Subsample], "alpha": Optional[float]},
-        )
+    def default_strategies(self) -> Dict:
         return {
-            "naive": Params(method="naive"),
-            "jackknife": Params(method="base", cv=-1),
-            "jackknife_plus": Params(method="plus", cv=-1),
-            "jackknife_minmax": Params(method="minmax", cv=-1),
-            "cv": Params(method="base", cv=10),
-            "cv_plus": Params(method="plus", cv=10),
-            "cv_minmax": Params(method="minmax", cv=10),
-            "jackknife_plus_ab": Params(method="plus", cv=Subsample(n_resamplings=50)),
-            "jackknife_minmax_ab": Params(
-                method="minmax", cv=Subsample(n_resamplings=50)
-            ),
-            "conformalized_quantile_regression": Params(
-                method="quantile", cv="split", alpha=0.05
-            ),
-        }
+                "naive": {"method": "naive"},
+                "jackknife": {"method": "base", "cv": -1},
+                "jackknife_plus": {"method": "plus", "cv": -1},
+                "jackknife_minmax": {"method": "minmax", "cv": -1},
+                "cv": {"method": "base", "cv": 10},
+                "cv_plus": {"method": "plus", "cv": 10},
+                "cv_minmax": {"method": "minmax", "cv": 10},
+                "jackknife_plus_ab": {"method": "plus", "cv": Subsample(n_resamplings=50)},
+                "jackknife_minmax_ab": {"method": "minmax", "cv": Subsample(n_resamplings=50)},
+                "conformalized_quantile_regression": {"method": "quantile", "cv": "split", "alpha": 0.05},
+            }
 
     def regressao_conformal_estrategias(self):
         for strategy, params in self.STRATEGIES.items():
             if strategy == "conformalized_quantile_regression":
                 quantile_regression = QuantileRegressor(solver="highs", alpha=0)
-                mapie = MapieQuantileRegressor(quantile_regression, **params)
+                mapie = MapieQuantileRegressor(quantile_regression, **params) # type: ignore
                 mapie.fit(self.X_train, self.y_train, random_state=1)
                 self.y_pred[strategy], self.y_pis[strategy] = mapie.predict(self.X_test)
             else:
@@ -210,7 +203,7 @@ class ConformalAvaliandoMetodo:
         ax.legend()
 
     def plotar_metodos_conformal(
-        self, index_train, index_teste, strategies: List = None, noise=None
+        self, index_train, index_teste, strategies: Optional[List] = None, noise=None
     ):
         if strategies is None:
             strategies = [

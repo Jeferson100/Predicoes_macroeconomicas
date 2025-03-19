@@ -142,7 +142,7 @@ dados_corformal = {
 
 ## Predicao futuro
 with parallel_config(backend='threading', n_jobs=2):
-    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo,modelos_carregados[melhor_modelo],coluna=variavel_predicao)
+    predicao = Predicao(x_treino,y_treino,tratando,dados,melhor_modelo, modelos_carregados[melhor_modelo],coluna=variavel_predicao)
 dados_predicao_futuro, _, index_futuro = predicao.criando_dados_futuros()
 dados_predicao = predicao.criando_dataframe_predicoes()
 #dados_predicao.to_csv('/workspaces/Predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/dados_predicao.csv',index=False)

@@ -5,6 +5,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import plotly.graph_objects as go
 import plotly.io as pio
 from economic_brazil.treinamento.redes_neurais_recorrentes import RnnModel
+from typing import Optional, Any
 
 
 class MetricasModelos:
@@ -13,10 +14,10 @@ class MetricasModelos:
         y_true: np.ndarray,
         y_pred: np.ndarray,
         algorithm: str,
-        dados: pd.DataFrame = None,
-        save: bool = None,
-        diretorio: str = None,
-    ):
+        dados: Optional[pd.DataFrame] = None,
+        save: bool = False,
+        diretorio: Optional[str] = None,
+    ) -> pd.DataFrame:
         # Calculando métricas básicas
         MAE = mean_absolute_error(y_true, y_pred)
         MSE = mean_squared_error(y_true, y_pred)
@@ -26,10 +27,10 @@ class MetricasModelos:
 
         # Criando um dicionário de métricas com arredondamento
         metrics = {
-            "MAE": round(MAE, 2),
-            "MSE": round(MSE, 2),
-            "RMSE": round(RMSE, 2),
-            "R²": round(R2, 2),
+            "MAE": round(float(MAE), 2),
+            "MSE": round(float(MSE), 2),
+            "RMSE": round(float(RMSE), 2),
+            "R²": round(float(R2), 2),
             "Variance": round(variancia_y, 2),
         }
 
@@ -50,11 +51,11 @@ class MetricasModelos:
         self,
         dados_predicao,
         coluna,
-        data_frame: pd.DataFrame = None,
-        index=None,
-        save=False,
-        diretorio=None,
-    ):
+        data_frame: Optional[pd.DataFrame] = None,
+        index: Optional[pd.Index]=None,
+        save: bool=False,
+        diretorio: Optional[str]=None,
+    ) -> pd.DataFrame:
         # Verifica se o data_frame não foi fornecido e então cria um novo
         if data_frame is None:
             data_frame = pd.DataFrame(index=index)
@@ -64,19 +65,19 @@ class MetricasModelos:
             data_frame[coluna] = dados_predicao
             if save:
                 data_frame.to_csv(diretorio)
-            return data_frame
+        return data_frame
 
     def plotando_predicoes(
         self,
-        dados,
-        title="Predições",
-        xlabel="Tempo",
-        ylabel="Valores",
-        figsize=(15, 10),
-        grid=True,
-        save=False,
-        diretorio=None,
-    ):
+        dados: pd.DataFrame,
+        title: str="Predições",
+        xlabel: str="Tempo",
+        ylabel: str="Valores",
+        figsize: tuple=(15, 10),
+        grid: bool=True,
+        save: bool=False,
+        diretorio: Optional[str]=None,
+    ) -> None:
         # Plotando as predicoes
         plt.figure(figsize=figsize)
         for i in dados.columns:
@@ -94,16 +95,16 @@ class MetricasModelos:
 
     def plotando_predicoes_go(
         self,
-        dados,
-        titulo="Predições",
-        label_x="Tempo",
-        label_y="Valores",
-        legenda="predicoes",
-        largura=1000,
-        altura=600,
-        model="lines",
-        save=None,
-        diretorio=None,
+        dados: pd.DataFrame,
+        titulo: str="Predições",
+        label_x: str="Tempo",
+        label_y: str="Valores",
+        legenda: str="predicoes",
+        largura: int=1000,
+        altura: int=600,
+        model: str="lines",
+        save: bool=False,
+        diretorio: Optional[str]=None,
     ):
         # Cria a figura para adicionar os traços (linhas do gráfico)
         fig = go.Figure()
@@ -126,21 +127,23 @@ class MetricasModelos:
 
         # Exibe o gráfico
         if save:
-            # Salva o gráfico no caminho especificado
-            if diretorio.endswith(".html"):
-                fig.write_html(diretorio)
-            elif diretorio.endswith((".png", ".jpeg", ".jpg", ".svg", ".pdf")):
-                fig.write_image(diretorio)
+            if diretorio is not None:
+                if diretorio.endswith(".html"):
+                    fig.write_html(diretorio)
+                elif diretorio.endswith((".png", ".jpeg", ".jpg", ".svg", ".pdf")):
+                    fig.write_image(diretorio)
+                else:
+                    print(
+                        "Formato de arquivo não suportado. Use .html, .png, .jpeg, .jpg, .svg ou .pdf."
+                    )
             else:
-                print(
-                    "Formato de arquivo não suportado. Use .html, .png, .jpeg, .jpg, .svg ou .pdf."
-                )
+                print("Diretório não fornecido para salvar o gráfico.")
         else:
             fig.show()
 
 
 class PredicaosModelos:
-    def __init__(self, modelos, x_treino, y_treino, x_teste, y_teste):
+    def __init__(self, modelos: Any, x_treino: pd.DataFrame, y_treino: pd.DataFrame, x_teste: pd.DataFrame, y_teste: pd.DataFrame) -> None:
         self.modelos = modelos
         self.x_treino = x_treino
         self.y_treino = y_treino
@@ -190,9 +193,12 @@ class PredicaosModelos:
                     .squeeze()
                 )
             if sarimax:
-                predicao_futuro["sarimax"] = self.modelos["sarimax"].predict(
-                    start=0, end=dados_predicao.shape[0], exog=dados_predicao
-                )
+                if dados_predicao is not None:
+                    predicao_futuro["sarimax"] = self.modelos["sarimax"].predict(
+                        start=0, end=dados_predicao.shape[0], exog=dados_predicao
+                    )
+                else:
+                    print("Dados de predição não fornecidos para SARIMAX.")
             return predicao_futuro
         else:
             predicoes_treino = {}
@@ -259,9 +265,10 @@ class PredicaosModelos:
 
 
 class MetricasModelosDicionario:
-    def calculando_metricas(self, predicoes, y, y_recorrente):
+    def calculando_metricas(self, predicoes: dict, y: np.ndarray, y_recorrente: np.ndarray) -> pd.DataFrame:
         metricas = MetricasModelos()
         inte = 0
+        resultados = None
         for k, _ in predicoes.items():
             if inte == 0:
                 resultados = metricas.evaluate_regression(y, predicoes[k], k)
@@ -275,22 +282,23 @@ class MetricasModelosDicionario:
                         y, predicoes[k], k, dados=resultados
                     )
             inte = inte + 1
-        resultados = resultados.sort_values(by="MAE")
-        return resultados
+        if resultados is not None:
+            resultados = resultados.sort_values(by="MAE")
+        return resultados if resultados is not None else pd.DataFrame()
 
     def plotando_predicoes(
         self,
-        y_dados,
-        dados,
-        index,
-        title="Predições",
-        xlabel="Tempo",
-        ylabel="Valores",
-        figsize=(15, 10),
-        grid=True,
-        save=False,
-        diretorio=None,
-    ):
+        y_dados: np.ndarray,
+        dados: dict,
+        index: pd.Index,
+        title: str="Predições",
+        xlabel: str="Tempo",
+        ylabel: str="Valores",
+        figsize: tuple=(15, 10),
+        grid: bool=True,
+        save: bool=False,
+        diretorio: Optional[str]=None,
+    ) -> None:
         # Plotando as predicoes
         plt.figure(figsize=figsize)
         plt.plot(index, y_dados, label="y")
@@ -355,21 +363,21 @@ class MetricasModelosDicionario:
 
     def plotando_predicoes_go_treino_teste(
         self,
-        y_dados_treino,
-        y_dados_teste,
-        predicao_treino,
-        predicao_teste,
-        index_treino,
-        index_teste,
-        title="Predições",
-        xlabel="Tempo",
-        ylabel="Valores",
-        figsize=(15, 10),
-        grid=True,
-        save=False,
-        diretorio=None,
-        type_arquivo="png",
-    ):
+        y_dados_treino: np.ndarray,
+        y_dados_teste: np.ndarray,
+        predicao_treino: dict,
+        predicao_teste: dict,
+        index_treino: pd.Index,
+        index_teste: pd.Index,
+        title: str="Predições",
+        xlabel: str="Tempo",
+        ylabel: str="Valores",
+        figsize: tuple=(15, 10),
+        grid: bool=True,
+        save: bool=False,
+        diretorio: Optional[str]=None,
+        type_arquivo: str="png",
+    ) -> None:
         """
         Função para plotar previsões de séries temporais usando Plotly.
 

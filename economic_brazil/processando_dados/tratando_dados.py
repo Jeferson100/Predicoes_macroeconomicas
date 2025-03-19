@@ -366,9 +366,7 @@ class TratandoDados:
         if self.estacionaridade:
             dados = self.tratando_estacionaridade(dados)
         if self.estacionaridade_log:
-            if self.coluna_label is None:
-                self.coluna_label = "selic"
-            dados = self.diferenciacao_log(dados, self.coluna_label)
+            dados = self.diferenciacao_log(dados, self.coluna_label)  # type:ignore
         if self.datas:
             dados = self.tratando_datas(dados)
         if self.defasagens:
@@ -383,12 +381,7 @@ class TratandoDados:
                 dados = self.variancia_modelo.transform(dados)
         if self.smart_correlation:
             if self.smart_correlation_modelo is not None:
-                if not isinstance(dados, pd.DataFrame):
-                    if isinstance(dados, scipy.sparse.csr_matrix):
-                        dados = pd.DataFrame(dados.toarray(), index=dados.index)
-                    else:
-                        dados = pd.DataFrame(dados)
-                dados = self.smart_correlation_modelo.transform(dados)
+                dados = self.smart_correlation_modelo.transform(dados)  # type:ignore
         if self.rfe:
             if self.rfe_modelo is not None:
                 dados = self.rfe_modelo.transform(dados)

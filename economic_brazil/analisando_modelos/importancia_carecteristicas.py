@@ -11,15 +11,15 @@ from economic_brazil.processando_dados.data_processing import (
 )
 import shap
 from random import randint
-
+from typing import Optional
 shap.initjs()
 
 
 class TratandoDadosImportancia:
-    def __init__(self, df):
+    def __init__(self, df: pd.DataFrame) -> None:
         self.df = df
 
-    def tratando_dados(self, colunas_label="selic", divisao_treino_teste="2020-04-01"):
+    def tratando_dados(self, colunas_label: str="selic", divisao_treino_teste: str="2020-04-01") -> tuple:
         treino, teste = treino_test_dados(
             self.df, data_divisao=divisao_treino_teste, treino_teste=True
         )
@@ -56,7 +56,7 @@ class TratandoDadosImportancia:
 
 
 class ImportanciaRandomForest:
-    def __init__(self, dados, label="selic", treino_teste="2020-04-01", model=None):
+    def __init__(self, dados: pd.DataFrame, label: str="selic", treino_teste: str="2020-04-01", model: Optional[RandomForestRegressor]=None) -> None:
         self.df = dados
         self.model = model
         self.X, self.y, _, _, self.colunas = self.tratando_dados_random(
@@ -73,20 +73,21 @@ class ImportanciaRandomForest:
         )
         return x_train, y_train, x_test, y_test, colunas
 
-    def treinar_modelo(self):
+    def treinar_modelo(self) -> RandomForestRegressor:
         """Treina o modelo RandomForestRegressor com os dados fornecidos."""
         model = RandomForestRegressor()
         self.model = model.fit(self.X, self.y)
         return self.model
 
-    def importancia_caracteristicas(self, plot=True, tamanho=(14, 6)):
+    def importancia_caracteristicas(self, plot: bool=True, tamanho: tuple=(14, 6)) -> pd.DataFrame | None:
         """Retorna a importância das características do modelo RandomForest treinado."""
         if self.model is None:
             self.treinar_modelo()
-
-        feature_importances = pd.DataFrame(
-            self.model.feature_importances_, index=self.colunas, columns=["importance"]
-        ).sort_values("importance", ascending=False)
+      
+        
+        feature_importances = pd.DataFrame( 
+                self.model.feature_importances_, index=self.colunas, columns=["importance"]  # type: ignore
+            ).sort_values("importance", ascending=False)
 
         if plot:
             plt.figure(figsize=tamanho)
@@ -105,7 +106,7 @@ class ImportanciaRandomForest:
 
 
 class ImportanciaShap:
-    def __init__(self, dados, label="selic", treino_teste="2020-04-01", model=None):
+    def __init__(self, dados: pd.DataFrame, label: str="selic", treino_teste: str="2020-04-01", model: Optional[RandomForestRegressor]=None) -> None:
         self.df = dados
         self.model = model
         self.X, self.y, _, _, self.colunas = self.tratando_dados_shap(
@@ -114,8 +115,8 @@ class ImportanciaShap:
         self.shap_values, self.explainer = self.shap_explainer()
 
     def tratando_dados_shap(
-        self, colunas_label="selic", divisao_treino_teste="2020-04-01"
-    ):
+        self, colunas_label: str="selic", divisao_treino_teste: str="2020-04-01"
+    ) -> tuple:
         x_train, y_train, x_test, y_test, colunas = TratandoDadosImportancia(
             self.df
         ).tratando_dados(
@@ -123,20 +124,20 @@ class ImportanciaShap:
         )
         return x_train, y_train, x_test, y_test, colunas
 
-    def treinar_modelo(self):
+    def treinar_modelo(self) -> RandomForestRegressor:
         """Treina o modelo RandomForestRegressor com os dados fornecidos."""
         model = RandomForestRegressor()
         self.model = model.fit(self.X, self.y)
         return self.model
 
-    def shap_explainer(self):
+    def shap_explainer(self) -> tuple:
         if self.model is None:
             self.treinar_modelo()
         explainer = shap.TreeExplainer(self.model)
         shap_values = explainer.shap_values(pd.DataFrame(self.X, columns=self.colunas))
         return shap_values, explainer
 
-    def summary_plot_shap(self, bar=None):
+    def summary_plot_shap(self, bar: bool=False) -> None:
         if bar:
             shap.summary_plot(
                 self.shap_values,
@@ -151,7 +152,7 @@ class ImportanciaShap:
             )
             plt.tight_layout()
 
-    def force_plot_shap_random(self):
+    def force_plot_shap_random(self) -> None:
         i = randint(0, len(self.X))
         # visualize the first prediction's explanation
         shap.force_plot(
@@ -161,7 +162,7 @@ class ImportanciaShap:
         )
         plt.tight_layout()
 
-    def force_plot_shap(self):
+    def force_plot_shap(self) -> None:
         shap.force_plot(
             self.explainer.expected_value,
             self.shap_values,
@@ -170,7 +171,7 @@ class ImportanciaShap:
         plt.show()
         plt.tight_layout()
 
-    def shap_dependence_plot(self, variavel1, variavel2):
+    def shap_dependence_plot(self, variavel1: str, variavel2: str) -> None:
         shap.dependence_plot(
             ind=variavel1,
             shap_values=self.shap_values,
