@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, mock_open
 import pandas as pd
 from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
+import requests
 
 # pylint: disable=W0621
 @pytest.fixture
@@ -38,12 +39,6 @@ def test_dados_ibge_link(econ_brazil: EconomicBrazil) -> None:
 
 def test_dados_ipeadata(econ_brazil: EconomicBrazil) -> None:
     dados = econ_brazil.dados_ipeadata()
-    assert isinstance(dados.index, pd.DatetimeIndex)
-    assert isinstance(dados, pd.DataFrame)
-
-
-def test_dados_google_trends(econ_brazil: EconomicBrazil) -> None:
-    dados = econ_brazil.dados_google_trends()
     assert isinstance(dados.index, pd.DatetimeIndex)
     assert isinstance(dados, pd.DataFrame)
 

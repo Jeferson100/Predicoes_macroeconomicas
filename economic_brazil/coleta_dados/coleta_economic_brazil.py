@@ -55,7 +55,7 @@ def dados_ibge_codigos(
         period=period,
     )
     if not isinstance(ipca, pd.DataFrame):
-        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        print("Erro: sidrapy.get_table não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
     return ipca
 
@@ -99,7 +99,7 @@ def dados_expectativas_focus(
         .collect()
     )
     if not isinstance(ipca_expec, pd.DataFrame):
-        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        print("Erro: ep.query não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
     return ipca_expec
 
@@ -109,7 +109,7 @@ def dados_ipeadata(
 ) -> pd.DataFrame:
     dados_ipea = ip.timeseries(codigo, yearGreaterThan=int(data[0:4]) - 1)
     if not isinstance(dados_ipea, pd.DataFrame):
-        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        print("Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
     return dados_ipea
 
@@ -154,6 +154,6 @@ def coleta_google_trends(
 def coleta_quandl(codes: Optional[str] = None) -> pd.DataFrame:
     data = quandl.get(codes)
     if not isinstance(data, pd.DataFrame):
-        print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
+        print("Erro: quandl.get não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
     return data
