@@ -332,7 +332,7 @@ class TratandoDados:
             self.smart_correlation_modelo, x_treino = self.tratando_smart_correlation(
                 x_treino
             )
-            x_teste = self.smart_correlation_modelo.transform(x_teste)# type:ignore
+            x_teste = self.smart_correlation_modelo.transform(x_teste)  # type:ignore
 
         if self.rfe:
             self.rfe_modelo, x_treino = self.tratando_RFE(x_treino, y_treino)

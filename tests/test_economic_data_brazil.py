@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import patch, mock_open
 import pandas as pd
 from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
-import requests
 
 # pylint: disable=W0621
 @pytest.fixture

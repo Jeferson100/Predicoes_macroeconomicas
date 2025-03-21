@@ -12,6 +12,7 @@ from economic_brazil.processando_dados.data_processing import (
 import shap
 from random import randint
 from typing import Optional
+
 shap.initjs()
 
 
@@ -19,7 +20,9 @@ class TratandoDadosImportancia:
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df
 
-    def tratando_dados(self, colunas_label: str="selic", divisao_treino_teste: str="2020-04-01") -> tuple:
+    def tratando_dados(
+        self, colunas_label: str = "selic", divisao_treino_teste: str = "2020-04-01"
+    ) -> tuple:
         treino, teste = treino_test_dados(
             self.df, data_divisao=divisao_treino_teste, treino_teste=True
         )
@@ -56,7 +59,13 @@ class TratandoDadosImportancia:
 
 
 class ImportanciaRandomForest:
-    def __init__(self, dados: pd.DataFrame, label: str="selic", treino_teste: str="2020-04-01", model: Optional[RandomForestRegressor]=None) -> None:
+    def __init__(
+        self,
+        dados: pd.DataFrame,
+        label: str = "selic",
+        treino_teste: str = "2020-04-01",
+        model: Optional[RandomForestRegressor] = None,
+    ) -> None:
         self.df = dados
         self.model = model
         self.X, self.y, _, _, self.colunas = self.tratando_dados_random(
@@ -79,15 +88,16 @@ class ImportanciaRandomForest:
         self.model = model.fit(self.X, self.y)
         return self.model
 
-    def importancia_caracteristicas(self, plot: bool=True, tamanho: tuple=(14, 6)) -> pd.DataFrame | None:
+    def importancia_caracteristicas(
+        self, plot: bool = True, tamanho: tuple = (14, 6)
+    ) -> pd.DataFrame | None:
         """Retorna a importância das características do modelo RandomForest treinado."""
         if self.model is None:
             self.treinar_modelo()
-      
-        
-        feature_importances = pd.DataFrame( 
-                self.model.feature_importances_, index=self.colunas, columns=["importance"]  # type: ignore
-            ).sort_values("importance", ascending=False)
+
+        feature_importances = pd.DataFrame(
+            self.model.feature_importances_, index=self.colunas, columns=["importance"]  # type: ignore
+        ).sort_values("importance", ascending=False)
 
         if plot:
             plt.figure(figsize=tamanho)
@@ -106,7 +116,13 @@ class ImportanciaRandomForest:
 
 
 class ImportanciaShap:
-    def __init__(self, dados: pd.DataFrame, label: str="selic", treino_teste: str="2020-04-01", model: Optional[RandomForestRegressor]=None) -> None:
+    def __init__(
+        self,
+        dados: pd.DataFrame,
+        label: str = "selic",
+        treino_teste: str = "2020-04-01",
+        model: Optional[RandomForestRegressor] = None,
+    ) -> None:
         self.df = dados
         self.model = model
         self.X, self.y, _, _, self.colunas = self.tratando_dados_shap(
@@ -115,7 +131,7 @@ class ImportanciaShap:
         self.shap_values, self.explainer = self.shap_explainer()
 
     def tratando_dados_shap(
-        self, colunas_label: str="selic", divisao_treino_teste: str="2020-04-01"
+        self, colunas_label: str = "selic", divisao_treino_teste: str = "2020-04-01"
     ) -> tuple:
         x_train, y_train, x_test, y_test, colunas = TratandoDadosImportancia(
             self.df
@@ -137,7 +153,7 @@ class ImportanciaShap:
         shap_values = explainer.shap_values(pd.DataFrame(self.X, columns=self.colunas))
         return shap_values, explainer
 
-    def summary_plot_shap(self, bar: bool=False) -> None:
+    def summary_plot_shap(self, bar: bool = False) -> None:
         if bar:
             shap.summary_plot(
                 self.shap_values,

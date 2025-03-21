@@ -3,7 +3,6 @@ from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_dados_ibge_codigos,
     tratando_dados_ibge_link,
     tratatando_dados_ipeadata,
-    tratando_dados_google_trends,
     tratando_dados_ibge_link_producao_agricola,
 )
 import pandas as pd
@@ -74,6 +73,7 @@ def test_tratatando_dados_ipeadata() -> None:
     dados = tratatando_dados_ipeadata(codigo_ipeadata=codigo_ipea, data="2000-01-01")
     assert isinstance(dados.index, pd.DatetimeIndex)
     assert not dados.empty
+
 
 # pylint: disable=W0105
 """def test_tratatando_dados_google_trends() -> None:

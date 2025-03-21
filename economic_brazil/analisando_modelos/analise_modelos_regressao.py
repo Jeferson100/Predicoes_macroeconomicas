@@ -52,9 +52,9 @@ class MetricasModelos:
         dados_predicao,
         coluna,
         data_frame: Optional[pd.DataFrame] = None,
-        index: Optional[pd.Index]=None,
-        save: bool=False,
-        diretorio: Optional[str]=None,
+        index: Optional[pd.Index] = None,
+        save: bool = False,
+        diretorio: Optional[str] = None,
     ) -> pd.DataFrame:
         # Verifica se o data_frame não foi fornecido e então cria um novo
         if data_frame is None:
@@ -70,13 +70,13 @@ class MetricasModelos:
     def plotando_predicoes(
         self,
         dados: pd.DataFrame,
-        title: str="Predições",
-        xlabel: str="Tempo",
-        ylabel: str="Valores",
-        figsize: tuple=(15, 10),
-        grid: bool=True,
-        save: bool=False,
-        diretorio: Optional[str]=None,
+        title: str = "Predições",
+        xlabel: str = "Tempo",
+        ylabel: str = "Valores",
+        figsize: tuple = (15, 10),
+        grid: bool = True,
+        save: bool = False,
+        diretorio: Optional[str] = None,
     ) -> None:
         # Plotando as predicoes
         plt.figure(figsize=figsize)
@@ -96,15 +96,15 @@ class MetricasModelos:
     def plotando_predicoes_go(
         self,
         dados: pd.DataFrame,
-        titulo: str="Predições",
-        label_x: str="Tempo",
-        label_y: str="Valores",
-        legenda: str="predicoes",
-        largura: int=1000,
-        altura: int=600,
-        model: str="lines",
-        save: bool=False,
-        diretorio: Optional[str]=None,
+        titulo: str = "Predições",
+        label_x: str = "Tempo",
+        label_y: str = "Valores",
+        legenda: str = "predicoes",
+        largura: int = 1000,
+        altura: int = 600,
+        model: str = "lines",
+        save: bool = False,
+        diretorio: Optional[str] = None,
     ):
         # Cria a figura para adicionar os traços (linhas do gráfico)
         fig = go.Figure()
@@ -143,7 +143,14 @@ class MetricasModelos:
 
 
 class PredicaosModelos:
-    def __init__(self, modelos: Any, x_treino: pd.DataFrame, y_treino: pd.DataFrame, x_teste: pd.DataFrame, y_teste: pd.DataFrame) -> None:
+    def __init__(
+        self,
+        modelos: Any,
+        x_treino: pd.DataFrame,
+        y_treino: pd.DataFrame,
+        x_teste: pd.DataFrame,
+        y_teste: pd.DataFrame,
+    ) -> None:
         self.modelos = modelos
         self.x_treino = x_treino
         self.y_treino = y_treino
@@ -265,7 +272,9 @@ class PredicaosModelos:
 
 
 class MetricasModelosDicionario:
-    def calculando_metricas(self, predicoes: dict, y: np.ndarray, y_recorrente: np.ndarray) -> pd.DataFrame:
+    def calculando_metricas(
+        self, predicoes: dict, y: np.ndarray, y_recorrente: np.ndarray
+    ) -> pd.DataFrame:
         metricas = MetricasModelos()
         inte = 0
         resultados = None
@@ -291,13 +300,13 @@ class MetricasModelosDicionario:
         y_dados: np.ndarray,
         dados: dict,
         index: pd.Index,
-        title: str="Predições",
-        xlabel: str="Tempo",
-        ylabel: str="Valores",
-        figsize: tuple=(15, 10),
-        grid: bool=True,
-        save: bool=False,
-        diretorio: Optional[str]=None,
+        title: str = "Predições",
+        xlabel: str = "Tempo",
+        ylabel: str = "Valores",
+        figsize: tuple = (15, 10),
+        grid: bool = True,
+        save: bool = False,
+        diretorio: Optional[str] = None,
     ) -> None:
         # Plotando as predicoes
         plt.figure(figsize=figsize)
@@ -369,14 +378,14 @@ class MetricasModelosDicionario:
         predicao_teste: dict,
         index_treino: pd.Index,
         index_teste: pd.Index,
-        title: str="Predições",
-        xlabel: str="Tempo",
-        ylabel: str="Valores",
-        figsize: tuple=(15, 10),
-        grid: bool=True,
-        save: bool=False,
-        diretorio: Optional[str]=None,
-        type_arquivo: str="png",
+        title: str = "Predições",
+        xlabel: str = "Tempo",
+        ylabel: str = "Valores",
+        figsize: tuple = (15, 10),
+        grid: bool = True,
+        save: bool = False,
+        diretorio: Optional[str] = None,
+        type_arquivo: str = "png",
     ) -> None:
         """
         Função para plotar previsões de séries temporais usando Plotly.

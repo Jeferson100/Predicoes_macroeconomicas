@@ -13,7 +13,14 @@ from typing import Tuple
 
 
 class ConformalRegressionPlotter:
-    def __init__(self, model: Union[LinearRegression, QuantileRegressor], X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray) -> None:
+    def __init__(
+        self,
+        model: Union[LinearRegression, QuantileRegressor],
+        X_train: np.ndarray,
+        X_test: np.ndarray,
+        y_train: np.ndarray,
+        y_test: np.ndarray,
+    ) -> None:
         self.model = model
         self.X_train = X_train
         self.X_test = X_test
@@ -23,7 +30,12 @@ class ConformalRegressionPlotter:
         self.y_pis = None
 
     def regressao_conformal(
-        self, method: str="plus", n_splits: int=5, agg_function: str="median", n_jobs: int=-1, alpha: float=0.05
+        self,
+        method: str = "plus",
+        n_splits: int = 5,
+        agg_function: str = "median",
+        n_jobs: int = -1,
+        alpha: float = 0.05,
     ) -> Tuple[np.ndarray, np.ndarray, float, float]:
         mapie = MapieRegressor(
             self.model,
@@ -48,11 +60,11 @@ class ConformalRegressionPlotter:
         self,
         index_test: np.ndarray,
         index_train: np.ndarray,
-        legend: str="Prediction Intervals",
-        y_label: str="Response Variable",
-        title: str="Prediction Intervals",
-        save: bool=False,
-        diretorio: Optional[str]=None,
+        legend: str = "Prediction Intervals",
+        y_label: str = "Response Variable",
+        title: str = "Prediction Intervals",
+        save: bool = False,
+        diretorio: Optional[str] = None,
     ) -> None:
         if self.y_pred is None or self.y_pis is None:
             raise ValueError(
@@ -129,7 +141,12 @@ class ConformalRegressionPlotter:
 
 class ConformalAvaliandoMetodo:
     def __init__(
-        self, X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray, strategies: Optional[Dict] = None
+        self,
+        X_train: np.ndarray,
+        X_test: np.ndarray,
+        y_train: np.ndarray,
+        y_test: np.ndarray,
+        strategies: Optional[Dict] = None,
     ) -> None:
         self.X_train = X_train
         self.X_test = X_test
@@ -144,23 +161,30 @@ class ConformalAvaliandoMetodo:
 
     def default_strategies(self) -> Dict:
         return {
-                "naive": {"method": "naive"},
-                "jackknife": {"method": "base", "cv": -1},
-                "jackknife_plus": {"method": "plus", "cv": -1},
-                "jackknife_minmax": {"method": "minmax", "cv": -1},
-                "cv": {"method": "base", "cv": 10},
-                "cv_plus": {"method": "plus", "cv": 10},
-                "cv_minmax": {"method": "minmax", "cv": 10},
-                "jackknife_plus_ab": {"method": "plus", "cv": Subsample(n_resamplings=50)},
-                "jackknife_minmax_ab": {"method": "minmax", "cv": Subsample(n_resamplings=50)},
-                "conformalized_quantile_regression": {"method": "quantile", "cv": "split", "alpha": 0.05},
-            }
+            "naive": {"method": "naive"},
+            "jackknife": {"method": "base", "cv": -1},
+            "jackknife_plus": {"method": "plus", "cv": -1},
+            "jackknife_minmax": {"method": "minmax", "cv": -1},
+            "cv": {"method": "base", "cv": 10},
+            "cv_plus": {"method": "plus", "cv": 10},
+            "cv_minmax": {"method": "minmax", "cv": 10},
+            "jackknife_plus_ab": {"method": "plus", "cv": Subsample(n_resamplings=50)},
+            "jackknife_minmax_ab": {
+                "method": "minmax",
+                "cv": Subsample(n_resamplings=50),
+            },
+            "conformalized_quantile_regression": {
+                "method": "quantile",
+                "cv": "split",
+                "alpha": 0.05,
+            },
+        }
 
     def regressao_conformal_estrategias(self):
         for strategy, params in self.STRATEGIES.items():
             if strategy == "conformalized_quantile_regression":
                 quantile_regression = QuantileRegressor(solver="highs", alpha=0)
-                mapie = MapieQuantileRegressor(quantile_regression, **params) # type: ignore
+                mapie = MapieQuantileRegressor(quantile_regression, **params)  # type: ignore
                 mapie.fit(self.X_train, self.y_train, random_state=1)
                 self.y_pred[strategy], self.y_pis[strategy] = mapie.predict(self.X_test)
             else:

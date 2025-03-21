@@ -41,7 +41,6 @@ def test_report_ndiffs(sample_data: pd.DataFrame) -> None:
     ), "A coluna 'Ndifis' deve estar presente no resultado"
 
 
-
 def test_corrigindo_nao_estacionaridade(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
     result = est.corrigindo_nao_estacionaridade(sample_data, "A")

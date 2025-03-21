@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("..")
 from .coleta_economic_brazil_async import (
     dados_bcb_async,
@@ -115,6 +116,7 @@ def transforme_data(data: pd.DataFrame) -> pd.DataFrame:
     data.index = lista_data  # type:ignore
     return data
 
+
 ###Tratando dados IBGE
 async def tratando_dados_ibge_codigos_async(
     codigos: Optional[Dict[str, Any]] = None,
@@ -170,6 +172,7 @@ async def tratando_dados_ibge_codigos_async(
             ibge_codigos.to_json(diretorio)
     return ibge_codigos
 
+
 async def tratando_dados_ibge_link_async(
     coluna: Optional[str] = None,
     salvar: bool = False,
@@ -204,6 +207,7 @@ async def tratando_dados_ibge_link_async(
 
     return ibge_link
 
+
 ###Tratando dados BCB
 
 selic = {
@@ -224,7 +228,9 @@ async def tratando_dados_bcb_async(
     if not isinstance(codigo_bcb_tratado, dict):
         print("Código BCB deve ser um dicionário. Usando valor padrão.")
         codigo_bcb_tratado = selic
-    inflacao_bcb = await dados_bcb_async(codigo_bcb_tratado, data_inicio_tratada, **kwargs)
+    inflacao_bcb = await dados_bcb_async(
+        codigo_bcb_tratado, data_inicio_tratada, **kwargs
+    )
     if salvar:
         if diretorio is None:
             raise ValueError("Diretório não especificado para salvar o arquivo")
@@ -233,6 +239,7 @@ async def tratando_dados_bcb_async(
         elif formato == "json":
             inflacao_bcb.to_json(diretorio)
     return inflacao_bcb
+
 
 async def tratando_dados_expectativas_async(
     salvar: bool = False, formato: str = "csv", diretorio: Optional[str] = None
@@ -285,6 +292,7 @@ async def tratatando_dados_ipeadata_async(
     dados_ipea.columns = [nome_coluna]
     return dados_ipea
 
+
 async def tratando_dados_google_trends_async(
     kw_list: List[str],
     frequencia_data: Optional[str] = None,
@@ -303,11 +311,12 @@ async def tratando_dados_google_trends_async(
         data.drop("isPartial", axis=1, inplace=True)
     return data
 
+
 async def tratando_dados_ibge_link_producao_agricola_async(
     url: str, nome_coluna: str, header: int = 3
 ) -> pd.DataFrame:
     dados = await asyncio.to_thread(pd.read_excel, url, header=header)
-    dados =pd.read_excel(url, header=header)
+    dados = pd.read_excel(url, header=header)
     dados = dados.T
     dados = dados.iloc[1:]
     dados = dados[[1]]
@@ -323,6 +332,7 @@ async def tratando_dados_ibge_link_producao_agricola_async(
     if not isinstance(data, pd.DataFrame):
         data = pd.DataFrame(data)
     return data
+
 
 async def tratando_dados_ibge_link_colum_brazil_async(
     coluna: Optional[str] = None,
@@ -363,16 +373,17 @@ async def tratando_dados_ibge_link_colum_brazil_async(
 
     return ibge_link
 
+
 async def read_indice_abcr_async() -> pd.DataFrame | None:
 
     url = "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
 
     # Cabeçalhos para simular um navegador
     headers = {
-         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
 
-    response = await asyncio.to_thread(requests.get,url, headers=headers, timeout=10)
+    response = await asyncio.to_thread(requests.get, url, headers=headers, timeout=10)
 
     if response.status_code == 200:
         # Usar BytesIO para ler os dados binários
@@ -388,7 +399,7 @@ async def read_indice_abcr_async() -> pd.DataFrame | None:
             print("Erro ao ler o arquivo Excel:")
     else:
         print(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
-        
+
 
 async def sondagem_industria_async(sheet: str, variable: str) -> pd.DataFrame:
     ##pagina para fazer web scraping
@@ -397,7 +408,7 @@ async def sondagem_industria_async(sheet: str, variable: str) -> pd.DataFrame:
     # Fazer o download do arquivo Excel de forma assíncrona
     response = await asyncio.to_thread(requests.get, url, timeout=10)
     if response.status_code != 200:
-        raise Exception(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
+        print(f"Erro ao acessar o recurso: {response.status_code} - {response.reason}")
 
     # Ler o conteúdo do arquivo Excel em memória
     data = BytesIO(response.content)
@@ -471,8 +482,6 @@ async def sondagem_industria_async(sheet: str, variable: str) -> pd.DataFrame:
     return df
 
 
-
-
 if __name__ == "__main__":
     start = time.time()
     print("Tratando dados IBGE com códigos")
@@ -483,7 +492,9 @@ if __name__ == "__main__":
         "variable": "63",
     }
     loop = asyncio.get_event_loop()
-    dados_ibge = loop.run_until_complete(tratando_dados_ibge_codigos_async(codigos=ibge_codigo))
+    dados_ibge = loop.run_until_complete(
+        tratando_dados_ibge_codigos_async(codigos=ibge_codigo)
+    )
     print(dados_ibge)
     print("Tratando dados IBGE com link")
     loop = asyncio.get_event_loop()
@@ -491,32 +502,36 @@ if __name__ == "__main__":
     print(dados_ibge)
     print("Tratando dados BCB")
     selic = {
-    "selic": 4189,
-    }   
+        "selic": 4189,
+    }
     loop = asyncio.get_event_loop()
-    dados_bcb = loop.run_until_complete(tratando_dados_bcb_async(codigo_bcb_tratado=selic))
+    dados_bcb = loop.run_until_complete(
+        tratando_dados_bcb_async(codigo_bcb_tratado=selic)
+    )
     print(dados_bcb)
-    
+
     print("Tratando dados Expectativas")
     loop = asyncio.get_event_loop()
     dados_expectativas = loop.run_until_complete(tratando_dados_expectativas_async())
     print(dados_expectativas)
-    
+
     print("Tratando dados Ipeadata")
-    ipea_codigo = {
-        "taja_juros_ltn": "ANBIMA12_TJTLN1212"
-    }
+    ipea_codigo = {"taja_juros_ltn": "ANBIMA12_TJTLN1212"}
     loop = asyncio.get_event_loop()
-    dados_ipeadata = loop.run_until_complete(tratatando_dados_ipeadata_async(codigo_ipeadata=ipea_codigo))
+    dados_ipeadata = loop.run_until_complete(
+        tratatando_dados_ipeadata_async(codigo_ipeadata=ipea_codigo)
+    )
     print(dados_ipeadata)
-    
+
     print("Tratando dados ibge link coluna")
-    
+
     loop = asyncio.get_event_loop()
-    dados_producao_agricola = loop.run_until_complete(tratando_dados_ibge_link_colum_brazil_async())
+    dados_producao_agricola = loop.run_until_complete(
+        tratando_dados_ibge_link_colum_brazil_async()
+    )
     print(dados_producao_agricola)
-    
-    print('*' * 100)
+
+    print("*" * 100)
     end = time.time()
     print(f"Tempo de execução: {end - start} segundos")
     loop.close()

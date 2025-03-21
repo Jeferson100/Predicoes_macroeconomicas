@@ -6,11 +6,8 @@ import ipeadatapy as ip
 from pytrends.request import TrendReq
 import time
 from datetime import date
-import quandl
 from typing import List, Dict, Optional
 import asyncio
-import time
-
 
 # Dados BCB
 SELIC_CODES = {
@@ -26,6 +23,7 @@ SELIC_CODES = {
 
 DATA_INICIO = "2000-01-01"
 
+
 async def dados_bcb_async(
     codigos_banco_central: Optional[Dict[str, int]] = None,
     data_inicio: str = "2000-01-01",
@@ -38,6 +36,7 @@ async def dados_bcb_async(
         print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
     return dados
+
 
 # DADOS IBGE
 async def dados_ibge_codigos_async(
@@ -60,13 +59,15 @@ async def dados_ibge_codigos_async(
         return pd.DataFrame()
     return ipca
 
+
 async def dados_ibge_link_async(
     cabecalho: int = 3,
     url: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
 ) -> pd.DataFrame:
     # carregar a tabela em um DataFrame
-    dados_link = await asyncio.to_thread(pd.read_excel,url, header=cabecalho)
+    dados_link = await asyncio.to_thread(pd.read_excel, url, header=cabecalho)
     return dados_link
+
 
 async def dados_expectativas_focus_async(
     indicador: str = "IPCA",
@@ -94,9 +95,9 @@ async def dados_expectativas_focus_async(
             )
             .collect()
         )
-    
+
     ipca_expec = await asyncio.to_thread(get_ipca_expec)
-    
+
     if not isinstance(ipca_expec, pd.DataFrame):
         print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
@@ -106,11 +107,16 @@ async def dados_expectativas_focus_async(
 async def dados_ipeadata_async(
     codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01"
 ) -> pd.DataFrame:
-    dados_ipea = await asyncio.to_thread(ip.timeseries,codigo, yearGreaterThan=int(data[0:4]) - 1)
+    dados_ipea = await asyncio.to_thread(
+        ip.timeseries, codigo, yearGreaterThan=int(data[0:4]) - 1
+    )
     if not isinstance(dados_ipea, pd.DataFrame):
-        print("Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio.")
+        print(
+            "Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio."
+        )
         return pd.DataFrame()
     return dados_ipea
+
 
 async def coleta_google_trends_async(
     kw_list: Optional[List[str]] = None,
@@ -144,7 +150,6 @@ async def coleta_google_trends_async(
 
     pytrends = TrendReq()
 
-
     # Fazendo a pesquisa para cada período de 5 anos
     data = pd.DataFrame()
     for i in range(len(periods) - 1):
@@ -166,8 +171,8 @@ async def coleta_google_trends_async(
     return data
 
 
-
 if __name__ == "__main__":
+
     async def main():
         start = time.time()
         # Obtém dados do Banco Central
@@ -179,30 +184,25 @@ if __name__ == "__main__":
         print("Obtendo dados do IBGE...")
         dados_ibge_result = await dados_ibge_codigos_async()
         print(dados_ibge_result)
-        
+
         print("Obtendo dados do IBGE via link...")
         dados_ibge_link_result = await dados_ibge_link_async()
         print(dados_ibge_link_result)
-        
+
         print("Obtendo dados de expectativas Focus...")
         dados_expectativas_focus_result = await dados_expectativas_focus_async()
         print(dados_expectativas_focus_result)
-        
+
         print("Obtendo dados do Ipeadata via async...")
         dados_ipeadata_async_result = await dados_ipeadata_async()
         print(dados_ipeadata_async_result)
-        
-        print("Obtendo dados do Google Trends...")
-        #dados_google_trends_result = await coleta_google_trends_async()
-        #print(dados_google_trends_result)
 
-        
+        print("Obtendo dados do Google Trends...")
+        # dados_google_trends_result = await coleta_google_trends_async()
+        # print(dados_google_trends_result)
+
         end = time.time()
         print(f"Tempo de execução: {end - start} segundos")
-        
-        
-        
 
     # Executa o loop de eventos
     asyncio.run(main())
-
