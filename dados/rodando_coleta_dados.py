@@ -3,8 +3,10 @@ sys.path.append('..')
 from economic_brazil import EconomicBrazil
 import pandas as pd
 import warnings
+import time
 warnings.filterwarnings("ignore")
 
+start = time.time()
 banco_central_codes = {
     "selic": 4189,
     "IPCA-EX2": 27838,
@@ -194,6 +196,11 @@ dados.dados_ibge_link(salvar=True, diretorio='dados_ibge_link', formato='pickle'
 print('Coletando dados IBGE Link')
 
 #dados.dados_fred(salvar=True, diretorio='dados_fred', formato='pickle')
+
+
+end = time.time()
+
+print('Tempo de execução:', end - start)
 
 print('Coleta terminanda com sucesso!')
 

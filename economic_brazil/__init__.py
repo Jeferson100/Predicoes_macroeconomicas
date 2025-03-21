@@ -2,6 +2,7 @@ from .analisando_modelos.analise_modelos_regressao import MetricasModelos
 from .analisando_modelos.importancia_carecteristicas import TratandoDadosImportancia,ImportanciaRandomForest,ImportanciaShap
 from .analisando_modelos.regressao_conformal import ConformalRegressionPlotter
 from .coleta_dados.economic_data_brazil import EconomicBrazil
+from .coleta_dados.economic_data_brazil_async import EconomicBrazilAsync
 from .coleta_dados.coleta_economic_brazil import (SELIC_CODES,
                                                   DATA_INICIO,
                                                   dados_bcb,
@@ -35,6 +36,7 @@ from .coleta_dados.tratando_economic_brazil import (trimestral_para_mensal,
                                                     read_indice_abcr,
                                                     sondagem_industria,
                                                     )
+
 from .processando_dados.data_processing import (criando_dummy_covid,
                                                 criando_defasagens,
                                                 backcasting_nan,
@@ -56,7 +58,8 @@ from .treinamento.modelos_treinamento import TreinamentoModelos
 __all__ = ["MetricasModelos", 
            "TratandoDados", 
            "ConformalRegressionPlotter", 
-           "EconomicBrazil", 
+           "EconomicBrazil",
+           "EconomicBrazilAsync", 
            "SELIC_CODES", 
            "DATA_INICIO", 
            "dados_bcb", 

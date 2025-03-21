@@ -28,6 +28,7 @@ jobs:
             cd ./dados
             pwd
             python rodando_coleta_dados.py
+            python rodando_coleta_dados_async.py
           env:
              FRED_API_KEY : ${{ secrets.FRED_API_KEY }}    
         - name: Configure Git
