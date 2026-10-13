@@ -15,6 +15,7 @@ from ..coleta_dados.tratando_economic_brazil_async import (
     tratando_dados_bcb_async,
     tratando_dados_expectativas_async,
     tratando_dados_ibge_link_async,
+    tratando_dados_ibge_sidra_async,
     tratando_dados_ibge_codigos_async,
     tratatando_dados_ipeadata_async,
     tratando_dados_google_trends_async,
@@ -72,30 +73,89 @@ variaveis_ibge_padrao = {
         "ibge_territorial_code": "all",
         "variable": "11599",
     },
-    "pmc_volume": {
-        "codigo": 8186,
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "11709",
-    },
 }
 
 codigos_ipeadata_padrao = {
     "taja_juros_ltn": "ANBIMA12_TJTLN1212",
     "imposto_renda": "SRF12_IR12",
-    "ibovespa": "ANBIMA12_IBVSP12",
+    "ibovespa": "GM12_IBVSP12",
     "consumo_energia": "ELETRO12_CEET12",
     "brent_fob": "EIA366_PBRENT366",
 }
 
-indicadores_ibge_link_padrao = {
-    "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6564/p/all/c11255/90707/d/v6564%201/l/v,p,t%2Bc11255&verUFs=false&verComplementos2=false&verComplementos1=false&omitirIndentacao=false&abreviarRotulos=false&exibirNotas=false&agruparNoCabecalho=false",
-    "despesas_publica": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
-    "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
-    "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
-    "soja": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
-    "milho_1": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39441/l/v,p%2Bc48,t",
-    "milho_2": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39442/l/v,p%2Bc48,t",
+indicadores_ibge_link_padrao: Dict[str, Dict[str, object]] = {
+    "pib": {
+        "codigo": "5932",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "6564",
+        "classification": "11255",
+        "categories": "90707",
+        "period": "all",
+    },
+    "despesas_publica": {
+        "codigo": "5932",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "6561",
+        "classification": "11255",
+        "categories": "93405",
+        "period": "all",
+    },
+    "capital_fixo": {
+        "codigo": "5932",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "6561",
+        "classification": "11255",
+        "categories": "93406",
+        "period": "all",
+    },
+    "producao_industrial_manufatureira": {
+        "codigo": "8158",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11599",
+        "classification": "543",
+        "categories": "129278",
+        "period": "all",
+    },
+    "soja": {
+        "codigo": "6588",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "35",
+        "classification": "48",
+        "categories": "39443",
+        "period": "all",
+    },
+    "milho_1": {
+        "codigo": "6588",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "35",
+        "classification": "48",
+        "categories": "39441",
+        "period": "all",
+    },
+    "milho_2": {
+        "codigo": "6588",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "35",
+        "classification": "48",
+        "categories": "39442",
+        "period": "all",
+    },
+    "volume_servicos_(pms)": {
+        "codigo": "8162",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11621",
+        "classification": "11046",
+        "categories": "56726",
+        "period": "all",
+    },
 }
 
 lista_google_trends_padrao = [
@@ -121,7 +181,7 @@ class EconomicBrazilAsync:
         self,
         codigos_banco_central: Optional[Dict[str, int]] = None,
         codigos_ibge: Optional[Dict[str, int]] = None,
-        codigos_ibge_link: Optional[Dict[str, str]] = None,
+        codigos_ibge_link: Optional[Dict[str, Dict[str, object]]] = None,
         codigos_ipeadata: Optional[Dict[str, str]] = None,
         codigos_fred: Optional[Dict[str, str]] = None,
         lista_termos_google_trends: Optional[List[str]] = None,
@@ -139,8 +199,12 @@ class EconomicBrazilAsync:
         self.codigos_fred = codigos_fred or codigos_fred_padrao
         self.data_inicio = data_inicio or DATA_INICIO
 
-    async def fetch_data_for_code_async(self, link: str, column: str) -> pd.DataFrame:
-        return await tratando_dados_ibge_link_async(coluna=column, link=link)
+    async def fetch_data_for_code_async(
+        self, params: Dict[str, object], column: str
+    ) -> pd.DataFrame:
+        if isinstance(params, str):
+            return await tratando_dados_ibge_link_async(coluna=column, link=params)
+        return await tratando_dados_ibge_sidra_async(coluna=column, params=params)  # type: ignore[arg-type]
 
     def data_index(self) -> pd.DataFrame:
         data_index = pd.date_range(
@@ -153,37 +217,38 @@ class EconomicBrazilAsync:
         salvar: bool = False,
         diretorio: Optional[str] = None,
         formato: str = "csv",
+        inter_delay: float = 1.5,
+        max_concurrent: int = 3,
     ) -> pd.DataFrame:
 
         dados = pd.DataFrame()
+        sem = asyncio.Semaphore(max_concurrent)
 
         async def processar_variavel_banco_central(nome, codigo):
-            try:
-                # Executa a coleta de dados de forma assíncrona
-                resultado = await asyncio.to_thread(
-                    tratando_dados_bcb_async,
-                    codigo_bcb_tratado={nome: codigo},
-                    data_inicio_tratada=self.data_inicio,
-                )
-                coluna = (await resultado)[nome]
-
-                # Converte para numérico de forma assíncrona, se necessário
-                if coluna.dtype == "object":
-                    coluna = await asyncio.to_thread(
-                        pd.to_numeric, coluna, errors="coerce"
+            async with sem:
+                try:
+                    # Executa a coleta de dados de forma assíncrona
+                    resultado = await asyncio.to_thread(
+                        tratando_dados_bcb_async,
+                        codigo_bcb_tratado={nome: codigo},
+                        data_inicio_tratada=self.data_inicio,
                     )
+                    coluna = (await resultado)[nome]
 
-                return nome, coluna
-            except ValueError:
-                print(
-                    f"Erro na coleta de dados da variável {nome}. Verifique se o código {codigo} está ativo https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries"
-                )
-                return nome, pd.Series(dtype="float64")
-            except requests.exceptions.SSLError:
-                print(
-                    f"Erro SSL na coleta de dados da variável {nome}. https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries"
-                )
-                return nome, pd.Series(dtype="float64")
+                    # Converte para numérico de forma assíncrona, se necessário
+                    if coluna.dtype == "object":
+                        coluna = await asyncio.to_thread(
+                            pd.to_numeric, coluna, errors="coerce"
+                        )
+
+                    return nome, coluna
+                except Exception as exc:
+                    print(
+                        f"Erro na coleta de dados da variável {nome} ({exc}). Verifique se o código {codigo} está ativo https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries"
+                    )
+                    return nome, pd.Series(dtype="float64")
+                finally:
+                    await asyncio.sleep(inter_delay)
 
         # Executa o loop de forma assíncrona para todas as variáveis
 
@@ -321,59 +386,31 @@ class EconomicBrazilAsync:
 
         dic_ibge_link = self.data_index()
 
-        async def processar_variavel_ibge_link(coluna, link):
+        async def processar_variavel_ibge_link(coluna, params):
             try:
                 resultado = await self.fetch_data_for_code_async(
-                    link=link, column=coluna
+                    params=params, column=coluna
                 )
                 return coluna, resultado
-            except KeyError:
-                # Segunda tentativa: tratando_dados_ibge_link_producao_agricola_async
-                try:
-                    resultado = await asyncio.to_thread(
-                        tratando_dados_ibge_link_producao_agricola_async, link, coluna
-                    )
-                    resultado = await resultado
-                    return coluna, resultado
-                except ValueError:
-                    print(
-                        f"Erro na coleta da variável {coluna}. Verifique se o link está ativo: {link}."
-                    )
-                    return coluna, None
-
-            except ValueError:
+            except Exception as exc:
                 print(
-                    f"Erro na coleta da variável {coluna}. Verifique se o link está ativo: {link}."
+                    f"Erro na coleta da variável {coluna} ({exc}). "
+                    f"Verifique se os parâmetros {params} estão ativos em "
+                    "https://sidra.ibge.gov.br/."
                 )
                 return coluna, None
 
         # Executa todas as chamadas em paralelo
         resultados = await asyncio.gather(
             *(
-                processar_variavel_ibge_link(key, link)
-                for key, link in self.codigos_ibge_link.items()
+                processar_variavel_ibge_link(key, params)
+                for key, params in self.codigos_ibge_link.items()
             )
         )
 
         for key, valor in resultados:
             if valor is not None:
                 dic_ibge_link[key] = valor
-                # Verifica se precisa usar tratando_dados_ibge_link_colum_brazil
-                if key not in dic_ibge_link.columns or bool(
-                    dic_ibge_link[key].isnull().all()
-                ):
-                    try:
-                        resultado = await asyncio.to_thread(
-                            tratando_dados_ibge_link_colum_brazil_async,
-                            key,
-                            self.codigos_ibge_link[key],
-                        )
-                        resultado = await resultado
-                        dic_ibge_link[key] = resultado
-                    except ValueError:
-                        print(
-                            f"Erro na coleta da variável {key}. Verifique se o link está ativo: {self.codigos_ibge_link[key]}."
-                        )
         if salvar:
             await asyncio.to_thread(
                 self.salvar_dados, dic_ibge_link, diretorio, formato
@@ -719,7 +756,7 @@ if __name__ == "__main__":
     codigos_ipeadata_padrao = {
         "taja_juros_ltn": "ANBIMA12_TJTLN1212",
         "imposto_renda": "SRF12_IR12",
-        "ibovespa": "ANBIMA12_IBVSP12",
+        "ibovespa": "GM12_IBVSP12",
         "consumo_energia": "ELETRO12_CEET12",
         "brent_fob": "EIA366_PBRENT366",
         "rendimento_real_medio": "PNADC12_RRTH12",

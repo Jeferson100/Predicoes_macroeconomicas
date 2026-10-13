@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import time
 import pandas as pd
 from datetime import datetime
 import warnings
@@ -12,6 +13,7 @@ from ..coleta_dados.tratando_economic_brazil import (
     tratando_dados_bcb,
     tratando_dados_expectativas,
     tratando_dados_ibge_link,
+    tratando_dados_ibge_sidra,
     tratando_dados_ibge_codigos,
     tratatando_dados_ipeadata,
     tratando_dados_google_trends,
@@ -69,30 +71,89 @@ variaveis_ibge_padrao = {
         "ibge_territorial_code": "all",
         "variable": "11599",
     },
-    "pmc_volume": {
-        "codigo": 8186,
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "11709",
-    },
 }
 
 codigos_ipeadata_padrao = {
     "taja_juros_ltn": "ANBIMA12_TJTLN1212",
     "imposto_renda": "SRF12_IR12",
-    "ibovespa": "ANBIMA12_IBVSP12",
+    "ibovespa": "GM12_IBVSP12",
     "consumo_energia": "ELETRO12_CEET12",
     "brent_fob": "EIA366_PBRENT366",
 }
 
-indicadores_ibge_link_padrao = {
-    "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6564/p/all/c11255/90707/d/v6564%201/l/v,p,t%2Bc11255&verUFs=false&verComplementos2=false&verComplementos1=false&omitirIndentacao=false&abreviarRotulos=false&exibirNotas=false&agruparNoCabecalho=false",
-    "despesas_publica": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
-    "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
-    "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
-    "soja": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t",
-    "milho_1": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39441/l/v,p%2Bc48,t",
-    "milho_2": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39442/l/v,p%2Bc48,t",
+indicadores_ibge_link_padrao: Dict[str, Dict[str, object]] = {
+    "pib": {
+        "codigo": "5932",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "6564",
+        "classification": "11255",
+        "categories": "90707",
+        "period": "all",
+    },
+    "despesas_publica": {
+        "codigo": "5932",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "6561",
+        "classification": "11255",
+        "categories": "93405",
+        "period": "all",
+    },
+    "capital_fixo": {
+        "codigo": "5932",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "6561",
+        "classification": "11255",
+        "categories": "93406",
+        "period": "all",
+    },
+    "producao_industrial_manufatureira": {
+        "codigo": "8158",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11599",
+        "classification": "543",
+        "categories": "129278",
+        "period": "all",
+    },
+    "soja": {
+        "codigo": "6588",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "35",
+        "classification": "48",
+        "categories": "39443",
+        "period": "all",
+    },
+    "milho_1": {
+        "codigo": "6588",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "35",
+        "classification": "48",
+        "categories": "39441",
+        "period": "all",
+    },
+    "milho_2": {
+        "codigo": "6588",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "35",
+        "classification": "48",
+        "categories": "39442",
+        "period": "all",
+    },
+    "volume_servicos_(pms)": {
+        "codigo": "8162",
+        "territorial_level": "1",
+        "ibge_territorial_code": "all",
+        "variable": "11621",
+        "classification": "11046",
+        "categories": "56726",
+        "period": "all",
+    },
 }
 
 lista_google_trends_padrao = [
@@ -118,7 +179,7 @@ class EconomicBrazil:
         self,
         codigos_banco_central: Optional[Dict[str, int]] = None,
         codigos_ibge: Optional[Dict[str, int]] = None,
-        codigos_ibge_link: Optional[Dict[str, str]] = None,
+        codigos_ibge_link: Optional[Dict[str, Dict[str, object]]] = None,
         codigos_ipeadata: Optional[Dict[str, str]] = None,
         codigos_fred: Optional[Dict[str, str]] = None,
         lista_termos_google_trends: Optional[List[str]] = None,
@@ -136,8 +197,18 @@ class EconomicBrazil:
         self.codigos_fred = codigos_fred or codigos_fred_padrao
         self.data_inicio = data_inicio or DATA_INICIO
 
-    def fetch_data_for_code(self, link: str, column: str) -> pd.DataFrame:
-        return cast(pd.DataFrame, tratando_dados_ibge_link(coluna=column, link=link))
+    def fetch_data_for_code(
+        self, params: Dict[str, object], column: str
+    ) -> pd.DataFrame:
+        # Compat: se receber URL antiga (str), usa o caminho depreciado geratabela.
+        if isinstance(params, str):
+            return cast(
+                pd.DataFrame, tratando_dados_ibge_link(coluna=column, link=params)
+            )
+        return cast(
+            pd.DataFrame,
+            tratando_dados_ibge_sidra(coluna=column, params=params),  # type: ignore[arg-type]
+        )
 
     def data_index(self) -> pd.DataFrame:
         data_index = pd.date_range(
@@ -150,6 +221,7 @@ class EconomicBrazil:
         salvar: bool = False,
         diretorio: Optional[str] = None,
         formato: str = "csv",
+        inter_delay: float = 1.5,
     ) -> pd.DataFrame:
         dados = pd.DataFrame()
         for nome, codigo in self.codigos_banco_central.items():
@@ -160,10 +232,13 @@ class EconomicBrazil:
                 )[nome]
                 if dados[nome].dtype == "object":
                     dados[nome] = pd.to_numeric(dados[nome], errors="coerce")
-            except ValueError:
+            except Exception as exc:
                 print(
-                    f"Erro na coleta de dados da variável {nome}. Verifique se o código {codigo} está ativo https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries"
+                    f"Erro na coleta de dados da variável {nome} ({exc}). Verifique se o código {codigo} está ativo https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries"
                 )
+                continue
+            finally:
+                time.sleep(inter_delay)
         if salvar:
             self.salvar_dados(dados, diretorio, formato)
         return dados
@@ -215,30 +290,18 @@ class EconomicBrazil:
         formato: str = "csv",
     ) -> pd.DataFrame:
         dic_ibge_link = self.data_index()
-        for key, link in self.codigos_ibge_link.items():
+        for key, params in self.codigos_ibge_link.items():
             try:
-                dic_ibge_link[key] = self.fetch_data_for_code(link, key)
-
-            except KeyError:
-                dic_ibge_link[key] = tratando_dados_ibge_link_producao_agricola(
-                    link, key
-                )
-
-            except ValueError:
+                # params é Dict[str, dict] SIDRA; str (URL geratabela) ainda
+                # funciona via fallback em fetch_data_for_code.
+                dic_ibge_link[key] = self.fetch_data_for_code(params, key)  # type: ignore[arg-type]
+            except Exception as exc:
                 print(
-                    f"Erro na coleta da variável {key}. Verifique se o link está ativo: {link}."
+                    f"Erro na coleta da variável {key} ({exc}). "
+                    f"Verifique se os parâmetros {params} estão ativos em "
+                    "https://sidra.ibge.gov.br/."
                 )
-            try:
-                if key not in dic_ibge_link.columns or bool(
-                    dic_ibge_link[key].isnull().all()
-                ):
-                    dic_ibge_link[key] = tratando_dados_ibge_link_colum_brazil(
-                        key, link
-                    )
-            except ValueError:
-                print(
-                    f"Erro na coleta da variável {key}. Verifique se o link está ativo: {link}."
-                )
+                continue
         if salvar:
             self.salvar_dados(dic_ibge_link, diretorio, formato)
         return dic_ibge_link

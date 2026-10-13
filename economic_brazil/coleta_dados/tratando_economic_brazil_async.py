@@ -1,14 +1,17 @@
 import sys
+import warnings
 
 sys.path.append("..")
 from .coleta_economic_brazil_async import (
     dados_bcb_async,
     dados_ibge_link_async,
     dados_ibge_codigos_async,
+    dados_ibge_sidra_async,
     dados_expectativas_focus_async,
     dados_ipeadata_async,
     coleta_google_trends_async,
 )
+from .tratando_economic_brazil import _parse_sidra_para_mensal
 import pandas as pd
 import numpy as np
 from datetime import datetime, date
@@ -180,6 +183,12 @@ async def tratando_dados_ibge_link_async(
     diretorio: Optional[str] = None,
     link: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
 ) -> pd.DataFrame:
+    warnings.warn(
+        "tratando_dados_ibge_link_async() está depreciado (geratabela retorna 403). "
+        "Use tratando_dados_ibge_sidra_async().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     dado_ibge = await dados_ibge_link_async(url=link)
     ibge_link = pd.DataFrame(dado_ibge.T)
     ibge_link = pd.DataFrame(ibge_link[[1]])
@@ -196,6 +205,45 @@ async def tratando_dados_ibge_link_async(
     else:
         ibge_link = transforme_data(ibge_link)
         ibge_link.index = pd.to_datetime(ibge_link.index)
+
+    if salvar:
+        if diretorio is None:
+            raise ValueError("Diretório não especificado para salvar o arquivo")
+        if formato == "csv":
+            ibge_link.to_csv(diretorio)
+        elif formato == "json":
+            ibge_link.to_json(diretorio)
+
+    return ibge_link
+
+
+async def tratando_dados_ibge_sidra_async(
+    coluna: Optional[str] = None,
+    params: Optional[Dict[str, Any]] = None,
+    salvar: bool = False,
+    formato: str = "csv",
+    diretorio: Optional[str] = None,
+) -> pd.DataFrame:
+    """Versão async de tratando_dados_ibge_sidra(): mesma regra
+    resample MS + ffill para séries trimestrais."""
+    if params is None:
+        params = {
+            "codigo": "5932",
+            "territorial_level": "1",
+            "ibge_territorial_code": "all",
+            "variable": "6561",
+            "classification": "11255",
+            "categories": "93405",
+            "period": "all",
+        }
+    dado_ibge = await dados_ibge_sidra_async(**params)
+    if dado_ibge.empty:
+        raise ValueError(
+            f"O DataFrame está vazio para a variável {coluna}. "
+            f"Verifique se os parâmetros {params} estão ativos em "
+            "https://sidra.ibge.gov.br/."
+        )
+    ibge_link = _parse_sidra_para_mensal(dado_ibge, coluna)
 
     if salvar:
         if diretorio is None:

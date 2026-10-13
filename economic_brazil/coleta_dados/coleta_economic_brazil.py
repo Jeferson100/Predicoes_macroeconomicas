@@ -5,8 +5,10 @@ from bcb import Expectativas
 import ipeadatapy as ip
 from pytrends.request import TrendReq
 import time
+import random
+import warnings
 from datetime import date
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import quandl
 
 
@@ -25,14 +27,106 @@ SELIC_CODES = {
 DATA_INICIO = "2000-01-01"
 
 
+def _safe_sidrapy_get_table(
+    table_code: str,
+    territorial_level: str = "1",
+    ibge_territorial_code: str = "all",
+    variable: str = "63",
+    period: str = "all",
+    classification: Optional[str] = None,
+    categories: Optional[str] = None,
+    classifications: Optional[Dict[str, str]] = None,
+    retries: int = 3,
+    delay: int = 10,
+) -> pd.DataFrame:
+    kwargs: Dict[str, Any] = {}
+    if classification is not None:
+        kwargs["classification"] = classification
+    if categories is not None:
+        kwargs["categories"] = categories
+    if classifications is not None:
+        kwargs["classifications"] = classifications
+    for attempt in range(1, retries + 1):
+        try:
+            result = sidrapy.get_table(
+                table_code=table_code,
+                territorial_level=territorial_level,
+                ibge_territorial_code=ibge_territorial_code,
+                variable=variable,
+                period=period,
+                **kwargs,
+            )
+            if not isinstance(result, pd.DataFrame):
+                print(
+                    "Erro: sidrapy.get_table não retornou um DataFrame. Retornando DataFrame vazio."
+                )
+                return pd.DataFrame()
+            return result
+        except Exception as exc:
+            print(
+                f"Tentativa {attempt}/{retries} falhou ao buscar dados IBGE: {exc}"
+            )
+            if attempt == retries:
+                print(
+                    "Não foi possível conectar ao IBGE após múltiplas tentativas. "
+                    "Retornando DataFrame vazio."
+                )
+                return pd.DataFrame()
+            time.sleep(delay * attempt)
+
+
+def _safe_sgs_get(
+    codigos_banco_central: Dict[str, int],
+    data_inicio: str = "2000-01-01",
+    retries: int = 4,
+    delay: int = 5,
+) -> pd.DataFrame:
+    """Chama sgs.get com retry+backoff+jitter.
+
+    Cobre os dois modos de falha observados no api.bcb.gov.br:
+    - Exception('Download error: code = X') quando HTTP != 200;
+    - ValueError('Expected object or value') quando 200 vem com corpo
+      vazio/HTML e o pd.read_json interno quebra.
+    """
+    last_exc: Optional[Exception] = None
+    for attempt in range(1, retries + 1):
+        try:
+            result = sgs.get(codigos_banco_central, start=data_inicio)
+            if not isinstance(result, pd.DataFrame):
+                print(
+                    "Erro: sgs.get() não retornou um DataFrame. "
+                    "Retornando DataFrame vazio."
+                )
+                return pd.DataFrame()
+            if result.empty:
+                raise ValueError("sgs.get retornou DataFrame vazio")
+            return result
+        except Exception as exc:  # noqa: BLE001 - BCB falha de formas variadas
+            last_exc = exc
+            print(
+                f"Tentativa {attempt}/{retries} falhou ao buscar BCB "
+                f"{list(codigos_banco_central.values())}: {exc}"
+            )
+            if attempt == retries:
+                print(
+                    "Não foi possível obter a série BCB após múltiplas "
+                    "tentativas. Retornando DataFrame vazio."
+                )
+                return pd.DataFrame()
+            time.sleep(delay * attempt + random.uniform(0, 1))
+    return pd.DataFrame()
+
+
 def dados_bcb(
     codigos_banco_central: Optional[Dict[str, int]] = None,
     data_inicio: str = "2000-01-01",
+    retries: int = 4,
+    delay: int = 5,
 ) -> pd.DataFrame:
     dados = pd.DataFrame()
     if codigos_banco_central is None:
         codigos_banco_central = SELIC_CODES
-    dados = sgs.get(codigos_banco_central, start=data_inicio)
+    dados = _safe_sgs_get(codigos_banco_central, data_inicio, retries, delay)
     if not isinstance(dados, pd.DataFrame):
         print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
@@ -47,25 +141,50 @@ def dados_ibge_codigos(
     variable: str = "63",
     period: str = "all",
 ) -> pd.DataFrame:
-    ipca = sidrapy.get_table(
+    return _safe_sidrapy_get_table(
         table_code=codigo,
         territorial_level=territorial_level,
         ibge_territorial_code=ibge_territorial_code,
         variable=variable,
         period=period,
     )
-    if not isinstance(ipca, pd.DataFrame):
-        print(
-            "Erro: sidrapy.get_table não retornou um DataFrame. Retornando DataFrame vazio."
-        )
-        return pd.DataFrame()
-    return ipca
+
+
+# DADOS IBGE via API SIDRA (substitui geratabela/xlsx com 403)
+def dados_ibge_sidra(
+    codigo: str = "5932",
+    territorial_level: str = "1",
+    ibge_territorial_code: str = "all",
+    variable: str = "6561",
+    period: str = "all",
+    classification: Optional[str] = None,
+    categories: Optional[str] = None,
+    classifications: Optional[Dict[str, str]] = None,
+) -> pd.DataFrame:
+    return _safe_sidrapy_get_table(
+        table_code=codigo,
+        territorial_level=territorial_level,
+        ibge_territorial_code=ibge_territorial_code,
+        variable=variable,
+        period=period,
+        classification=classification,
+        categories=categories,
+        classifications=classifications,
+    )
 
 
 def dados_ibge_link(
     cabecalho: int = 3,
     url: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
 ) -> pd.DataFrame:
+    # DEPRECATED: mantido por compatibilidade. O endpoint geratabela retorna
+    # HTTP 403 para downloads diretos. Prefira dados_ibge_sidra().
+    warnings.warn(
+        "dados_ibge_link() está depreciado (geratabela retorna 403). "
+        "Use dados_ibge_sidra().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     # carregar a tabela em um DataFrame
     dados_link = pd.read_excel(url, header=cabecalho)
     return dados_link

@@ -56,7 +56,7 @@ variaveis_ibge = {
 codigos_ipeadata_padrao = {
     "taja_juros_ltn": "ANBIMA12_TJTLN1212",
     "imposto_renda": "SRF12_IR12",
-    "ibovespa": "ANBIMA12_IBVSP12",
+    "ibovespa": "GM12_IBVSP12",
     "consumo_energia": "ELETRO12_CEET12",
     "brent_fob": "EIA366_PBRENT366",
 }

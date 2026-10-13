@@ -1,10 +1,12 @@
 import sys
+import warnings
 
 sys.path.append("..")
 from .coleta_economic_brazil import (
     dados_bcb,
     dados_ibge_link,
     dados_ibge_codigos,
+    dados_ibge_sidra,
     dados_expectativas_focus,
     dados_ipeadata,
     coleta_google_trends,
@@ -179,6 +181,12 @@ def tratando_dados_ibge_link(
     diretorio: Optional[str] = None,
     link: str = "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
 ) -> pd.DataFrame:
+    warnings.warn(
+        "tratando_dados_ibge_link() está depreciado (geratabela retorna 403). "
+        "Use tratando_dados_ibge_sidra().",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     dado_ibge = dados_ibge_link(url=link)
     ibge_link = pd.DataFrame(dado_ibge.T)
     ibge_link = pd.DataFrame(ibge_link[[1]])
@@ -195,6 +203,106 @@ def tratando_dados_ibge_link(
     else:
         ibge_link = transforme_data(ibge_link)
         ibge_link.index = pd.to_datetime(ibge_link.index)
+
+    if salvar:
+        if diretorio is None:
+            raise ValueError("Diretório não especificado para salvar o arquivo")
+        if formato == "csv":
+            ibge_link.to_csv(diretorio)
+        elif formato == "json":
+            ibge_link.to_json(diretorio)
+
+    return ibge_link
+
+
+def _parse_sidra_para_mensal(
+    dado_ibge: pd.DataFrame, coluna: Optional[str]
+) -> pd.DataFrame:
+    """Converte o retorno bruto do sidrapy (colunas NC/NN/..., linha 0 = rótulos)
+    em série mensal: índice DatetimeIndex MS, 1 coluna numérica.
+    Trimestral (código YYYY0Q, ex 199601) vira mês de fim do trimestre + ffill."""
+    df = dado_ibge.copy()
+    df.columns = df.iloc[0, :]
+    df = df.iloc[1:, :].reset_index(drop=True)
+    if "Valor" not in df.columns:
+        raise ValueError(
+            f"Coluna 'Valor' não encontrada para {coluna}. Colunas: {list(df.columns)}"
+        )
+    valores = pd.to_numeric(
+        df["Valor"].astype(str).str.replace(",", ".", regex=False), errors="coerce"
+    )
+    date_code_col = None
+    for cand in ("Trimestre (Código)", "Mês (Código)", "Mês (Codigo)"):
+        if cand in df.columns:
+            date_code_col = cand
+            break
+    if date_code_col is None:
+        for col in df.columns:
+            name = str(col)
+            if "(Código)" in name or "(Codigo)" in name:
+                sample = df[name].astype(str).str.strip()
+                if sample.str.match(r"^\d{6}$").any():
+                    date_code_col = col
+                    break
+    if date_code_col is None:
+        raise ValueError(
+            f"Coluna de data (código) não encontrada para {coluna}. "
+            f"Colunas: {list(df.columns)}"
+        )
+    is_trimestre = "Trimestre" in str(date_code_col)
+    datas = []
+    for code in df[date_code_col].astype(str).str.strip():
+        digits = "".join(ch for ch in code if ch.isdigit())
+        if len(digits) < 6:
+            datas.append(pd.NaT)
+            continue
+        ano = int(digits[:4])
+        sufixo = int(digits[4:6])
+        if is_trimestre:
+            mes = sufixo * 3  # 01->03, 02->06, 03->09, 04->12
+            mes = min(max(mes, 1), 12)
+        else:
+            mes = sufixo
+        try:
+            datas.append(datetime(year=ano, month=mes, day=1))
+        except ValueError:
+            datas.append(pd.NaT)
+    out = pd.DataFrame({coluna: valores.values}, index=pd.to_datetime(datas))
+    out = out[~out.index.isna()].sort_index()
+    out = out[~out.index.duplicated(keep="last")]
+    if is_trimestre:
+        out = out.resample("MS").ffill()
+    return out
+
+
+def tratando_dados_ibge_sidra(
+    coluna: Optional[str] = None,
+    params: Optional[Dict[str, Any]] = None,
+    salvar: bool = False,
+    formato: str = "csv",
+    diretorio: Optional[str] = None,
+) -> pd.DataFrame:
+    """Trata dados da API SIDRA (via sidrapy) no mesmo formato do antigo
+    tratando_dados_ibge_link(): índice DatetimeIndex MS, 1 coluna numérica,
+    trimestral convertido com resample MS + ffill."""
+    if params is None:
+        params = {
+            "codigo": "5932",
+            "territorial_level": "1",
+            "ibge_territorial_code": "all",
+            "variable": "6561",
+            "classification": "11255",
+            "categories": "93405",
+            "period": "all",
+        }
+    dado_ibge = dados_ibge_sidra(**params)
+    if dado_ibge.empty:
+        raise ValueError(
+            f"O DataFrame está vazio para a variável {coluna}. "
+            f"Verifique se os parâmetros {params} estão ativos em "
+            "https://sidra.ibge.gov.br/."
+        )
+    ibge_link = _parse_sidra_para_mensal(dado_ibge, coluna)
 
     if salvar:
         if diretorio is None:

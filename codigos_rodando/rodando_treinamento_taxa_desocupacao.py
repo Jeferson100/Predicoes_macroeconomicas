@@ -91,7 +91,7 @@ codigos_ipeadata_padrao = {
     "pessoas_forca_trabalho": "PNADC12_FT12",
     "caged_novo": "CAGED12_SALDON12",
     "caged_antigo": "CAGED12_SALDO12",
-    'ibovespa': 'ANBIMA12_IBVSP12',
+    'ibovespa': 'GM12_IBVSP12',
     "taja_juros_ltn": "ANBIMA12_TJTLN1212",
     'exportacoes': 'PAN12_XTV12',
     'importacoes': 'PAN12_MTV12',
