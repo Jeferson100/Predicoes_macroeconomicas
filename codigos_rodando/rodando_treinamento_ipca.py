@@ -45,12 +45,6 @@ variaveis_ibge = {
         "ibge_territorial_code": "all",
         "variable": "11599",
     },
-    "pmc_volume": {
-        "codigo": 8186,
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "11709",
-    },
 }
 
 codigos_ipeadata_padrao = {

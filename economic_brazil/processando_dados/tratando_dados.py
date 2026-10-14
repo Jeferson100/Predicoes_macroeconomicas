@@ -170,6 +170,12 @@ class TratandoDados:
         """
         Separa as variáveis independentes e dependentes.
         """
+        if label not in dados.columns:
+            raise KeyError(
+                f"Coluna label '{label}' ausente nos dados. A coleta dessa série "
+                f"provavelmente falhou (verifique os logs 'Erro na coleta...'). "
+                f"Colunas disponíveis: {list(dados.columns)}"
+            )
         y = dados[label].values
         x = dados.loc[:, dados.columns != label].values
         return x, y

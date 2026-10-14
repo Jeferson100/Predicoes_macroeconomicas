@@ -42,12 +42,6 @@ variaveis_ibge = {
         "ibge_territorial_code": "all",
         "variable": "1198",
     },
-    "pmc_volume": {
-        "codigo": '8186',
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "11709",
-    },
     "producao_fisica_industrial": {
         "codigo": '8159',
         "territorial_level": "1",
@@ -60,24 +54,11 @@ variaveis_ibge = {
         "ibge_territorial_code": "all",
         "variable": "11599",},
     
-    "producao_soja_milho": {    
-        "codigo": '6588',
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "35",},
-    
     "precos_construcao_civil": {
         "codigo": '2296',
         "territorial_level": "1",
         "ibge_territorial_code": "all",
         "variable": "1198",},
-    
-    "volume_servicos_(pms)": {
-        "codigo": '8162',
-        "territorial_level": "1",
-        "ibge_territorial_code": "all",
-        "variable": "11621",
-    }
     
     
 }
@@ -102,14 +83,15 @@ lista = [
     'seguro desemprego']
 
 indicadores_ibge_link = {
-    "pib": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6564/p/all/c11255/90707/d/v6564%201/l/v,p,t%2Bc11255&verUFs=false&verComplementos2=false&verComplementos1=false&omitirIndentacao=false&abreviarRotulos=false&exibirNotas=false&agruparNoCabecalho=false",
-    "despesas_publica": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93405/d/v6561%201/l/v,p%2Bc11255,t",
-    "capital_fixo": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela5932.xlsx&terr=N&rank=-&query=t/5932/n1/all/v/6561/p/all/c11255/93406/d/v6561%201/l/v,p%2Bc11255,t",
-    "producao_industrial_manufatureira": "https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8158.xlsx&terr=N&rank=-&query=t/8158/n1/all/v/11599/p/all/c543/129278/d/v11599%205/l/v,p%2Bc543,t",
-    'soja' :'https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39443/l/v,p%2Bc48,t',
-    'milho_1' :'https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39441/l/v,p%2Bc48,t',
-    'milho_2' :'https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela6588.xlsx&terr=N&rank=-&query=t/6588/n1/all/v/35/p/all/c48/0,39442/l/v,p%2Bc48,t',
-    'pms': 'https://sidra.ibge.gov.br/geratabela?format=xlsx&name=tabela8162.xlsx&terr=N&rank=-&query=t/8162/n1/all/v/11622/p/all/c11046/56726/c12355/107071/d/v11622%205/l/v,p%2Bc11046,t%2Bc12355'
+    "pib": {"codigo": "5932", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "6564", "classification": "11255", "categories": "90707", "period": "all"},
+    "despesas_publica": {"codigo": "5932", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "6561", "classification": "11255", "categories": "93405", "period": "all"},
+    "capital_fixo": {"codigo": "5932", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "6561", "classification": "11255", "categories": "93406", "period": "all"},
+    "producao_industrial_manufatureira": {"codigo": "8158", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "11599", "classification": "543", "categories": "129278", "period": "all"},
+    "soja": {"codigo": "6588", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "35", "classification": "48", "categories": "39443", "period": "all"},
+    "milho_1": {"codigo": "6588", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "35", "classification": "48", "categories": "39441", "period": "all"},
+    "milho_2": {"codigo": "6588", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "35", "classification": "48", "categories": "39442", "period": "all"},
+    "volume_servicos_(pms)": {"codigo": "8162", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "11621", "classification": "11046", "categories": "56726", "period": "all"},
+    "pms": {"codigo": "8162", "territorial_level": "1", "ibge_territorial_code": "all", "variable": "11622", "classifications": {"11046": "56726", "12355": "107071"}, "period": "all"},
 }
 
 codigos_fred = {'nasdaq100':'NASDAQ100',
