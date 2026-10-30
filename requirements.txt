@@ -26,7 +26,7 @@ pytrends==4.9.2
 python-dotenv==1.0.0
 quandl==3.7.0
 fredapi==0.5.1
-feature-engine==1.7.0
+feature-engine==1.6.2
 xlrd
 aiohttp
 tenacity==8.2.3
