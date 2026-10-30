@@ -1,0 +1,52 @@
+{
+  "variavel": "ipca",
+  "nome": "ipca",
+  "unidade": "% m.m.",
+  "frequencia": "M",
+  "ancora": "random_walk",
+  "horizonte": 1,
+  "n_observacoes": 274,
+  "ultima_observacao": "2026-10-01",
+  "ultimo_valor": 0.82,
+  "data_previsao": "2026-11-01",
+  "previsao": 0.18,
+  "intervalos": {
+    "80%": [
+      -0.22,
+      0.58
+    ],
+    "95%": [
+      -0.43,
+      0.79
+    ]
+  },
+  "cobertura_empirica": {
+    "80%": 0.75,
+    "95%": 1.0
+  },
+  "placar_mase": {
+    "random_walk": 1.3687,
+    "seasonal_naive": 1.0943,
+    "media": 1.2478,
+    "drift": 1.3706,
+    "ridge": 1.2349,
+    "elasticnet": 1.1461,
+    "gradient_boosting": 1.1607
+  },
+  "placar_mae": {
+    "random_walk": 0.3075,
+    "seasonal_naive": 0.2458,
+    "media": 0.2803,
+    "drift": 0.3079,
+    "ridge": 0.2774,
+    "elasticnet": 0.2575,
+    "gradient_boosting": 0.2608
+  },
+  "campeao": "seasonal_naive",
+  "mase_campeao": 1.0943,
+  "bate_random_walk": false,
+  "limites_plausiveis": [
+    -2.0,
+    5.0
+  ]
+}

@@ -1,0 +1,23 @@
+nome: ipca
+unidade: "% m.m."
+frequencia: M
+alvo: ipca
+ancora: random_walk
+horizonte: 1
+data_inicio: "2003-01-01"
+divisao: "2021-01-01"
+lags: [1, 2, 3, 6, 12]
+sazonalidade: true
+exogenas:
+  - ipca_expectativa_focus
+  - igp_m
+  - cambio
+  - ibc
+  - taxa_desocupacao
+candidatos: [ridge, elasticnet, gradient_boosting]
+baselines: [random_walk, seasonal_naive, media, drift]
+season: 12
+n_origens: 24
+n_calib: 24
+alphas: [0.2, 0.05]
+limites_plausiveis: [-2.0, 5.0]

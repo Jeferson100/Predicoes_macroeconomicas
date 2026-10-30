@@ -1,0 +1,52 @@
+{
+  "variavel": "pib",
+  "nome": "pib",
+  "unidade": "% t.t.",
+  "frequencia": "Q",
+  "ancora": "random_walk",
+  "horizonte": 1,
+  "n_observacoes": 104,
+  "ultima_observacao": "2026-10-01",
+  "ultimo_valor": 0.5,
+  "data_previsao": "2027-01-01",
+  "previsao": 0.5615,
+  "intervalos": {
+    "80%": [
+      0.0195,
+      1.1035
+    ],
+    "95%": [
+      -0.589,
+      1.7121
+    ]
+  },
+  "cobertura_empirica": {
+    "80%": 0.75,
+    "95%": 0.75
+  },
+  "placar_mase": {
+    "random_walk": 0.4511,
+    "seasonal_naive": 0.4026,
+    "media": 0.2998,
+    "drift": 0.4541,
+    "ridge": 0.4269,
+    "elasticnet": 0.357,
+    "gradient_boosting": 0.5524
+  },
+  "placar_mae": {
+    "random_walk": 0.5813,
+    "seasonal_naive": 0.5188,
+    "media": 0.3863,
+    "drift": 0.5852,
+    "ridge": 0.5501,
+    "elasticnet": 0.46,
+    "gradient_boosting": 0.7117
+  },
+  "campeao": "media",
+  "mase_campeao": 0.2998,
+  "bate_random_walk": true,
+  "limites_plausiveis": [
+    -8.0,
+    8.0
+  ]
+}

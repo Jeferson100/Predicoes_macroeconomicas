@@ -1,0 +1,23 @@
+nome: producao_industrial
+unidade: "% m.m."
+frequencia: M
+alvo: producao_industrial
+ancora: random_walk
+horizonte: 1
+data_inicio: "2003-01-01"
+divisao: "2021-01-01"
+lags: [1, 2, 3, 6, 12]
+sazonalidade: true
+exogenas:
+  - ibc
+  - producao_industrial_manufatureira
+  - confianca_empresario_atual
+  - cambio
+  - importacoes
+candidatos: [ridge, elasticnet, gradient_boosting]
+baselines: [random_walk, seasonal_naive, media, drift]
+season: 12
+n_origens: 24
+n_calib: 24
+alphas: [0.2, 0.05]
+limites_plausiveis: [-15.0, 15.0]

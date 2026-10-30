@@ -1,0 +1,52 @@
+{
+  "variavel": "selic",
+  "nome": "selic",
+  "unidade": "% a.a.",
+  "frequencia": "M",
+  "ancora": "random_walk",
+  "horizonte": 1,
+  "n_observacoes": 274,
+  "ultima_observacao": "2026-10-01",
+  "ultimo_valor": 13.65,
+  "data_previsao": "2026-11-01",
+  "previsao": 13.7548,
+  "intervalos": {
+    "80%": [
+      13.4774,
+      14.0322
+    ],
+    "95%": [
+      13.1388,
+      14.3707
+    ]
+  },
+  "cobertura_empirica": {
+    "80%": 0.5,
+    "95%": 0.8333333333333334
+  },
+  "placar_mase": {
+    "random_walk": 0.8859,
+    "seasonal_naive": 8.6611,
+    "media": 12.0625,
+    "drift": 0.9025,
+    "ridge": 0.6612,
+    "elasticnet": 1.3448,
+    "gradient_boosting": 0.6657
+  },
+  "placar_mae": {
+    "random_walk": 0.2292,
+    "seasonal_naive": 2.2404,
+    "media": 3.1203,
+    "drift": 0.2335,
+    "ridge": 0.171,
+    "elasticnet": 0.3479,
+    "gradient_boosting": 0.1722
+  },
+  "campeao": "ridge",
+  "mase_campeao": 0.6612,
+  "bate_random_walk": true,
+  "limites_plausiveis": [
+    -5.0,
+    30.0
+  ]
+}

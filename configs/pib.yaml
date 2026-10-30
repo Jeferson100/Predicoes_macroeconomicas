@@ -1,0 +1,24 @@
+nome: pib
+unidade: "% t.t."
+frequencia: Q
+alvo: pib
+ancora: random_walk
+horizonte: 1
+data_inicio: "2000-01-01"
+divisao: "2021-01-01"
+lags: [1, 2, 4]
+sazonalidade: true
+exogenas:
+  - pib_mensal
+  - ibc
+  - producao_industrial
+  - indice_volume_vendas_varejo
+  - confianca_empresario_atual
+  - capital_fixo
+candidatos: [ridge, elasticnet, gradient_boosting]
+baselines: [random_walk, seasonal_naive, media, drift]
+season: 4
+n_origens: 16
+n_calib: 12
+alphas: [0.2, 0.05]
+limites_plausiveis: [-8.0, 8.0]

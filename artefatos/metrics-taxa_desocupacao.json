@@ -1,0 +1,52 @@
+{
+  "variavel": "taxa_desocupacao",
+  "nome": "taxa_desocupacao",
+  "unidade": "%",
+  "frequencia": "M",
+  "ancora": "random_walk",
+  "horizonte": 1,
+  "n_observacoes": 164,
+  "ultima_observacao": "2026-10-01",
+  "ultimo_valor": 5.3,
+  "data_previsao": "2026-11-01",
+  "previsao": 5.2498,
+  "intervalos": {
+    "80%": [
+      4.9795,
+      5.5201
+    ],
+    "95%": [
+      4.8969,
+      5.6028
+    ]
+  },
+  "cobertura_empirica": {
+    "80%": 0.8333333333333334,
+    "95%": 0.9166666666666666
+  },
+  "placar_mase": {
+    "random_walk": 0.769,
+    "seasonal_naive": 3.2885,
+    "media": 16.5128,
+    "drift": 0.7709,
+    "ridge": 0.6724,
+    "elasticnet": 0.7203,
+    "gradient_boosting": 0.8116
+  },
+  "placar_mae": {
+    "random_walk": 0.1958,
+    "seasonal_naive": 0.8375,
+    "media": 4.2054,
+    "drift": 0.1963,
+    "ridge": 0.1713,
+    "elasticnet": 0.1834,
+    "gradient_boosting": 0.2067
+  },
+  "campeao": "ridge",
+  "mase_campeao": 0.6724,
+  "bate_random_walk": true,
+  "limites_plausiveis": [
+    3.0,
+    25.0
+  ]
+}

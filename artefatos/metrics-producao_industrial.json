@@ -1,0 +1,52 @@
+{
+  "variavel": "producao_industrial",
+  "nome": "producao_industrial",
+  "unidade": "% m.m.",
+  "frequencia": "M",
+  "ancora": "random_walk",
+  "horizonte": 1,
+  "n_observacoes": 274,
+  "ultima_observacao": "2026-10-01",
+  "ultimo_valor": -1.16869926345012,
+  "data_previsao": "2026-11-01",
+  "previsao": -1.6715,
+  "intervalos": {
+    "80%": [
+      -3.9782,
+      0.6352
+    ],
+    "95%": [
+      -5.8398,
+      2.4968
+    ]
+  },
+  "cobertura_empirica": {
+    "80%": 0.5833333333333334,
+    "95%": 1.0
+  },
+  "placar_mase": {
+    "random_walk": 0.5359,
+    "seasonal_naive": 0.8564,
+    "media": 0.418,
+    "drift": 0.5367,
+    "ridge": 0.41,
+    "elasticnet": 0.412,
+    "gradient_boosting": 0.4792
+  },
+  "placar_mae": {
+    "random_walk": 1.8808,
+    "seasonal_naive": 3.006,
+    "media": 1.467,
+    "drift": 1.8837,
+    "ridge": 1.4391,
+    "elasticnet": 1.4462,
+    "gradient_boosting": 1.6818
+  },
+  "campeao": "ridge",
+  "mase_campeao": 0.41,
+  "bate_random_walk": true,
+  "limites_plausiveis": [
+    -15.0,
+    15.0
+  ]
+}

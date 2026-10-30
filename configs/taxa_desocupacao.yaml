@@ -1,0 +1,23 @@
+nome: taxa_desocupacao
+unidade: "%"
+frequencia: M
+alvo: taxa_desocupacao
+ancora: random_walk
+horizonte: 1
+data_inicio: "2012-03-01"
+divisao: "2022-01-01"
+lags: [1, 2, 3, 6, 12]
+sazonalidade: true
+exogenas:
+  - caged_junto
+  - ibc
+  - confianca_consumidor
+  - rendimento_real_medio
+  - selic
+candidatos: [ridge, elasticnet, gradient_boosting]
+baselines: [random_walk, seasonal_naive, media, drift]
+season: 12
+n_origens: 24
+n_calib: 24
+alphas: [0.2, 0.05]
+limites_plausiveis: [3.0, 25.0]
