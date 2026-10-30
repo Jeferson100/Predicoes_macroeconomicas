@@ -132,3 +132,6 @@ dmypy.json
 # Artefatos transitorios do gate
 gate_resumo.md
 artefatos/**/*.pkl
+
+# Saida de treino do CatBoost (regeneravel)
+catboost_info/
