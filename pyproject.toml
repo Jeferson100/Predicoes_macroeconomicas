@@ -1,0 +1,28 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "network: chama API externa (BCB, IBGE, IPEADATA, FRED, Google Trends)",
+    "slow: treina ou ajusta modelos e demora mais de 30s",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["codigos_rodando", "dados", "notebooks", "catboost_info"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# Este modulo existe para provar que os imports publicos funcionam.
+"tests/test_imports.py" = ["F401"]
+
+[tool.pylint.main]
+py-version = "3.11"
+ignore-paths = ["^codigos_rodando/", "^dados/", "^tests/"]
+ignored-modules = ["keras", "keras.losses", "keras.models", "keras.optimizers"]
+
+[tool.pylint."messages control"]
+disable = ["R", "C"]

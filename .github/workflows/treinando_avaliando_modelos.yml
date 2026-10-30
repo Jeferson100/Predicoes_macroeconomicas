@@ -1,57 +1,106 @@
-name: Treinando Modelos e Avaliando Modelos
-on:
+name: Treinar e Publicar
 
+on:
   schedule:
-    - cron: "0 7 2 * *"
+    - cron: "0 8 3 * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: train
+  cancel-in-progress: false
+
 jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Copia os arquivos do repo
-          uses: actions/checkout@v4
-        - name: Instalar o Python
-          uses: actions/setup-python@v3
-          with:
-            python-version: "3.10"
-        - name: Cache Python dependencies
-          uses: actions/cache@v3
-          with:
-            path: ~/.cache/pip
-            key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-            restore-keys: |
-              ${{ runner.os }}-pip-
-        - name: Install dependencies
-          run: |
-            make install
-        - name: Rodando treinamento
-          run: |
-            cd ./codigos_rodando
-            pwd
-            python rodando_treinamento_selic.py
-            python rodando_treinamento_ipca.py
-            python rodando_treinamento_pib.py
-            python rodando_treinamento_producao_industrial.py
-            python rodando_treinamento_taxa_desocupacao.py
-          env:
-            FRED_API_KEY : ${{ secrets.FRED_API_KEY }}
-        - name: Avaliando modelos
-          run: |
-            cd ./codigos_rodando   
-            pwd
-            python rodando_avaliacao_modelo_selic.py
-            python rodando_avaliacao_modelo_ipca.py
-            python rodando_avaliacao_modelo_pib.py
-            python rodando_avaliacao_modelo_producao_industrial.py
-            python rodando_avaliacao_modelo_taxa_desocupacao.py
-        - name: Configure Git
-          run: |
-            git config --global user.email "sehnemjeferson@gmail.com"
-            git config --global user.name "Jeferson Sehnem"
-        - name: Commit and push changes
-          run: |
-            git add .
-            git commit -m "Treinando modelos em: $(date +'%Y-%m-%d')"
-            git push
-          env:
-            GITHUB_TOKEN: ${{ secrets.ACTIONS_PREDICOES }}
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        variavel:
+          - selic
+          - ipca
+          - pib
+          - taxa_desocupacao
+          - producao_industrial
+    steps:
+      - name: Copia os arquivos do repo
+        uses: actions/checkout@v4
+
+      - name: Instalar o Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Treinar ${{ matrix.variavel }}
+        run: python -m scripts.train --variable ${{ matrix.variavel }}
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+
+      - name: Guardar metricas
+        uses: actions/upload-artifact@v4
+        with:
+          name: metrics-${{ matrix.variavel }}
+          path: artefatos/metrics-${{ matrix.variavel }}.json
+
+  gate:
+    needs: train
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Copia os arquivos do repo
+        uses: actions/checkout@v4
+
+      - name: Instalar o Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Baixar metricas
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: artefatos
+          merge-multiple: true
+
+      - name: Rodar portoes
+        run: python -m scripts.gate
+
+      - name: Publicar resumo
+        if: always()
+        run: cat gate_resumo.md >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Copia os arquivos do repo
+        uses: actions/checkout@v4
+
+      - name: Baixar metricas
+        uses: actions/download-artifact@v4
+        with:
+          pattern: metrics-*
+          path: artefatos
+          merge-multiple: true
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase
+          git add artefatos/
+          if git diff --cached --quiet; then
+            echo "Sem mudancas nas previsoes."
+            exit 0
+          fi
+          git commit -m "Previsoes $(date +'%Y-%m-%d') [skip ci]"
+          git push

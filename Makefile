@@ -1,35 +1,31 @@
-install:
-	# Comando para atualizar pip e instalar dependências do arquivo requirements.txt
-	# pip install --user -r requirements.txt
-	pip install --upgrade pip && \
-		pip install -r requirements.txt
+PYTHON ?= python
 
-uv_install:
-	pip install uv && \
-	uv pip install --upgrade pip && \
-		uv pip install -r requirements.txt
+.PHONY: install install-dev format format-check lint test test-all
+
+install:
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install -r requirements.txt
+
+install-dev:
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install -r requirements.txt -r requirements-dev.txt
 
 format:
-	black economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py economic_brazil/treinamento/*.py economic_brazil/analisando_modelos/*.py tests/*.py
+	$(PYTHON) -m ruff format economic_brazil tests scripts
+	$(PYTHON) -m ruff check --fix economic_brazil tests scripts
 
-ruff_format:
-	ruff format economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py economic_brazil/treinamento/*.py economic_brazil/analisando_modelos/*.py tests/*.py
+format-check:
+	$(PYTHON) -m ruff format --check economic_brazil tests scripts
+	$(PYTHON) -m ruff check economic_brazil tests scripts
 
 lint:
-	pylint --disable=R,C economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py economic_brazil/treinamento/*.py economic_brazil/analisando_modelos/*.py tests/*.py
-
-ruff_lint:
-	ruff check economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py economic_brazil/treinamento/*.py economic_brazil/analisando_modelos/*.py tests/*.py
-
-typepyright:
-	pyright economic_brazil/coleta_dados/*.py economic_brazil/processando_dados/*.py economic_brazil/visualizacoes_graficas/*.py economic_brazil/treinamento/*.py economic_brazil/analisando_modelos/*.py tests/*.py
-
-typemypy:
-	mypy economic_brazil/coleta_dados/ economic_brazil/processando_dados/ economic_brazil/visualizacoes_graficas/ economic_brazil/treinamento/ economic_brazil/analisando_modelos/
+	$(PYTHON) -m pylint economic_brazil
 
 test:
-	python -m pytest -vv --cov=tests/test_*.py
+	$(PYTHON) -m pytest -m "not network and not slow" --timeout=120 \
+		--cov=economic_brazil --cov-report=term-missing
 
-refactor: format lint
+test-all:
+	$(PYTHON) -m pytest
 
-all: uv_install format lint typepyright typemypy ruff_format ruff_lint test
+all: format lint test
