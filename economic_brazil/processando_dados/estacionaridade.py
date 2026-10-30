@@ -14,6 +14,10 @@ warnings.filterwarnings("ignore")
 
 
 class Estacionaridade:
+    def __init__(self) -> None:
+        self.ndiffs_: Optional[pd.DataFrame] = None
+        self.valor_predicao_: Optional[str] = None
+
     def test_kpss_adf(self, dados: pd.DataFrame) -> pd.DataFrame:
         # https://www.statsmodels.org/dev/examples/notebooks/generated/stationarity_detrending_adf_kpss.html
         def kpss_test(timeseries: pd.Series) -> pd.Series:
@@ -151,7 +155,7 @@ class Estacionaridade:
 
     def transform(self, base: pd.DataFrame) -> pd.DataFrame:
         """Aplica as diferencas estimadas no treino, sem reajustar."""
-        if not hasattr(self, "ndiffs_"):
+        if self.ndiffs_ is None:
             raise RuntimeError("Chame Estacionaridade.ajustar() no treino antes de transformar")
         dados_est = base.copy()
         for coluna in self.ndiffs_[self.ndiffs_["Ndifis"] >= 1].index:

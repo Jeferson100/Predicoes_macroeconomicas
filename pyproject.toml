@@ -25,4 +25,6 @@ ignore-paths = ["^codigos_rodando/", "^dados/", "^tests/"]
 ignored-modules = ["keras", "keras.losses", "keras.models", "keras.optimizers"]
 
 [tool.pylint."messages control"]
-disable = ["R", "C"]
+# import-error fica desligado de proposito: o job de lint instala so ruff e
+# pylint, e quem valida imports de verdade e o job de testes (pytest).
+disable = ["R", "C", "import-error"]
