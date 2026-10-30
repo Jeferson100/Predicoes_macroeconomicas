@@ -1,13 +1,14 @@
 import sys
 
 sys.path.append("..")
+import numpy as np
+import pandas as pd
+import pytest
+
 from economic_brazil.processando_dados.divisao_treino_teste import (
     treino_test_dados,
     treino_teste_seies_temporal,
 )
-import pandas as pd
-import numpy as np
-import pytest
 
 
 @pytest.fixture
@@ -59,9 +60,7 @@ def test_treino_teste_seies_temporal(sample_data: pd.DataFrame) -> None:
     # Verifique o tamanho dos splits
     for train_index, test_index in splits:
         assert len(test_index) == 3, "O tamanho do conjunto de teste deve ser 3"
-        assert (
-            len(train_index) <= 15
-        ), "O tamanho do conjunto de treino deve ser no máximo 15"
+        assert len(train_index) <= 15, "O tamanho do conjunto de treino deve ser no máximo 15"
 
         # Verifique se há uma lacuna entre treino e teste
         assert (
@@ -69,9 +68,5 @@ def test_treino_teste_seies_temporal(sample_data: pd.DataFrame) -> None:
         ), "Deve haver uma lacuna de 2 dias entre treino e teste"
 
         # Verifique se os índices estão dentro do tamanho esperado dos dados
-        assert max(train_index) < len(
-            x_treino
-        ), "Índice de treino fora do intervalo dos dados"
-        assert max(test_index) < len(
-            x_treino
-        ), "Índice de teste fora do intervalo dos dados"
+        assert max(train_index) < len(x_treino), "Índice de treino fora do intervalo dos dados"
+        assert max(test_index) < len(x_treino), "Índice de teste fora do intervalo dos dados"

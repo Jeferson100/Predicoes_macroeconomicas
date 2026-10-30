@@ -1,10 +1,11 @@
 # import os modelos de regressao
-from sklearn.ensemble import GradientBoostingRegressor
-from xgboost import XGBRegressor
+from typing import Optional
+
+import pandas as pd
 from catboost import CatBoostRegressor
 from sklearn import linear_model
-import pandas as pd
-from typing import Optional
+from sklearn.ensemble import GradientBoostingRegressor
+from xgboost import XGBRegressor
 
 
 class TreinamentoModelos:
@@ -43,13 +44,9 @@ class TreinamentoModelos:
     def modelo_catboost(
         self, iterations: int = 2, learning_rate: float = 1, depth: int = 2
     ) -> CatBoostRegressor:
-        return CatBoostRegressor(
-            iterations=iterations, learning_rate=learning_rate, depth=depth
-        )
+        return CatBoostRegressor(iterations=iterations, learning_rate=learning_rate, depth=depth)
 
-    def modelo_regressao_linear(
-        self, copy_X: bool = True, n_jobs: Optional[int] = None
-    ):
+    def modelo_regressao_linear(self, copy_X: bool = True, n_jobs: Optional[int] = None):
         return linear_model.LinearRegression(copy_X=copy_X, n_jobs=n_jobs)
 
     def treinar_gradient_boosting(

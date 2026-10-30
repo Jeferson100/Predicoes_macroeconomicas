@@ -1,20 +1,21 @@
-from typing import Any, Dict
-from economic_brazil.treinamento.modelos_treinamento import TreinamentoModelos
-from economic_brazil.treinamento.redes_neurais_recorrentes import (
-    RnnModel,
-    HyperTurnerModel,
-)
-from economic_brazil.treinamento.arima_treinamento import Sarimax
-from economic_brazil.treinamento.treinamento_modelos_tuning import TimeSeriesModelTuner
-import joblib
 import pickle
-from xgboost import XGBRegressor
+from typing import Any, Dict, Optional
+
+import joblib
 from catboost import CatBoostRegressor
+from keras.losses import MeanSquaredError  # type: ignore
 
 # pylint: disable=E0401
 from keras.models import load_model  # type: ignore
-from keras.losses import MeanSquaredError  # type: ignore
-from typing import Optional
+from xgboost import XGBRegressor
+
+from economic_brazil.treinamento.arima_treinamento import Sarimax
+from economic_brazil.treinamento.modelos_treinamento import TreinamentoModelos
+from economic_brazil.treinamento.redes_neurais_recorrentes import (
+    HyperTurnerModel,
+    RnnModel,
+)
+from economic_brazil.treinamento.treinamento_modelos_tuning import TimeSeriesModelTuner
 
 # pylint: disable=E0401
 
@@ -149,9 +150,7 @@ class TreinandoModelos:
             print("Modelo Regressão Linear Treinado")
 
         if redes_neurais:
-            modelo_redes_neurais = self.redes_neurais(
-                redes_neurais_tuning=redes_neurais_tuning
-            )
+            modelo_redes_neurais = self.redes_neurais(redes_neurais_tuning=redes_neurais_tuning)
             resultados["redes_neurais"] = modelo_redes_neurais
             print("Modelo Redes Neurais Treinado")
 
@@ -280,9 +279,7 @@ class TreinandoModelos:
             resultados["cat_boost"].save_model(diretorio + "cat_boost_model.cbm")
 
         if regressao_linear:
-            joblib.dump(
-                resultados["regressao_linear"], diretorio + "regressao_linear_model.pkl"
-            )
+            joblib.dump(resultados["regressao_linear"], diretorio + "regressao_linear_model.pkl")
 
         if redes_neurais:
             resultados["redes_neurais"].save(diretorio + "redes_neurais_model.h5")
@@ -304,9 +301,7 @@ def carregar(
     resultados = {}
 
     if gradiente_boosting:
-        resultados["gradiente_boosting"] = joblib.load(
-            diretorio + "gradiente_boosting_model.pkl"
-        )
+        resultados["gradiente_boosting"] = joblib.load(diretorio + "gradiente_boosting_model.pkl")
 
     if xg_boost:
         resultados["xg_boost"] = XGBRegressor()
@@ -317,9 +312,7 @@ def carregar(
         resultados["cat_boost"].load_model(diretorio + "cat_boost_model.cbm")
 
     if regressao_linear:
-        resultados["regressao_linear"] = joblib.load(
-            diretorio + "regressao_linear_model.pkl"
-        )
+        resultados["regressao_linear"] = joblib.load(diretorio + "regressao_linear_model.pkl")
 
     if redes_neurais:
         resultados["redes_neurais"] = load_model(

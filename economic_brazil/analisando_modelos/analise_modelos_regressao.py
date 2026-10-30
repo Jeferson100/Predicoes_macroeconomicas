@@ -1,11 +1,13 @@
+from typing import Any, Optional
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import plotly.graph_objects as go
 import plotly.io as pio
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
 from economic_brazil.treinamento.redes_neurais_recorrentes import RnnModel
-from typing import Optional, Any
 
 
 class MetricasModelos:
@@ -111,9 +113,7 @@ class MetricasModelos:
 
         # Adiciona um traço para cada coluna no DataFrame
         for coluna in dados.columns:
-            fig.add_trace(
-                go.Scatter(x=dados.index, y=dados[coluna], mode=model, name=coluna)
-            )
+            fig.add_trace(go.Scatter(x=dados.index, y=dados[coluna], mode=model, name=coluna))
 
         # Adiciona títulos e ajusta o layout
         fig.update_layout(
@@ -178,26 +178,20 @@ class PredicaosModelos:
         if predicao_futuro:
             predicao_futuro = {}
             if gradiente_boosting:
-                predicao_futuro["gradiente_boosting"] = self.modelos[
-                    "gradiente_boosting"
-                ].predict(dados_predicao)
+                predicao_futuro["gradiente_boosting"] = self.modelos["gradiente_boosting"].predict(
+                    dados_predicao
+                )
             if xg_boost:
-                predicao_futuro["xg_boost"] = self.modelos["xg_boost"].predict(
-                    dados_predicao
-                )
+                predicao_futuro["xg_boost"] = self.modelos["xg_boost"].predict(dados_predicao)
             if cat_boost:
-                predicao_futuro["cat_boost"] = self.modelos["cat_boost"].predict(
+                predicao_futuro["cat_boost"] = self.modelos["cat_boost"].predict(dados_predicao)
+            if regressao_linear:
+                predicao_futuro["regressao_linear"] = self.modelos["regressao_linear"].predict(
                     dados_predicao
                 )
-            if regressao_linear:
-                predicao_futuro["regressao_linear"] = self.modelos[
-                    "regressao_linear"
-                ].predict(dados_predicao)
             if redes_neurais:
                 predicao_futuro["redes_neurais"] = (
-                    self.modelos["redes_neurais"]
-                    .predict(dados_predicao_recorrente)
-                    .squeeze()
+                    self.modelos["redes_neurais"].predict(dados_predicao_recorrente).squeeze()
                 )
             if sarimax:
                 if dados_predicao is not None:
@@ -211,43 +205,31 @@ class PredicaosModelos:
             predicoes_treino = {}
             predicoes_teste = {}
             if gradiente_boosting:
-                predicoes_treino["gradiente_boosting"] = self.modelos[
-                    "gradiente_boosting"
-                ].predict(self.x_treino)
-                predicoes_teste["gradiente_boosting"] = self.modelos[
-                    "gradiente_boosting"
-                ].predict(self.x_teste)
+                predicoes_treino["gradiente_boosting"] = self.modelos["gradiente_boosting"].predict(
+                    self.x_treino
+                )
+                predicoes_teste["gradiente_boosting"] = self.modelos["gradiente_boosting"].predict(
+                    self.x_teste
+                )
             if xg_boost:
-                predicoes_treino["xg_boost"] = self.modelos["xg_boost"].predict(
-                    self.x_treino
-                )
-                predicoes_teste["xg_boost"] = self.modelos["xg_boost"].predict(
-                    self.x_teste
-                )
+                predicoes_treino["xg_boost"] = self.modelos["xg_boost"].predict(self.x_treino)
+                predicoes_teste["xg_boost"] = self.modelos["xg_boost"].predict(self.x_teste)
             if cat_boost:
-                predicoes_treino["cat_boost"] = self.modelos["cat_boost"].predict(
+                predicoes_treino["cat_boost"] = self.modelos["cat_boost"].predict(self.x_treino)
+                predicoes_teste["cat_boost"] = self.modelos["cat_boost"].predict(self.x_teste)
+            if regressao_linear:
+                predicoes_treino["regressao_linear"] = self.modelos["regressao_linear"].predict(
                     self.x_treino
                 )
-                predicoes_teste["cat_boost"] = self.modelos["cat_boost"].predict(
+                predicoes_teste["regressao_linear"] = self.modelos["regressao_linear"].predict(
                     self.x_teste
                 )
-            if regressao_linear:
-                predicoes_treino["regressao_linear"] = self.modelos[
-                    "regressao_linear"
-                ].predict(self.x_treino)
-                predicoes_teste["regressao_linear"] = self.modelos[
-                    "regressao_linear"
-                ].predict(self.x_teste)
             if redes_neurais:
                 predicoes_treino["redes_neurais"] = (
-                    self.modelos["redes_neurais"]
-                    .predict(self.x_treino_recorrente)
-                    .squeeze()
+                    self.modelos["redes_neurais"].predict(self.x_treino_recorrente).squeeze()
                 )
                 predicoes_teste["redes_neurais"] = (
-                    self.modelos["redes_neurais"]
-                    .predict(self.x_teste_recorrente)
-                    .squeeze()
+                    self.modelos["redes_neurais"].predict(self.x_teste_recorrente).squeeze()
                 )
             if sarimax:
                 predicoes_treino["sarimax"] = self.modelos["sarimax"].predict(
@@ -287,9 +269,7 @@ class MetricasModelosDicionario:
                         y_recorrente, predicoes[k], k, dados=resultados
                     )
                 else:
-                    resultados = metricas.evaluate_regression(
-                        y, predicoes[k], k, dados=resultados
-                    )
+                    resultados = metricas.evaluate_regression(y, predicoes[k], k, dados=resultados)
             inte = inte + 1
         if resultados is not None:
             resultados = resultados.sort_values(by="MAE")
@@ -481,8 +461,7 @@ class MetricasModelosDicionario:
             xaxis_title=xlabel,
             yaxis_title=ylabel,
             autosize=False,
-            width=figsize[0]
-            * 100,  # Multiplicando por 100 para converter polegadas para pixels
+            width=figsize[0] * 100,  # Multiplicando por 100 para converter polegadas para pixels
             height=figsize[1] * 100,
             template="plotly_white" if grid else None,
         )

@@ -1,18 +1,24 @@
-import pandas as pd
-from bcb import sgs
-import sidrapy
-from bcb import Expectativas
-import ipeadatapy as ip
-from pytrends.request import TrendReq
-import time
 import random
+import time
 import warnings
 from datetime import date
-from typing import List, Dict, Optional, Any
-import quandl
+from typing import Any, Dict, List, Optional
 
+import ipeadatapy as ip
+import pandas as pd
+import quandl
+import sidrapy
+from bcb import Expectativas, sgs
+from pytrends.request import TrendReq
 
 # Dados BCB
+# As APIs do BCB, IBGE, FRED e Google Trends falham de formas heterogeneas
+# (HTTP 403, corpo HTML no lugar de JSON, timeout, 429). Cada fonte tem retry
+# proprio e devolve DataFrame vazio para nao derrubar as demais, por isso a
+# captura ampla de Exception aqui e proposital.
+# pylint: disable=broad-exception-caught
+
+
 SELIC_CODES = {
     "selic": 4189,
     "IPCA-EX2": 27838,
@@ -63,9 +69,7 @@ def _safe_sidrapy_get_table(
                 return pd.DataFrame()
             return result
         except Exception as exc:
-            print(
-                f"Tentativa {attempt}/{retries} falhou ao buscar dados IBGE: {exc}"
-            )
+            print(f"Tentativa {attempt}/{retries} falhou ao buscar dados IBGE: {exc}")
             if attempt == retries:
                 print(
                     "Não foi possível conectar ao IBGE após múltiplas tentativas. "
@@ -93,10 +97,7 @@ def _safe_sgs_get(
         try:
             result = sgs.get(codigos_banco_central, start=data_inicio)
             if not isinstance(result, pd.DataFrame):
-                print(
-                    "Erro: sgs.get() não retornou um DataFrame. "
-                    "Retornando DataFrame vazio."
-                )
+                print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
                 return pd.DataFrame()
             if result.empty:
                 raise ValueError("sgs.get retornou DataFrame vazio")
@@ -110,7 +111,7 @@ def _safe_sgs_get(
             if attempt == retries:
                 print(
                     "Não foi possível obter a série BCB após múltiplas "
-                    "tentativas. Retornando DataFrame vazio."
+                    f"tentativas (último erro: {last_exc}). Retornando DataFrame vazio."
                 )
                 return pd.DataFrame()
             time.sleep(delay * attempt + random.uniform(0, 1))
@@ -180,8 +181,7 @@ def dados_ibge_link(
     # DEPRECATED: mantido por compatibilidade. O endpoint geratabela retorna
     # HTTP 403 para downloads diretos. Prefira dados_ibge_sidra().
     warnings.warn(
-        "dados_ibge_link() está depreciado (geratabela retorna 403). "
-        "Use dados_ibge_sidra().",
+        "dados_ibge_link() está depreciado (geratabela retorna 403). Use dados_ibge_sidra().",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -225,14 +225,10 @@ def dados_expectativas_focus(
     return ipca_expec
 
 
-def dados_ipeadata(
-    codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01"
-) -> pd.DataFrame:
+def dados_ipeadata(codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01") -> pd.DataFrame:
     dados_ipea = ip.timeseries(codigo, yearGreaterThan=int(data[0:4]) - 1)
     if not isinstance(dados_ipea, pd.DataFrame):
-        print(
-            "Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio."
-        )
+        print("Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
     return dados_ipea
 
@@ -261,9 +257,7 @@ def coleta_google_trends(
     # Fazendo a pesquisa para cada período de 5 anos
     data = pd.DataFrame()
     for i in range(len(periods) - 1):
-        timeframe = (
-            f"{periods[i].strftime('%Y-%m-%d')} {periods[i+1].strftime('%Y-%m-%d')}"
-        )
+        timeframe = f"{periods[i].strftime('%Y-%m-%d')} {periods[i+1].strftime('%Y-%m-%d')}"
         pytrends.build_payload(kw_list, timeframe=timeframe)
         temp_data = pytrends.interest_over_time()
         data = pd.concat([data, temp_data])

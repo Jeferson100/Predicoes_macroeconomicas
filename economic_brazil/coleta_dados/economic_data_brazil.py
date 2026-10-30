@@ -1,29 +1,35 @@
 #!/usr/bin/env python
+import os
+import pickle
 import sys
 import time
-import pandas as pd
-from datetime import datetime
 import warnings
-import pickle
-import os
+from datetime import datetime
+from typing import Dict, List, Optional, cast
+
+import pandas as pd
 from dotenv import load_dotenv
+from fredapi import Fred
+from pytrends.exceptions import TooManyRequestsError
+
+from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
 
 # sys.path.append("..")
 from ..coleta_dados.tratando_economic_brazil import (
     tratando_dados_bcb,
     tratando_dados_expectativas,
+    tratando_dados_google_trends,
+    tratando_dados_ibge_codigos,
     tratando_dados_ibge_link,
     tratando_dados_ibge_sidra,
-    tratando_dados_ibge_codigos,
     tratatando_dados_ipeadata,
-    tratando_dados_google_trends,
-    tratando_dados_ibge_link_producao_agricola,
-    tratando_dados_ibge_link_colum_brazil,
 )
-from fredapi import Fred
-from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
-from pytrends.exceptions import TooManyRequestsError
-from typing import List, Dict, Optional, cast
+
+# As APIs do BCB, IBGE, FRED e Google Trends falham de formas heterogeneas
+# (HTTP 403, corpo HTML no lugar de JSON, timeout, 429). Cada fonte tem retry
+# proprio e devolve DataFrame vazio para nao derrubar as demais, por isso a
+# captura ampla de Exception aqui e proposital.
+# pylint: disable=broad-exception-caught
 
 warnings.filterwarnings("ignore")
 
@@ -185,26 +191,18 @@ class EconomicBrazil:
         lista_termos_google_trends: Optional[List[str]] = None,
         data_inicio=None,
     ) -> None:
-        self.codigos_banco_central = (
-            codigos_banco_central or variaveis_banco_central_padrao
-        )
+        self.codigos_banco_central = codigos_banco_central or variaveis_banco_central_padrao
         self.codigos_ibge = codigos_ibge or variaveis_ibge_padrao
         self.codigos_ibge_link = codigos_ibge_link or indicadores_ibge_link_padrao
         self.codigos_ipeadata = codigos_ipeadata or codigos_ipeadata_padrao
-        self.lista_termos_google_trends = (
-            lista_termos_google_trends or lista_google_trends_padrao
-        )
+        self.lista_termos_google_trends = lista_termos_google_trends or lista_google_trends_padrao
         self.codigos_fred = codigos_fred or codigos_fred_padrao
         self.data_inicio = data_inicio or DATA_INICIO
 
-    def fetch_data_for_code(
-        self, params: Dict[str, object], column: str
-    ) -> pd.DataFrame:
+    def fetch_data_for_code(self, params: Dict[str, object], column: str) -> pd.DataFrame:
         # Compat: se receber URL antiga (str), usa o caminho depreciado geratabela.
         if isinstance(params, str):
-            return cast(
-                pd.DataFrame, tratando_dados_ibge_link(coluna=column, link=params)
-            )
+            return cast(pd.DataFrame, tratando_dados_ibge_link(coluna=column, link=params))
         return cast(
             pd.DataFrame,
             tratando_dados_ibge_sidra(coluna=column, params=params),  # type: ignore[arg-type]
@@ -250,9 +248,7 @@ class EconomicBrazil:
         formato: str = "csv",
     ) -> pd.DataFrame:
         dic_expectativas_inflacao = self.data_index()
-        dic_expectativas_inflacao = dic_expectativas_inflacao.join(
-            tratando_dados_expectativas()
-        )
+        dic_expectativas_inflacao = dic_expectativas_inflacao.join(tratando_dados_expectativas())
         if "Mediana" in dic_expectativas_inflacao.columns:
             dic_expectativas_inflacao.rename(
                 columns={"Mediana": "ipca_expectativa_focus"}, inplace=True
@@ -327,10 +323,7 @@ class EconomicBrazil:
                     f"Erro na coleta da variavel {codigo}. Verifique se o codigo esta ativo: http://www.ipeadata.gov.br/Default.aspx"
                 )
         try:
-            if (
-                "caged_antigo" in dic_ipeadata.columns
-                and "caged_novo" in dic_ipeadata.columns
-            ):
+            if "caged_antigo" in dic_ipeadata.columns and "caged_novo" in dic_ipeadata.columns:
                 dic_ipeadata["caged_junto"] = pd.concat(
                     [
                         dic_ipeadata.caged_antigo.dropna(),
@@ -370,9 +363,7 @@ class EconomicBrazil:
                     f"Erro na coleta da variavel {termo}. Verifique se o termo esta ativo: https://trends.google.com/trends/explore?hl=pt-BR"
                 )
             except TooManyRequestsError:
-                print(
-                    f"Too many requests error for {termo}. Skipping this term for now."
-                )
+                print(f"Too many requests error for {termo}. Skipping this term for now.")
 
         if salvar:
             self.salvar_dados(dic_google_trends, diretorio, formato)
@@ -428,7 +419,6 @@ class EconomicBrazil:
         diretorio: Optional[str] = None,
         formato: str = "csv",
     ) -> pd.DataFrame:
-
         dados = self.data_index()
         if dados_bcb:
             dados = dados.join(self.dados_banco_central())

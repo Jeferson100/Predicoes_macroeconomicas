@@ -1,8 +1,9 @@
-from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
-from skopt import BayesSearchCV
+from typing import Any, Union
+
 import numpy as np
-from typing import Union, Any
 from sklearn.base import BaseEstimator
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, TimeSeriesSplit
+from skopt import BayesSearchCV
 
 
 class TimeSeriesModelTuner:
@@ -27,9 +28,7 @@ class TimeSeriesModelTuner:
         )
 
     def grid_search(self, param_grid, scoring="neg_mean_absolute_percentage_error"):
-        grid_search = GridSearchCV(
-            self.model, param_grid, cv=self.tscv, scoring=scoring
-        )
+        grid_search = GridSearchCV(self.model, param_grid, cv=self.tscv, scoring=scoring)
         grid_search.fit(self.X_train, self.y_train)
         print(
             "Best Grid Search Params:",
@@ -61,9 +60,7 @@ class TimeSeriesModelTuner:
         )
         return random_search.best_params_, random_search.best_score_
 
-    def bayesian_optimization(
-        self, search_spaces, n_iter=32, scoring="neg_mean_absolute_error"
-    ):
+    def bayesian_optimization(self, search_spaces, n_iter=32, scoring="neg_mean_absolute_error"):
         bayes_search = BayesSearchCV(
             self.model, search_spaces, n_iter=n_iter, cv=self.tscv, scoring=scoring
         )

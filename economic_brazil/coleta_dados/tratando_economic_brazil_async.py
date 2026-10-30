@@ -2,24 +2,27 @@ import sys
 import warnings
 
 sys.path.append("..")
-from .coleta_economic_brazil_async import (
-    dados_bcb_async,
-    dados_ibge_link_async,
-    dados_ibge_codigos_async,
-    dados_ibge_sidra_async,
-    dados_expectativas_focus_async,
-    dados_ipeadata_async,
-    coleta_google_trends_async,
-)
-from .tratando_economic_brazil import _parse_sidra_para_mensal
-import pandas as pd
-import numpy as np
-from datetime import datetime, date
-import requests
-from io import BytesIO
-from typing import Optional, Dict, List, Any
 import asyncio
 import time
+from datetime import date, datetime
+from io import BytesIO
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
+import requests
+
+from .coleta_economic_brazil_async import (
+    coleta_google_trends_async,
+    dados_bcb_async,
+    dados_expectativas_focus_async,
+    dados_ibge_codigos_async,
+    dados_ibge_link_async,
+    dados_ibge_sidra_async,
+    dados_ipeadata_async,
+)
+from .tratando_economic_brazil import _parse_sidra_para_mensal
+
 
 # Tratando dados IBGE/SIDRAPY
 def trimestral_para_mensal(df: pd.DataFrame) -> pd.DataFrame:
@@ -59,9 +62,7 @@ def trimestre_string_int(dados: pd.DataFrame) -> list:
         if trimestre_int * 3 == 12:
             lista_trimestre.append(dados.index[i][-4:] + "-" + str(trimestre_int * 3))
         else:
-            lista_trimestre.append(
-                dados.index[i][-4:] + "-" + "0" + str(trimestre_int * 3)
-            )
+            lista_trimestre.append(dados.index[i][-4:] + "-" + "0" + str(trimestre_int * 3))
     return lista_trimestre
 
 
@@ -144,9 +145,7 @@ async def tratando_dados_ibge_codigos_async(
             converter_mes_para_data
         )
     else:
-        ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(
-            converter_mes_para_data
-        )
+        ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(converter_mes_para_data)
     ibge_codigos.index = ibge_codigos["data"]  # type:ignore
     try:
         ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
@@ -197,7 +196,6 @@ async def tratando_dados_ibge_link_async(
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
     if ibge_link.index.str.contains("trimestre").any():
-
         ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
 
         ibge_link = ibge_link.resample("MS").ffill()
@@ -276,9 +274,7 @@ async def tratando_dados_bcb_async(
     if not isinstance(codigo_bcb_tratado, dict):
         print("Código BCB deve ser um dicionário. Usando valor padrão.")
         codigo_bcb_tratado = selic
-    inflacao_bcb = await dados_bcb_async(
-        codigo_bcb_tratado, data_inicio_tratada, **kwargs
-    )
+    inflacao_bcb = await dados_bcb_async(codigo_bcb_tratado, data_inicio_tratada, **kwargs)
     if salvar:
         if diretorio is None:
             raise ValueError("Diretório não especificado para salvar o arquivo")
@@ -370,9 +366,7 @@ async def tratando_dados_ibge_link_producao_agricola_async(
     dados = dados[[1]]
     data = pd.DataFrame()
     data = dados.iloc[::2, :]
-    data.loc[:, nome_coluna] = dados[
-        dados.index.str.contains("Unnamed")
-    ].values.squeeze()
+    data.loc[:, nome_coluna] = dados[dados.index.str.contains("Unnamed")].values.squeeze()
     data = transforme_data(data)
     data = data[[nome_coluna]]
     data.index = pd.to_datetime(data.index)
@@ -400,7 +394,6 @@ async def tratando_dados_ibge_link_colum_brazil_async(
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
     if ibge_link.index.str.contains("trimestre").any():
-
         ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
 
         # ibge_link.index = pd.to_datetime(
@@ -423,7 +416,6 @@ async def tratando_dados_ibge_link_colum_brazil_async(
 
 
 async def read_indice_abcr_async() -> pd.DataFrame | None:
-
     url = "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
 
     # Cabeçalhos para simular um navegador
@@ -468,7 +460,7 @@ async def sondagem_industria_async(sheet: str, variable: str) -> pd.DataFrame:
     df.columns = [variable]
     lista = []
     for i in df.index:
-        if type(i) == str:
+        if isinstance(i, str):
             b = np.where(
                 i[0:3] == "jan",
                 "01",
@@ -540,9 +532,7 @@ if __name__ == "__main__":
         "variable": "63",
     }
     loop = asyncio.get_event_loop()
-    dados_ibge = loop.run_until_complete(
-        tratando_dados_ibge_codigos_async(codigos=ibge_codigo)
-    )
+    dados_ibge = loop.run_until_complete(tratando_dados_ibge_codigos_async(codigos=ibge_codigo))
     print(dados_ibge)
     print("Tratando dados IBGE com link")
     loop = asyncio.get_event_loop()
@@ -553,9 +543,7 @@ if __name__ == "__main__":
         "selic": 4189,
     }
     loop = asyncio.get_event_loop()
-    dados_bcb = loop.run_until_complete(
-        tratando_dados_bcb_async(codigo_bcb_tratado=selic)
-    )
+    dados_bcb = loop.run_until_complete(tratando_dados_bcb_async(codigo_bcb_tratado=selic))
     print(dados_bcb)
 
     print("Tratando dados Expectativas")
@@ -574,9 +562,7 @@ if __name__ == "__main__":
     print("Tratando dados ibge link coluna")
 
     loop = asyncio.get_event_loop()
-    dados_producao_agricola = loop.run_until_complete(
-        tratando_dados_ibge_link_colum_brazil_async()
-    )
+    dados_producao_agricola = loop.run_until_complete(tratando_dados_ibge_link_colum_brazil_async())
     print(dados_producao_agricola)
 
     print("*" * 100)

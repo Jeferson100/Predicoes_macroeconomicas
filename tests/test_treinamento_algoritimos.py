@@ -1,9 +1,12 @@
-import pytest
 import numpy as np
+import pytest
+
 from economic_brazil.treinamento.treinamento_algoritimos import (
     TreinandoModelos,
     carregar,
 )
+
+pytestmark = pytest.mark.slow
 
 
 @pytest.fixture

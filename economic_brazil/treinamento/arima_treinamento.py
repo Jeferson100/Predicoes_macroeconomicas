@@ -1,17 +1,16 @@
+from typing import Optional
+
+import numpy as np
 import pandas as pd
 import statsmodels.tsa.api as tsa
-from statsmodels.tsa.statespace.sarimax import SARIMAX, SARIMAXResults
-from statsmodels.tsa.arima.model import ARIMAResults
-import numpy as np
 from numpy.linalg import LinAlgError
 from sklearn.metrics import mean_squared_error
-from typing import Optional
+from statsmodels.tsa.arima.model import ARIMAResults
+from statsmodels.tsa.statespace.sarimax import SARIMAX, SARIMAXResults
 
 
 class Arima:
-    def treinar_arima(
-        self, dados: pd.DataFrame, p: int = 1, n: int = 0, q: int = 1
-    ) -> tsa.ARIMA:
+    def treinar_arima(self, dados: pd.DataFrame, p: int = 1, n: int = 0, q: int = 1) -> tsa.ARIMA:
         model = tsa.ARIMA(dados, order=(p, n, q))
         model_fit = model.fit()
         print(model_fit.summary())
@@ -61,9 +60,7 @@ class Arima:
                     .dropna()
                 )
 
-                rmse = np.sqrt(
-                    mean_squared_error(y_true=result.y_true, y_pred=result.y_pred)
-                )
+                rmse = np.sqrt(mean_squared_error(y_true=result.y_true, y_pred=result.y_pred))
 
                 results[(p, q)] = [
                     rmse,
@@ -81,9 +78,7 @@ class Arima:
                     "stationarity",
                 ]
                 arma_results.index.names = ["p", "q"]
-                rank_arima = (
-                    arma_results.rank().loc[:, ["RMSE", "BIC"]].mean(1).nsmallest(5)
-                )
+                rank_arima = arma_results.rank().loc[:, ["RMSE", "BIC"]].mean(1).nsmallest(5)
                 valor_p = rank_arima.index[0][0]
                 valor_q = rank_arima.index[0][1]
 
@@ -129,13 +124,11 @@ class Sarimax:
                     train_set = x[T - train_size : T]
                     y_true_set = y[T - train_size : T]
 
-                    model = SARIMAX(
-                        endog=y_true_set, exog=train_set, order=(p, 0, q)
-                    ).fit(disp=False)
+                    model = SARIMAX(endog=y_true_set, exog=train_set, order=(p, 0, q)).fit(
+                        disp=False
+                    )
                     if isinstance(model, SARIMAXResults):
-                        forecast = model.predict(
-                            start=0, end=y_true.shape[0], exog=train_set
-                        )
+                        forecast = model.predict(start=0, end=y_true.shape[0], exog=train_set)
                         y_pred.append(forecast[0])
                         aic.append(model.aic)
                         bic.append(model.bic)
@@ -150,9 +143,7 @@ class Sarimax:
                     .dropna()
                 )
 
-                rmse = np.sqrt(
-                    mean_squared_error(y_true=result.y_true, y_pred=result.y_pred)
-                )
+                rmse = np.sqrt(mean_squared_error(y_true=result.y_true, y_pred=result.y_pred))
 
                 results[(p, q)] = [
                     rmse,
@@ -170,9 +161,7 @@ class Sarimax:
                     "stationarity",
                 ]
                 arma_results.index.names = ["p", "q"]
-                rank_arima = (
-                    arma_results.rank().loc[:, ["RMSE", "BIC"]].mean(1).nsmallest(5)
-                )
+                rank_arima = arma_results.rank().loc[:, ["RMSE", "BIC"]].mean(1).nsmallest(5)
                 valor_p = rank_arima.index[0][0]
                 valor_q = rank_arima.index[0][1]
             print("p = ", valor_p, "q = ", valor_q)

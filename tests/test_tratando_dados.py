@@ -1,12 +1,15 @@
 import sys
 
 sys.path.append("..")
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from economic_brazil.processando_dados.tratando_dados import TratandoDados
-from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
-import pytest
 import pandas as pd
+import pytest
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
+from economic_brazil.processando_dados.tratando_dados import TratandoDados
+
+pytestmark = pytest.mark.network
 
 
 @pytest.fixture
@@ -81,9 +84,7 @@ def test_tratando_datas(sample_data: pd.DataFrame) -> None:
 
 
 def test_tratando_defasagens(sample_data: pd.DataFrame) -> None:
-    data_processor = TratandoDados(
-        sample_data, data_divisao="2020-05-31", numero_defasagens=4
-    )
+    data_processor = TratandoDados(sample_data, data_divisao="2020-05-31", numero_defasagens=4)
     dados_defas = data_processor.tratando_defasagens(sample_data)
     assert len(dados_defas.columns) > len(sample_data.columns)
 

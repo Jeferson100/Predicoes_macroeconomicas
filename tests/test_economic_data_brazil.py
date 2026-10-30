@@ -1,7 +1,12 @@
-import pytest
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
+
 import pandas as pd
+import pytest
+
 from economic_brazil.coleta_dados.economic_data_brazil import EconomicBrazil
+
+pytestmark = pytest.mark.network
+
 
 # pylint: disable=W0621
 @pytest.fixture

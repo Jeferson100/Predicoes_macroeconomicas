@@ -12,8 +12,8 @@ def test_imports_economic_brazil() -> None:
 def test_data_processing() -> None:
     # pylint: disable=unused-import
     from economic_brazil import (
-        criando_dummy_covid,
         criando_defasagens,
+        criando_dummy_covid,
         criando_mes_ano_dia,
         escalando_dados,
     )
@@ -92,8 +92,8 @@ def test_importancia_caracteristicas():
 def test_regressao_conformal() -> None:
     # pylint: disable=unused-import
     from economic_brazil.analisando_modelos.regressao_conformal import (
-        ConformalRegressionPlotter,
         ConformalAvaliandoMetodo,
+        ConformalRegressionPlotter,
     )
 
     # pylint: disable=unused-import
@@ -102,8 +102,8 @@ def test_regressao_conformal() -> None:
 def test_treinamento_algoritmos() -> None:
     # pylint: disable=unused-import
     from economic_brazil.treinamento.treinamento_algoritimos import (
-        carregar,
         TreinandoModelos,
+        carregar,
     )
 
     # pylint: disable=unused-import

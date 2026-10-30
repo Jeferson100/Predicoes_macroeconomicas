@@ -1,17 +1,24 @@
-import pandas as pd
-from bcb import sgs
-import sidrapy
-from bcb import Expectativas
-import ipeadatapy as ip
-from pytrends.request import TrendReq
-import time
+import asyncio
 import random
+import time
 import warnings
 from datetime import date
-from typing import List, Dict, Optional, Any
-import asyncio
+from typing import Any, Dict, List, Optional
+
+import ipeadatapy as ip
+import pandas as pd
+import sidrapy
+from bcb import Expectativas, sgs
+from pytrends.request import TrendReq
 
 # Dados BCB
+# As APIs do BCB, IBGE, FRED e Google Trends falham de formas heterogeneas
+# (HTTP 403, corpo HTML no lugar de JSON, timeout, 429). Cada fonte tem retry
+# proprio e devolve DataFrame vazio para nao derrubar as demais, por isso a
+# captura ampla de Exception aqui e proposital.
+# pylint: disable=broad-exception-caught
+
+
 SELIC_CODES = {
     "selic": 4189,
     "IPCA-EX2": 27838,
@@ -34,14 +41,9 @@ async def _safe_sgs_get_async(
 ) -> pd.DataFrame:
     for attempt in range(1, retries + 1):
         try:
-            result = await asyncio.to_thread(
-                sgs.get, codigos_banco_central, start=data_inicio
-            )
+            result = await asyncio.to_thread(sgs.get, codigos_banco_central, start=data_inicio)
             if not isinstance(result, pd.DataFrame):
-                print(
-                    "Erro: sgs.get() não retornou um DataFrame. "
-                    "Retornando DataFrame vazio."
-                )
+                print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
                 return pd.DataFrame()
             if result.empty:
                 raise ValueError("sgs.get retornou DataFrame vazio")
@@ -70,9 +72,7 @@ async def dados_bcb_async(
     dados = pd.DataFrame()
     if codigos_banco_central is None:
         codigos_banco_central = SELIC_CODES
-    dados = await _safe_sgs_get_async(
-        codigos_banco_central, data_inicio, retries, delay
-    )
+    dados = await _safe_sgs_get_async(codigos_banco_central, data_inicio, retries, delay)
     if not isinstance(dados, pd.DataFrame):
         print("Erro: sgs.get() não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
@@ -118,9 +118,7 @@ async def _safe_sidrapy_get_table_async(
                 return pd.DataFrame()
             return result
         except Exception as exc:
-            print(
-                f"Tentativa {attempt}/{retries} falhou ao buscar dados IBGE: {exc}"
-            )
+            print(f"Tentativa {attempt}/{retries} falhou ao buscar dados IBGE: {exc}")
             if attempt == retries:
                 print(
                     "Não foi possível conectar ao IBGE após múltiplas tentativas. "
@@ -229,13 +227,9 @@ async def dados_expectativas_focus_async(
 async def dados_ipeadata_async(
     codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01"
 ) -> pd.DataFrame:
-    dados_ipea = await asyncio.to_thread(
-        ip.timeseries, codigo, yearGreaterThan=int(data[0:4]) - 1
-    )
+    dados_ipea = await asyncio.to_thread(ip.timeseries, codigo, yearGreaterThan=int(data[0:4]) - 1)
     if not isinstance(dados_ipea, pd.DataFrame):
-        print(
-            "Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio."
-        )
+        print("Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio.")
         return pd.DataFrame()
     return dados_ipea
 
@@ -275,9 +269,7 @@ async def coleta_google_trends_async(
     # Fazendo a pesquisa para cada período de 5 anos
     data = pd.DataFrame()
     for i in range(len(periods) - 1):
-        timeframe = (
-            f"{periods[i].strftime('%Y-%m-%d')} {periods[i+1].strftime('%Y-%m-%d')}"
-        )
+        timeframe = f"{periods[i].strftime('%Y-%m-%d')} {periods[i+1].strftime('%Y-%m-%d')}"
 
         # Executa a construção do payload e coleta de dados em um thread separado
         await asyncio.to_thread(pytrends.build_payload, kw_list, timeframe=timeframe)

@@ -1,31 +1,35 @@
-import sys
-import pandas as pd
-from datetime import datetime
-import warnings
-import pickle
-import os
-from dotenv import load_dotenv
-import time
 import asyncio
-import requests
+import os
+import pickle
+import sys
+import time
+import warnings
+from datetime import datetime
+from typing import Dict, List, Optional
 
+import pandas as pd
+from dotenv import load_dotenv
+from fredapi import Fred
+from pytrends.exceptions import TooManyRequestsError
+
+from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
 
 # sys.path.append("..")
 from ..coleta_dados.tratando_economic_brazil_async import (
     tratando_dados_bcb_async,
     tratando_dados_expectativas_async,
+    tratando_dados_google_trends_async,
+    tratando_dados_ibge_codigos_async,
     tratando_dados_ibge_link_async,
     tratando_dados_ibge_sidra_async,
-    tratando_dados_ibge_codigos_async,
     tratatando_dados_ipeadata_async,
-    tratando_dados_google_trends_async,
-    tratando_dados_ibge_link_producao_agricola_async,
-    tratando_dados_ibge_link_colum_brazil_async,
 )
-from fredapi import Fred
-from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
-from pytrends.exceptions import TooManyRequestsError
-from typing import List, Dict, Optional
+
+# As APIs do BCB, IBGE, FRED e Google Trends falham de formas heterogeneas
+# (HTTP 403, corpo HTML no lugar de JSON, timeout, 429). Cada fonte tem retry
+# proprio e devolve DataFrame vazio para nao derrubar as demais, por isso a
+# captura ampla de Exception aqui e proposital.
+# pylint: disable=broad-exception-caught
 
 warnings.filterwarnings("ignore")
 
@@ -187,15 +191,11 @@ class EconomicBrazilAsync:
         lista_termos_google_trends: Optional[List[str]] = None,
         data_inicio=None,
     ) -> None:
-        self.codigos_banco_central = (
-            codigos_banco_central or variaveis_banco_central_padrao
-        )
+        self.codigos_banco_central = codigos_banco_central or variaveis_banco_central_padrao
         self.codigos_ibge = codigos_ibge or variaveis_ibge_padrao
         self.codigos_ibge_link = codigos_ibge_link or indicadores_ibge_link_padrao
         self.codigos_ipeadata = codigos_ipeadata or codigos_ipeadata_padrao
-        self.lista_termos_google_trends = (
-            lista_termos_google_trends or lista_google_trends_padrao
-        )
+        self.lista_termos_google_trends = lista_termos_google_trends or lista_google_trends_padrao
         self.codigos_fred = codigos_fred or codigos_fred_padrao
         self.data_inicio = data_inicio or DATA_INICIO
 
@@ -220,7 +220,6 @@ class EconomicBrazilAsync:
         inter_delay: float = 1.5,
         max_concurrent: int = 3,
     ) -> pd.DataFrame:
-
         dados = pd.DataFrame()
         sem = asyncio.Semaphore(max_concurrent)
 
@@ -237,9 +236,7 @@ class EconomicBrazilAsync:
 
                     # Converte para numérico de forma assíncrona, se necessário
                     if coluna.dtype == "object":
-                        coluna = await asyncio.to_thread(
-                            pd.to_numeric, coluna, errors="coerce"
-                        )
+                        coluna = await asyncio.to_thread(pd.to_numeric, coluna, errors="coerce")
 
                     return nome, coluna
                 except Exception as exc:
@@ -278,9 +275,7 @@ class EconomicBrazilAsync:
         Função síncrona que encapsula a chamada assíncrona para dados_banco_central_async.
         """
         return asyncio.run(
-            self.dados_banco_central(
-                salvar=salvar, diretorio=diretorio, formato=formato
-            )
+            self.dados_banco_central(salvar=salvar, diretorio=diretorio, formato=formato)
         )
 
     async def dados_expectativas_inflacao(
@@ -316,9 +311,7 @@ class EconomicBrazilAsync:
         Função síncrona que encapsula a chamada assíncrona para dados_expectativas_inflacao_async.
         """
         return asyncio.run(
-            self.dados_expectativas_inflacao(
-                salvar=salvar, diretorio=diretorio, formato=formato
-            )
+            self.dados_expectativas_inflacao(salvar=salvar, diretorio=diretorio, formato=formato)
         )
 
     async def dados_ibge(
@@ -349,10 +342,7 @@ class EconomicBrazilAsync:
 
         # Executa todas as chamadas em paralelo
         resultados = await asyncio.gather(
-            *(
-                processar_variavel_ibge(key, valor)
-                for key, valor in self.codigos_ibge.items()
-            )
+            *(processar_variavel_ibge(key, valor) for key, valor in self.codigos_ibge.items())
         )
 
         # Adiciona os resultados ao DataFrame
@@ -373,9 +363,7 @@ class EconomicBrazilAsync:
         """
         Função síncrona que encapsula a chamada assíncrona para dados_ibge_async.
         """
-        return asyncio.run(
-            self.dados_ibge(salvar=salvar, diretorio=diretorio, formato=formato)
-        )
+        return asyncio.run(self.dados_ibge(salvar=salvar, diretorio=diretorio, formato=formato))
 
     async def dados_ibge_link(
         self,
@@ -383,14 +371,11 @@ class EconomicBrazilAsync:
         diretorio: Optional[str] = None,
         formato: str = "csv",
     ) -> pd.DataFrame:
-
         dic_ibge_link = self.data_index()
 
         async def processar_variavel_ibge_link(coluna, params):
             try:
-                resultado = await self.fetch_data_for_code_async(
-                    params=params, column=coluna
-                )
+                resultado = await self.fetch_data_for_code_async(params=params, column=coluna)
                 return coluna, resultado
             except Exception as exc:
                 print(
@@ -412,9 +397,7 @@ class EconomicBrazilAsync:
             if valor is not None:
                 dic_ibge_link[key] = valor
         if salvar:
-            await asyncio.to_thread(
-                self.salvar_dados, dic_ibge_link, diretorio, formato
-            )
+            await asyncio.to_thread(self.salvar_dados, dic_ibge_link, diretorio, formato)
         return dic_ibge_link
 
     def dados_ibge_link_async(
@@ -436,7 +419,6 @@ class EconomicBrazilAsync:
         diretorio: Optional[str] = None,
         formato: str = "csv",
     ) -> pd.DataFrame:
-
         dic_ipeadata = self.data_index()
 
         async def processando_variavel_ipeadata(nome, codigo):
@@ -465,10 +447,7 @@ class EconomicBrazilAsync:
                 dic_ipeadata[key] = valor
 
         try:
-            if (
-                "caged_antigo" in dic_ipeadata.columns
-                and "caged_novo" in dic_ipeadata.columns
-            ):
+            if "caged_antigo" in dic_ipeadata.columns and "caged_novo" in dic_ipeadata.columns:
                 dic_ipeadata["caged_junto"] = pd.concat(
                     [
                         dic_ipeadata.caged_antigo.dropna(),
@@ -493,9 +472,7 @@ class EconomicBrazilAsync:
         """
         Função síncrona que encapsula a chamada assíncrona para dados_ipeadata_async.
         """
-        return asyncio.run(
-            self.dados_ipeadata(salvar=salvar, diretorio=diretorio, formato=formato)
-        )
+        return asyncio.run(self.dados_ipeadata(salvar=salvar, diretorio=diretorio, formato=formato))
 
     async def dados_google_trends(
         self,
@@ -527,28 +504,21 @@ class EconomicBrazilAsync:
                 )
                 return termo, None
             except TooManyRequestsError:
-                print(
-                    f"Too many requests error for {termo}. Skipping this term for now."
-                )
+                print(f"Too many requests error for {termo}. Skipping this term for now.")
                 return termo, None
 
         # Executa todas as chamadas em paralelo
         resultados = await asyncio.gather(
-            *(
-                processar_termo_google_trends(termo)
-                for termo in self.lista_termos_google_trends
-            )
+            *(processar_termo_google_trends(termo) for termo in self.lista_termos_google_trends)
         )
 
         # Adiciona os resultados ao DataFrame
-        for termo, resultado in resultados:
+        for _termo, resultado in resultados:
             if resultado is not None:
                 dic_google_trends = dic_google_trends.join(await resultado)
 
         if salvar:
-            await asyncio.to_thread(
-                self.salvar_dados, dic_google_trends, diretorio, formato
-            )
+            await asyncio.to_thread(self.salvar_dados, dic_google_trends, diretorio, formato)
 
         return dic_google_trends
 
@@ -608,10 +578,7 @@ class EconomicBrazilAsync:
         if api_key:
             # Executa todas as chamadas em paralelo
             resultados = await asyncio.gather(
-                *(
-                    processar_variavel_fred(key, code)
-                    for key, code in self.codigos_fred.items()
-                )
+                *(processar_variavel_fred(key, code) for key, code in self.codigos_fred.items())
             )
 
             # Adiciona os resultados ao DataFrame
@@ -636,9 +603,7 @@ class EconomicBrazilAsync:
         """
         Função síncrona que encapsula a chamada assíncrona para dados_fred_async.
         """
-        return asyncio.run(
-            self.dados_fred(salvar=salvar, diretorio=diretorio, formato=formato)
-        )
+        return asyncio.run(self.dados_fred(salvar=salvar, diretorio=diretorio, formato=formato))
 
     async def dados_brazil(
         self,
@@ -788,9 +753,7 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     print(
         loop.run_until_complete(
-            economic_brazil.fetch_data_for_code_async(
-                indicadores_ibge_link_padrao["pib"], "PIB"
-            )
+            economic_brazil.fetch_data_for_code_async(indicadores_ibge_link_padrao["pib"], "PIB")
         )
     )
 

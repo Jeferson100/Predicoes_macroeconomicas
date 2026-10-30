@@ -2,21 +2,23 @@ import sys
 import warnings
 
 sys.path.append("..")
-from .coleta_economic_brazil import (
-    dados_bcb,
-    dados_ibge_link,
-    dados_ibge_codigos,
-    dados_ibge_sidra,
-    dados_expectativas_focus,
-    dados_ipeadata,
-    coleta_google_trends,
-)
-import pandas as pd
-import numpy as np
-from datetime import datetime, date
-import requests
+from datetime import date, datetime
 from io import BytesIO
-from typing import Optional, Dict, List, Any
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
+import requests
+
+from .coleta_economic_brazil import (
+    coleta_google_trends,
+    dados_bcb,
+    dados_expectativas_focus,
+    dados_ibge_codigos,
+    dados_ibge_link,
+    dados_ibge_sidra,
+    dados_ipeadata,
+)
 
 
 # Tratando dados IBGE/SIDRAPY
@@ -57,9 +59,7 @@ def trimestre_string_int(dados: pd.DataFrame) -> list:
         if trimestre_int * 3 == 12:
             lista_trimestre.append(dados.index[i][-4:] + "-" + str(trimestre_int * 3))
         else:
-            lista_trimestre.append(
-                dados.index[i][-4:] + "-" + "0" + str(trimestre_int * 3)
-            )
+            lista_trimestre.append(dados.index[i][-4:] + "-" + "0" + str(trimestre_int * 3))
     return lista_trimestre
 
 
@@ -142,9 +142,7 @@ def tratando_dados_ibge_codigos(
             converter_mes_para_data
         )
     else:
-        ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(
-            converter_mes_para_data
-        )
+        ibge_codigos["data"] = ibge_codigos["Mês (Código)"].apply(converter_mes_para_data)
     ibge_codigos.index = ibge_codigos["data"]  # type:ignore
     try:
         ibge_codigos["Valor"] = ibge_codigos["Valor"][1:].astype(float)
@@ -195,7 +193,6 @@ def tratando_dados_ibge_link(
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
     if ibge_link.index.str.contains("trimestre").any():
-
         ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
 
         ibge_link = ibge_link.resample("MS").ffill()
@@ -215,9 +212,7 @@ def tratando_dados_ibge_link(
     return ibge_link
 
 
-def _parse_sidra_para_mensal(
-    dado_ibge: pd.DataFrame, coluna: Optional[str]
-) -> pd.DataFrame:
+def _parse_sidra_para_mensal(dado_ibge: pd.DataFrame, coluna: Optional[str]) -> pd.DataFrame:
     """Converte o retorno bruto do sidrapy (colunas NC/NN/..., linha 0 = rótulos)
     em série mensal: índice DatetimeIndex MS, 1 coluna numérica.
     Trimestral (código YYYY0Q, ex 199601) vira mês de fim do trimestre + ffill."""
@@ -246,8 +241,7 @@ def _parse_sidra_para_mensal(
                     break
     if date_code_col is None:
         raise ValueError(
-            f"Coluna de data (código) não encontrada para {coluna}. "
-            f"Colunas: {list(df.columns)}"
+            f"Coluna de data (código) não encontrada para {coluna}. " f"Colunas: {list(df.columns)}"
         )
     is_trimestre = "Trimestre" in str(date_code_col)
     datas = []
@@ -429,9 +423,7 @@ def tratando_dados_ibge_link_producao_agricola(
     dados = dados[[1]]
     data = pd.DataFrame()
     data = dados.iloc[::2, :]
-    data.loc[:, nome_coluna] = dados[
-        dados.index.str.contains("Unnamed")
-    ].values.squeeze()
+    data.loc[:, nome_coluna] = dados[dados.index.str.contains("Unnamed")].values.squeeze()
     data = transforme_data(data)
     data = data[[nome_coluna]]
     data.index = pd.to_datetime(data.index)
@@ -459,7 +451,6 @@ def tratando_dados_ibge_link_colum_brazil(
     ibge_link[coluna] = pd.to_numeric(ibge_link[coluna], errors="coerce")
 
     if ibge_link.index.str.contains("trimestre").any():
-
         ibge_link.index = pd.to_datetime(trimestre_string_int(ibge_link))
 
         # ibge_link.index = pd.to_datetime(
@@ -482,7 +473,6 @@ def tratando_dados_ibge_link_colum_brazil(
 
 
 def read_indice_abcr() -> pd.DataFrame | None:
-
     url = "https://melhoresrodovias.org.br/wp-content/uploads/2024/06/abcr_0624.xls"
 
     # Cabeçalhos para simular um navegador
@@ -520,7 +510,7 @@ def sondagem_industria(sheet: str, variable: str) -> pd.DataFrame:
     df.columns = [variable]
     lista = []
     for i in df.index:
-        if type(i) == str:
+        if isinstance(i, str):
             b = np.where(
                 i[0:3] == "jan",
                 "01",

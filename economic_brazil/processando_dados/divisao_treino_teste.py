@@ -1,6 +1,7 @@
+from typing import Optional, Union
+
 import pandas as pd
 from sklearn.model_selection import TimeSeriesSplit
-from typing import Optional, Union
 
 
 def treino_test_dados(

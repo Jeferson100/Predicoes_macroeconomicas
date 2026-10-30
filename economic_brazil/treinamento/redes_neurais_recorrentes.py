@@ -1,9 +1,10 @@
-import keras
-import matplotlib.pyplot as plt
-import keras_tuner
-import pandas as pd
-import numpy as np
 from typing import Optional
+
+import keras
+import keras_tuner
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 
 class RnnModel:
@@ -93,15 +94,10 @@ class RnnModel:
     def predizer_modelo(self, model: keras.Model, dados: np.ndarray) -> np.ndarray:
         return model.predict(dados)
 
-    def avaliar_modelo(
-        self, model: keras.Model, X_test: np.ndarray, y_test: np.ndarray
-    ) -> list:
+    def avaliar_modelo(self, model: keras.Model, X_test: np.ndarray, y_test: np.ndarray) -> list:
         return model.evaluate(X_test, y_test)
 
-    def plotar_grafico(
-        self, dataset: keras.callbacks.History, tamanho: tuple = (10, 5)
-    ) -> None:
-
+    def plotar_grafico(self, dataset: keras.callbacks.History, tamanho: tuple = (10, 5)) -> None:
         history = pd.DataFrame(dataset.history)
 
         plt.figure(figsize=tamanho)
@@ -154,9 +150,7 @@ class HyperTurnerModel:
         if learning_rate is None:
             learning_rate = hp.Choice("learning_rate", [1e-2, 1e-3, 1e-4, 1e-5, 1e-6])
         if neuronios_camada_1 is None:
-            neuronios_camada_1 = hp.Int(
-                "neuronios_camada_1", min_value=8, max_value=64, step=8
-            )
+            neuronios_camada_1 = hp.Int("neuronios_camada_1", min_value=8, max_value=64, step=8)
         if neuronios_camada_sequenciais is None:
             neuronios_camada_sequenciais = hp.Int(
                 "neuronios_camada_sequenciais", min_value=8, max_value=64, step=8
@@ -188,7 +182,8 @@ class HyperTurnerModel:
 
         model.add(keras.layers.Dense(neuronios_camada_final))
         model.compile(  # type: ignore
-            optimizer=keras.optimizers.Adam(learning_rate=learning_rate), loss="mse"  # type: ignore
+            optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
+            loss="mse",  # type: ignore
         )
         return model
 

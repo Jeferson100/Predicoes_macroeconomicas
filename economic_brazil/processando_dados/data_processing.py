@@ -1,13 +1,14 @@
 import sys
 
 sys.path.append("..")
-from xgboost import XGBRegressor
-import pandas as pd
-import numpy as np
-from pmdarima import arima
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import warnings
-from typing import Optional, List, Any
+from typing import Any, List, Optional
+
+import numpy as np
+import pandas as pd
+from pmdarima import arima
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from xgboost import XGBRegressor
 
 warnings.filterwarnings("ignore")
 
@@ -45,9 +46,7 @@ def backcasting_nan(dados: pd.DataFrame) -> pd.DataFrame:
     for i in colunas:
         dados_interpolacao = dados.copy()
 
-        dados_interpolacao = dados_interpolacao.loc[
-            : dados_interpolacao[i].last_valid_index()
-        ]
+        dados_interpolacao = dados_interpolacao.loc[: dados_interpolacao[i].last_valid_index()]
 
         # Separate values not NaN and NaN in two different dataframes
         treino_interpolacao = dados_interpolacao[dados_interpolacao[i].notnull()]
@@ -66,15 +65,11 @@ def backcasting_nan(dados: pd.DataFrame) -> pd.DataFrame:
 
         Y_treino = Y_treino[Y_treino.index.isin(treino_interpolacao.index)]
 
-        treino_interpolacao = treino_interpolacao.loc[
-            :, predicao_interpolacao.columns.tolist()
-        ]
+        treino_interpolacao = treino_interpolacao.loc[:, predicao_interpolacao.columns.tolist()]
 
         # Fill NaN values in remaining columns with the mean
         treino_interpolacao = treino_interpolacao.fillna(treino_interpolacao.mean())
-        predicao_interpolacao = predicao_interpolacao.fillna(
-            predicao_interpolacao.mean()
-        )
+        predicao_interpolacao = predicao_interpolacao.fillna(predicao_interpolacao.mean())
         # Filter prediction dataframe to include only columns present in training dataframe
         # Create the model
         model = XGBRegressor(random_state=0)
@@ -117,9 +112,7 @@ def corrigindo_nan_arima(
     stepwise_arima: bool = True,
 ) -> pd.DataFrame:
     dados_sem = dados_est.loc[:, dados_est.columns != coluna].copy()
-    for k in dados_est.loc[:, dados_est.columns != coluna].columns[
-        dados_sem.isnull().sum() > 0
-    ]:
+    for k in dados_est.loc[:, dados_est.columns != coluna].columns[dados_sem.isnull().sum() > 0]:
         model_arima = arima.auto_arima(
             dados_sem[k].dropna().values,
             start_p=1,

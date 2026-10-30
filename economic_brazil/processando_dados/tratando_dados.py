@@ -1,23 +1,25 @@
 import sys
 
 sys.path.append("..")
+from typing import Any, List, Optional, Union
+
+import numpy as np
+import pandas as pd
+import scipy.sparse
+from feature_engine.selection import SmartCorrelatedSelection
+from sklearn.decomposition import PCA
+from sklearn.feature_selection import RFE, VarianceThreshold
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+
 from economic_brazil.processando_dados.data_processing import (
-    criando_dummy_covid,
     criando_defasagens,
+    criando_dummy_covid,
     criando_mes_ano_dia,
     escalando_dados,
 )
-from economic_brazil.processando_dados.estacionaridade import Estacionaridade
-from sklearn.decomposition import PCA
 from economic_brazil.processando_dados.divisao_treino_teste import treino_test_dados
-from sklearn.feature_selection import RFE, VarianceThreshold
-from feature_engine.selection import SmartCorrelatedSelection
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
-import numpy as np
-import pandas as pd
-from typing import Optional, Union, List, Any
-import scipy.sparse
+from economic_brazil.processando_dados.estacionaridade import Estacionaridade
 
 
 class TratandoDados:
@@ -48,6 +50,8 @@ class TratandoDados:
         self.rfe_modelo = None
         self.variancia_modelo = None
         self.smart_correlation_modelo = None
+        self.estacionaridade_modelo: Optional[Estacionaridade] = None
+        self.log_offset: Optional[dict[str, float]] = None
         self.data_divisao = data_divisao
         self.coluna_label = coluna_label
         self.numero_defasagens = numero_defasagens
@@ -121,14 +125,22 @@ class TratandoDados:
         return dados_covid
 
     def tratando_estacionaridade(
-        self, dados: pd.DataFrame, coluna_label: str = "selic"
+        self, dados: pd.DataFrame, coluna_label: str = "selic", fit: bool = True
     ) -> pd.DataFrame:
+        """Corrige a nao-estacionaridade com um unico ajuste feito no treino.
+
+        Antes esta funcao era chamada uma vez no treino e outra no teste, e cada
+        chamada reestimava `ndiffs`. O resultado eram colunas diferenciadas um
+        numero diferente de vezes em cada conjunto (ate 138 sigma de desvio).
         """
-        Corrige a não-estacionaridade dos dados.
-        """
-        estacionaridade = Estacionaridade()
-        dados_est = estacionaridade.corrigindo_nao_estacionaridade(dados, coluna_label)
-        return dados_est
+        if fit:
+            self.estacionaridade_modelo = Estacionaridade().ajustar(dados, coluna_label)
+        elif self.estacionaridade_modelo is None:
+            raise RuntimeError(
+                "Ajuste a estacionaridade no treino (fit=True) antes de "
+                "transformar teste ou futuro"
+            )
+        return self.estacionaridade_modelo.transform(dados)
 
     def tratando_datas(
         self,
@@ -155,13 +167,13 @@ class TratandoDados:
         if self.numero_defasagens is None:
             self.numero_defasagens = 4
 
-        dados_defas = criando_defasagens(
-            dados, numero_defasagens=self.numero_defasagens
-        )
-        dados_defas = dados_defas[self.numero_defasagens :]
-        if dados_defas.isnull().values.any():
-            dados_defas = dados_defas.ffill()
-            dados_defas = dados_defas.bfill()
+        dados_defas = criando_defasagens(dados, numero_defasagens=self.numero_defasagens)
+        dados_defas = dados_defas.iloc[self.numero_defasagens :]
+        # Nunca preencher: o ffill/bfill anterior fabricava alvo e escondia
+        # series sem historico. Colunas incompletas saem do conjunto.
+        dados_defas = dados_defas.dropna(axis=1, how="any")
+        if self.coluna_label in dados_defas.columns and dados_defas[self.coluna_label].isna().any():
+            raise ValueError("alvo com NaN apos as defasagens")
         return dados_defas
 
     def tratando_divisao_x_y(
@@ -193,9 +205,7 @@ class TratandoDados:
         dados_scaler, scaler = escalando_dados(dados_numpy, tipo=tipo)
         return dados_scaler, scaler
 
-    def tratando_pca(
-        self, dados: Union[pd.DataFrame, np.ndarray]
-    ) -> tuple[PCA, np.ndarray]:
+    def tratando_pca(self, dados: Union[pd.DataFrame, np.ndarray]) -> tuple[PCA, np.ndarray]:
         """
         Aplica PCA aos dados.
         """
@@ -265,13 +275,25 @@ class TratandoDados:
         return smart_correlation_model, dados_smart_correlation
 
     def diferenciacao_log(
-        self, dados: pd.DataFrame, variavel_predicao: str
+        self, dados: pd.DataFrame, variavel_predicao: str, fit: bool = True
     ) -> pd.DataFrame:
-        for i in dados.columns:
-            if i == variavel_predicao:
-                dados[i] = dados[i]
-            else:
-                dados[i] = np.log(dados[i] + np.abs(np.min(dados[i])) + 1)
+        """Aplica log(x + offset) com o offset estimado apenas no treino.
+
+        O offset era `np.min(janela)` recalculado em cada janela. No futuro a
+        janela tem 20 linhas, entao o mesmo valor historico virava outro numero.
+        """
+        if fit:
+            self.log_offset = {
+                coluna: float(np.min(dados[coluna]))
+                for coluna in dados.columns
+                if coluna != variavel_predicao
+            }
+        elif self.log_offset is None:
+            raise RuntimeError("Ajuste o offset do log no treino (fit=True) antes de transformar")
+
+        for coluna, offset in self.log_offset.items():
+            if coluna in dados.columns:
+                dados[coluna] = np.log(dados[coluna] + abs(offset) + 1)
         return dados
 
     def tratando_dados(
@@ -288,7 +310,6 @@ class TratandoDados:
         Any,
         Any,
     ]:
-
         """
         Executa todas as etapas de tratamento de dados em ordem.
         """
@@ -297,21 +318,18 @@ class TratandoDados:
 
         # Aplicação das etapas de tratamento de dados
         if self.covid:
-
             treino = self.tratando_covid(treino)
             teste = self.tratando_covid(teste)
         if self.estacionaridade:
             if self.coluna_label is None:
                 self.coluna_label = "selic"
-            treino = self.tratando_estacionaridade(
-                treino, coluna_label=self.coluna_label
-            )
-            teste = self.tratando_estacionaridade(teste, coluna_label=self.coluna_label)
+            treino = self.tratando_estacionaridade(treino, coluna_label=self.coluna_label, fit=True)
+            teste = self.tratando_estacionaridade(teste, coluna_label=self.coluna_label, fit=False)
         if self.estacionaridade_log:
             if self.coluna_label is None:
                 self.coluna_label = "selic"
-            treino = self.diferenciacao_log(treino, self.coluna_label)
-            teste = self.diferenciacao_log(teste, self.coluna_label)
+            treino = self.diferenciacao_log(treino, self.coluna_label, fit=True)
+            teste = self.diferenciacao_log(teste, self.coluna_label, fit=False)
         if self.datas:
             treino = self.tratando_datas(treino)
             teste = self.tratando_datas(teste)
@@ -335,9 +353,7 @@ class TratandoDados:
             x_teste = self.variancia_modelo.transform(x_teste)
 
         if self.smart_correlation:
-            self.smart_correlation_modelo, x_treino = self.tratando_smart_correlation(
-                x_treino
-            )
+            self.smart_correlation_modelo, x_treino = self.tratando_smart_correlation(x_treino)
             x_teste = self.smart_correlation_modelo.transform(x_teste)  # type:ignore
 
         if self.rfe:
@@ -370,9 +386,9 @@ class TratandoDados:
         if self.covid:
             dados = self.tratando_covid(dados_entrada)
         if self.estacionaridade:
-            dados = self.tratando_estacionaridade(dados)
+            dados = self.tratando_estacionaridade(dados, fit=False)
         if self.estacionaridade_log:
-            dados = self.diferenciacao_log(dados, self.coluna_label)  # type:ignore
+            dados = self.diferenciacao_log(dados, self.coluna_label, fit=False)  # type:ignore
         if self.datas:
             dados = self.tratando_datas(dados)
         if self.defasagens:

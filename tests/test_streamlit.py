@@ -1,12 +1,16 @@
 # https://docs.streamlit.io/develop/api-reference/app-testing
 # sys.path.append("..")
 import os
-from streamlit.testing.v1 import AppTest
 import warnings
+
 import pytest
+from streamlit.testing.v1 import AppTest
 
 warnings.filterwarnings("ignore")
+
+pytestmark = [pytest.mark.network, pytest.mark.slow]
 path = os.path.abspath("../Predicoes_macroeconomicas")
+
 
 # pylint: disable=W0621
 @pytest.fixture(scope="module")

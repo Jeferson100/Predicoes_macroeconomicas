@@ -3,6 +3,7 @@ import sys
 sys.path.append("..")
 import pandas as pd
 import pytest
+
 from economic_brazil.processando_dados.estacionaridade import Estacionaridade
 
 
@@ -36,17 +37,13 @@ def test_report_ndiffs(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
     result = est.report_ndiffs(sample_data)
     assert not result.empty, "O resultado do report_ndiffs não deve estar vazio"
-    assert (
-        "Ndifis" in result.columns
-    ), "A coluna 'Ndifis' deve estar presente no resultado"
+    assert "Ndifis" in result.columns, "A coluna 'Ndifis' deve estar presente no resultado"
 
 
 def test_corrigindo_nao_estacionaridade(sample_data: pd.DataFrame) -> None:
     est = Estacionaridade()
     result = est.corrigindo_nao_estacionaridade(sample_data, "A")
-    assert (
-        not result.empty
-    ), "O resultado de corrigindo_nao_estacionaridade não deve estar vazio"
+    assert not result.empty, "O resultado de corrigindo_nao_estacionaridade não deve estar vazio"
     assert all(
         result.columns == sample_data.columns
     ), "As colunas do resultado devem ser as mesmas que as da entrada"

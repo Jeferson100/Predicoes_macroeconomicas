@@ -1,14 +1,14 @@
 import sys
 
 sys.path.append("..")
-import pandas as pd
-from statsmodels.tsa.stattools import adfuller
-from statsmodels.tsa.stattools import kpss
-from pmdarima import arima
-import numpy as np
-import matplotlib.pyplot as plt
 import warnings
 from typing import Optional
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from pmdarima import arima
+from statsmodels.tsa.stattools import adfuller, kpss
 
 warnings.filterwarnings("ignore")
 
@@ -19,9 +19,7 @@ class Estacionaridade:
         def kpss_test(timeseries: pd.Series) -> pd.Series:
             # print("Results of KPSS Test:")
             kpsstest = kpss(timeseries, regression="c", nlags="auto")
-            kpss_output = pd.Series(
-                kpsstest[0:3], index=["Test Statistic", "p-value", "Lags Used"]
-            )
+            kpss_output = pd.Series(kpsstest[0:3], index=["Test Statistic", "p-value", "Lags Used"])
             for key, value in kpsstest[3].items():
                 kpss_output["Critical Value (%s)" % key] = value
             return kpss_output
@@ -109,21 +107,17 @@ class Estacionaridade:
     def plot_test_stationarity(self, timeseries: pd.DataFrame) -> None:
         for i in range(len(timeseries.columns)):
             # Determing rolling statistics
-            rolmean = (
-                pd.Series(timeseries.iloc[:, i]).rolling(window=12).mean().dropna()
-            )
+            rolmean = pd.Series(timeseries.iloc[:, i]).rolling(window=12).mean().dropna()
             rolstd = pd.Series(timeseries.iloc[:, i]).rolling(window=12).std().dropna()
             # Plot rolling statistics:
             # pylint: disable=unused-variable
-            orig = plt.plot(timeseries.iloc[:, i], color="blue", label="Original")
+            plt.plot(timeseries.iloc[:, i], color="blue", label="Original")
             # pylint: disable=unused-variable
-            mean = plt.plot(rolmean, color="red", label="Rolling Mean")
-            std = plt.plot(rolstd, color="black", label="Rolling Std")
+            plt.plot(rolmean, color="red", label="Rolling Mean")
+            plt.plot(rolstd, color="black", label="Rolling Std")
             # pylint: disable=unused-variable
             plt.legend(loc="best")
-            plt.title(
-                f"Rolling Mean & Standard Deviation na variavel {timeseries.columns[i]}"
-            )
+            plt.title(f"Rolling Mean & Standard Deviation na variavel {timeseries.columns[i]}")
             plt.show(block=False)
 
             # Perform Dickey-Fuller test:
@@ -141,6 +135,31 @@ class Estacionaridade:
             for key, value in dftest[4].items():  # type:ignore
                 dfoutput["Critical Value (%s)" % key] = value
             print(dfoutput)
+
+    def ajustar(self, base: pd.DataFrame, valor_predicao: str) -> "Estacionaridade":
+        """Estima o numero de diferencas apenas no conjunto de treino.
+
+        `ndiffs` fica saturado em series curtas e devolve valores absurdos
+        (19 para o PIB). Duas diferencas ja e mais do que qualquer serie macro
+        precisa, entao o valor e limitado para nao destruir a escala.
+        """
+        ndiffs = self.report_ndiffs(base)
+        ndiffs["Ndifis"] = ndiffs["Ndifis"].clip(upper=2)
+        self.ndiffs_ = ndiffs
+        self.valor_predicao_ = valor_predicao
+        return self
+
+    def transform(self, base: pd.DataFrame) -> pd.DataFrame:
+        """Aplica as diferencas estimadas no treino, sem reajustar."""
+        if not hasattr(self, "ndiffs_"):
+            raise RuntimeError("Chame Estacionaridade.ajustar() no treino antes de transformar")
+        dados_est = base.copy()
+        for coluna in self.ndiffs_[self.ndiffs_["Ndifis"] >= 1].index:
+            if coluna == self.valor_predicao_ or coluna not in dados_est.columns:
+                continue
+            for _ in range(int(self.ndiffs_.loc[coluna, "Ndifis"])):
+                dados_est[coluna] = dados_est[coluna].diff(periods=1)
+        return dados_est.dropna()
 
     def corrigindo_nao_estacionaridade(
         self, base: pd.DataFrame, valor_predicao: str

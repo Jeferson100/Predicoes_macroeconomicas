@@ -1,15 +1,18 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly.graph_objs as go
-import statsmodels.api as sm
-import statsmodels.tsa.api as tsa
-from statsmodels.tsa.stattools import acf, q_stat, adfuller
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-from scipy.stats import probplot, moment
-import numpy as np
 import warnings
 from typing import Optional
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import plotly.graph_objs as go
+import seaborn as sns
+import statsmodels.api as sm
+import statsmodels.tsa.api as tsa
+from scipy.stats import kurtosis as scipy_kurtosis
+from scipy.stats import probplot
+from scipy.stats import skew as scipy_skew
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.stattools import acf, adfuller, q_stat
 
 warnings.filterwarnings("ignore")
 
@@ -94,9 +97,7 @@ class Graficos:
         fig = go.Figure()
         for i in range(len(dados.columns)):
             fig = go.Figure()
-            fig.add_trace(
-                go.Scatter(x=dados.index, y=dados.iloc[:, i], name=dados.columns[i])
-            )
+            fig.add_trace(go.Scatter(x=dados.index, y=dados.iloc[:, i], name=dados.columns[i]))
             fig.update_layout(
                 title=f"Grafico da variavel {dados.columns[i]}",
                 xaxis_title="Anos",
@@ -162,7 +163,10 @@ class Graficos:
         stats = f"Q-Stat: {np.max(q_p):>8.2f}\nADF: {adfuller(x)[1]:>11.2f}"
         axes[0][0].text(x=0.02, y=0.85, s=stats, transform=axes[0][0].transAxes)
         probplot(x, plot=axes[0][1])
-        mean, var, skew, kurtosis = moment(x, moment=[1, 2, 3, 4])  # type: ignore
+        arr = np.asarray(x, dtype=float)
+        mean, var = float(arr.mean()), float(arr.var())
+        skew = float(scipy_skew(arr))
+        kurtosis = float(scipy_kurtosis(arr, fisher=False))
         s = f"Mean: {mean:>12.2f}\nSD: {np.sqrt(var):>16.2f}\nSkew: {skew:12.2f}\nKurtosis:{kurtosis:9.2f}"
         axes[0][1].text(x=0.02, y=0.75, s=s, transform=axes[0][1].transAxes)
         plot_acf(x=x, lags=lags, zero=False, ax=axes[1][0])
@@ -198,9 +202,7 @@ class Graficos:
                     else None,
                 )
             else:
-                self.plot_correlogram(
-                    dados[col], lags=lags_correlogram, title=f"Correlogram_{col}"
-                )
+                self.plot_correlogram(dados[col], lags=lags_correlogram, title=f"Correlogram_{col}")
 
     def plotar_residuos_predicit(
         self,

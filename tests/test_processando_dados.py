@@ -1,13 +1,14 @@
 import sys
 
 sys.path.append("..")
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 from economic_brazil.processando_dados.data_processing import (
-    criando_dummy_covid,
     backcasting_nan,
-    criando_defasagens,
     corrigindo_nan_arima,
+    criando_defasagens,
+    criando_dummy_covid,
     criando_mes_ano_dia,
     escalando_dados,
 )
@@ -18,9 +19,7 @@ def test_criando_dummy_covid() -> None:
     data = pd.DataFrame(index=dates)
     data = criando_dummy_covid(data, "2020-03-01", "2020-06-30")
     assert "dummy_covid" in data.columns
-    assert data["dummy_covid"].sum() == len(
-        pd.date_range(start="2020-03-01", end="2020-06-30")
-    )
+    assert data["dummy_covid"].sum() == len(pd.date_range(start="2020-03-01", end="2020-06-30"))
     assert data["dummy_covid"].iloc[0] == 0
     assert data["dummy_covid"].loc["2020-03-01"] == 1
     assert data["dummy_covid"].loc["2020-07-01"] == 0

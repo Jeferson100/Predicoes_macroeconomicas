@@ -1,15 +1,15 @@
-import plotly.graph_objects as go
-import plotly.io as pio
-from mapie.regression import MapieRegressor
-from mapie.metrics import regression_coverage_score, regression_mean_width_score
-from typing import Union, Optional, List, Dict
-from mapie.quantile_regression import MapieQuantileRegressor
-from mapie.subsample import Subsample
+from typing import Dict, List, Optional, Tuple, Union
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import plotly.io as pio
+from mapie.metrics import regression_coverage_score, regression_mean_width_score
+from mapie.quantile_regression import MapieQuantileRegressor
+from mapie.regression import MapieRegressor
+from mapie.subsample import Subsample
 from sklearn.linear_model import LinearRegression, QuantileRegressor
-from typing import Tuple
 
 
 class ConformalRegressionPlotter:
@@ -46,14 +46,10 @@ class ConformalRegressionPlotter:
         )
         mapie.fit(self.X_train, self.y_train)
         self.y_pred, self.y_pis = mapie.predict(self.X_test, alpha=alpha)
-        coverage = regression_coverage_score(
-            self.y_test, self.y_pis[:, 0, 0], self.y_pis[:, 1, 0]
-        )
+        coverage = regression_coverage_score(self.y_test, self.y_pis[:, 0, 0], self.y_pis[:, 1, 0])
         width = regression_mean_width_score(self.y_pis[:, 0, 0], self.y_pis[:, 1, 0])
 
-        print(
-            f"Coverage and prediction interval width mean for CV+: {coverage:.3f}, {width:.3f}"
-        )
+        print(f"Coverage and prediction interval width mean for CV+: {coverage:.3f}, {width:.3f}")
         return self.y_pred, self.y_pis, coverage, width
 
     def plot_prediction_intervals(
@@ -191,9 +187,7 @@ class ConformalAvaliandoMetodo:
                 line_model = LinearRegression()
                 mapie = MapieRegressor(line_model, **params)
                 mapie.fit(self.X_train, self.y_train)
-                self.y_pred[strategy], self.y_pis[strategy] = mapie.predict(
-                    self.X_test, alpha=0.05
-                )
+                self.y_pred[strategy], self.y_pis[strategy] = mapie.predict(self.X_test, alpha=0.05)
         return self.y_pred, self.y_pis
 
     def _plot_1d_data(
@@ -212,15 +206,11 @@ class ConformalAvaliandoMetodo:
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.fill_between(X_test_index, y_pred_low, y_pred_up, alpha=0.3)
-        ax.scatter(
-            X_train_index, y_train, color="red", alpha=0.3, label="Training data"
-        )
+        ax.scatter(X_train_index, y_train, color="red", alpha=0.3, label="Training data")
         ax.plot(X_test_index, y_test, color="gray", label="True confidence intervals")
         ax.plot(X_test_index, y_test - y_sigma, color="gray", ls="--")
         ax.plot(X_test_index, y_test + y_sigma, color="gray", ls="--")
-        ax.plot(
-            X_test_index, y_pred, color="blue", alpha=0.5, label="Prediction intervals"
-        )
+        ax.plot(X_test_index, y_pred, color="blue", alpha=0.5, label="Prediction intervals")
         if title is not None:
             ax.set_title(title)
         ax.legend()
@@ -242,7 +232,7 @@ class ConformalAvaliandoMetodo:
         _ = len(strategies)
         _, axs = plt.subplots(3, 2, figsize=(15, 20))
         coords = [axs[0, 0], axs[0, 1], axs[1, 0], axs[1, 1], axs[2, 0], axs[2, 1]]
-        for strategy, coord in zip(strategies, coords):
+        for strategy, coord in zip(strategies, coords, strict=False):
             self._plot_1d_data(
                 index_train,
                 self.y_train,
@@ -265,9 +255,7 @@ class ConformalAvaliandoMetodo:
                         self.y_pis[strategy][:, 0, 0],
                         self.y_pis[strategy][:, 1, 0],
                     ),
-                    (
-                        self.y_pis[strategy][:, 1, 0] - self.y_pis[strategy][:, 0, 0]
-                    ).mean(),
+                    (self.y_pis[strategy][:, 1, 0] - self.y_pis[strategy][:, 0, 0]).mean(),
                 ]
                 for strategy in self.STRATEGIES
             ],

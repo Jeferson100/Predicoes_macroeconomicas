@@ -1,12 +1,15 @@
+import pandas as pd
+import pytest
+
 from economic_brazil.coleta_dados.tratando_economic_brazil import (
     tratando_dados_expectativas,
     tratando_dados_ibge_codigos,
     tratando_dados_ibge_link,
-    tratatando_dados_ipeadata,
     tratando_dados_ibge_link_producao_agricola,
+    tratatando_dados_ipeadata,
 )
-import pandas as pd
 
+pytestmark = pytest.mark.network
 
 # write tests for tratando_dados_bcb,
 # pylint: disable=W0105

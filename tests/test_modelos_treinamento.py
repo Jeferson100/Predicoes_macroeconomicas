@@ -2,13 +2,15 @@ import sys
 
 sys.path.append("..")
 import pytest
-from sklearn.model_selection import train_test_split
-from sklearn.datasets import make_regression
-from economic_brazil.treinamento.modelos_treinamento import TreinamentoModelos
-from sklearn.ensemble import GradientBoostingRegressor
-from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
 from sklearn import linear_model
+from sklearn.datasets import make_regression
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import train_test_split
+from xgboost import XGBRegressor
+
+from economic_brazil.treinamento.modelos_treinamento import TreinamentoModelos
+
 
 # pylint: disable=W0621
 @pytest.fixture(scope="module")
@@ -18,9 +20,7 @@ def data_regressao() -> tuple:
     # pylint: disable=W0632
     X, y = make_regression(n_samples=100, n_features=4, noise=0.1, random_state=42)  # type: ignore
     # pylint: disable=W0632
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     modelos = TreinamentoModelos(X_train, y_train)
     return X_train, X_test, y_train, y_test, modelos
 
