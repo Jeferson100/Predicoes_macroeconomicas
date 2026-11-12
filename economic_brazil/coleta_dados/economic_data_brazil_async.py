@@ -176,6 +176,9 @@ codigos_fred_padrao = {
     "capacidade_instalada": "BSCURT02BRM160S",
 }
 
+# Uma fonte pendurada nao pode segurar o job ate o timeout do runner.
+TIMEOUT_FONTE_SEGUNDOS = 180
+
 
 class EconomicBrazilAsync:
     def __init__(
@@ -645,7 +648,8 @@ class EconomicBrazilAsync:
 
         # Uma fonte quebrada nao pode derrubar as outras.
         resultados = await asyncio.gather(
-            *(tarefa for _, tarefa in tarefas), return_exceptions=True
+            *(asyncio.wait_for(tarefa, timeout=TIMEOUT_FONTE_SEGUNDOS) for _, tarefa in tarefas),
+            return_exceptions=True,
         )
 
         falhas = []
@@ -653,11 +657,14 @@ class EconomicBrazilAsync:
             if isinstance(resultado, BaseException):
                 falhas.append(f"{nome}: {resultado!r}")
                 continue
-            if resultado.index.has_duplicates:
-                repeticoes = int(resultado.index.duplicated().sum())
-                falhas.append(f"{nome}: {repeticoes} datas duplicadas (mantido o ultimo valor)")
-                resultado = resultado[~resultado.index.duplicated(keep="last")]
+            if not isinstance(resultado, pd.DataFrame):
+                falhas.append(f"{nome}: retorno inesperado {type(resultado).__name__}")
+                continue
             try:
+                if resultado.index.has_duplicates:
+                    repeticoes = int(resultado.index.duplicated().sum())
+                    falhas.append(f"{nome}: {repeticoes} datas duplicadas (mantido o ultimo valor)")
+                    resultado = resultado[~resultado.index.duplicated(keep="last")]
                 dados = dados.join(resultado)
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 falhas.append(f"{nome} (join): {exc!r}")

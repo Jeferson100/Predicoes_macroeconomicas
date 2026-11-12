@@ -15,8 +15,6 @@ from economic_brazil.processando_dados.data_processing import (
 from economic_brazil.processando_dados.divisao_treino_teste import treino_test_dados
 from economic_brazil.processando_dados.estacionaridade import Estacionaridade
 
-shap.initjs()
-
 
 class TratandoDadosImportancia:
     def __init__(self, df: pd.DataFrame) -> None:

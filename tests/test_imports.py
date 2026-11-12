@@ -1,5 +1,33 @@
 # write test for all imports
 
+import subprocess
+import sys
+
+
+def test_pacote_importa_sem_ipython() -> None:
+    """O import do pacote nao pode depender de IPython.
+
+    `shap.initjs()` no nivel do modulo exigia IPython e derrubava coleta e
+    treino no CI, que instalam so o runtime. Bloquear o modulo reproduz isso.
+    """
+    codigo = (
+        "import sys\n"
+        "sys.modules['IPython'] = None\n"
+        "sys.modules['ipython'] = None\n"
+        "import economic_brazil\n"
+        "print('import ok')\n"
+    )
+    resultado = subprocess.run(
+        [sys.executable, "-c", codigo],
+        capture_output=True,
+        text=True,
+        timeout=300,
+        check=False,
+    )
+
+    assert resultado.returncode == 0, resultado.stderr[-2000:]
+    assert "import ok" in resultado.stdout
+
 
 def test_imports_economic_brazil() -> None:
     # pylint: disable=unused-import:
