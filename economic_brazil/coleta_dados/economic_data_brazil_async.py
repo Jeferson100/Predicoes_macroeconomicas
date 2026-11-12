@@ -1,18 +1,15 @@
 import asyncio
 import os
 import pickle
-import sys
 import time
 import warnings
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from dotenv import load_dotenv
 from fredapi import Fred
 from pytrends.exceptions import TooManyRequestsError
-
-from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
 
 # sys.path.append("..")
 from ..coleta_dados.tratando_economic_brazil_async import (
@@ -558,10 +555,13 @@ class EconomicBrazilAsync:
 
         api_key = os.getenv("FRED_API_KEY")
         if not api_key:
-            set_fred_api_key()
-            sys.exit(
-                "Chave de API do FRED salva com sucesso. Encerrando o script. Rode o script novamente para coletar os dados."
+            print(
+                "::warning::FRED_API_KEY ausente; pulando a coleta do FRED. "
+                "Defina o secret FRED_API_KEY no repositorio."
             )
+            if salvar:
+                await asyncio.to_thread(self.salvar_dados, dic_fred, diretorio, formato)
+            return dic_fred
 
         async def processar_variavel_fred(key: str, code: str):
             try:
@@ -626,29 +626,44 @@ class EconomicBrazilAsync:
         dados = self.data_index()
 
         # Lista para armazenar as tarefas assíncronas
-        tarefas = []
+        tarefas: list[tuple[str, Any]] = []
 
         if dados_bcb:
-            tarefas.append(self.dados_banco_central())
+            tarefas.append(("BCB", self.dados_banco_central()))
         if dados_ibge_codigos:
-            tarefas.append(self.dados_ibge())
+            tarefas.append(("IBGE-SIDRA", self.dados_ibge()))
         if dados_ibge_link:
-            tarefas.append(self.dados_ibge_link())
+            tarefas.append(("IBGE-Link", self.dados_ibge_link()))
         if dados_expectativas_inflacao:
-            tarefas.append(self.dados_expectativas_inflacao())
+            tarefas.append(("Expectativas", self.dados_expectativas_inflacao()))
         if dados_ipeadata:
-            tarefas.append(self.dados_ipeadata())
+            tarefas.append(("IPEADATA", self.dados_ipeadata()))
         if dados_google_trends:
-            tarefas.append(self.dados_google_trends())
+            tarefas.append(("Google Trends", self.dados_google_trends()))
         if dados_fred:
-            tarefas.append(self.dados_fred())
+            tarefas.append(("FRED", self.dados_fred()))
 
-        # Executa todas as tarefas em paralelo
-        resultados = await asyncio.gather(*tarefas)
+        # Uma fonte quebrada nao pode derrubar as outras.
+        resultados = await asyncio.gather(
+            *(tarefa for _, tarefa in tarefas), return_exceptions=True
+        )
 
-        # Combina os resultados
-        for resultado in resultados:
-            dados = dados.join(resultado)
+        falhas = []
+        for (nome, _), resultado in zip(tarefas, resultados, strict=True):
+            if isinstance(resultado, BaseException):
+                falhas.append(f"{nome}: {resultado!r}")
+                continue
+            if resultado.index.has_duplicates:
+                repeticoes = int(resultado.index.duplicated().sum())
+                falhas.append(f"{nome}: {repeticoes} datas duplicadas (mantido o ultimo valor)")
+                resultado = resultado[~resultado.index.duplicated(keep="last")]
+            try:
+                dados = dados.join(resultado)
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                falhas.append(f"{nome} (join): {exc!r}")
+
+        if falhas:
+            print("::warning::fontes com falha -> " + "; ".join(falhas))
 
         # Trata dados faltantes
         if sem_dados_faltantes:

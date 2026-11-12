@@ -1,9 +1,12 @@
 import os
+import sys
 
 from dotenv import load_dotenv, set_key
 
 
-def set_quandl_api_key():
+def set_quandl_api_key() -> None:
+    if not sys.stdin.isatty():
+        raise RuntimeError("QUANDL_API_KEY nao definida e nao ha terminal para perguntar.")
     api_key = input("Por favor, insira sua chave de API do Quandl: ").strip()
 
     # Carregar variáveis de ambiente existentes do arquivo .env

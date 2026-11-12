@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import os
 import pickle
-import sys
 import time
 import warnings
 from datetime import datetime
@@ -11,8 +10,6 @@ import pandas as pd
 from dotenv import load_dotenv
 from fredapi import Fred
 from pytrends.exceptions import TooManyRequestsError
-
-from economic_brazil.coleta_dados.configuracao_apis.api_fred import set_fred_api_key
 
 # sys.path.append("..")
 from ..coleta_dados.tratando_economic_brazil import (
@@ -382,10 +379,13 @@ class EconomicBrazil:
             load_dotenv(dotenv_path)
         api_key = os.getenv("FRED_API_KEY")
         if not api_key:
-            set_fred_api_key()
-            sys.exit(
-                "Chave de API do FRED salva com sucesso. Encerrando o script. Rode o script novamente para coletar os dados."
+            print(
+                "::warning::FRED_API_KEY ausente; pulando a coleta do FRED. "
+                "Defina o secret FRED_API_KEY no repositorio."
             )
+            if salvar:
+                self.salvar_dados(dic_fred, diretorio, formato)
+            return dic_fred
         fred = Fred(api_key=api_key)
         if fred:
             for key, codes in self.codigos_fred.items():
