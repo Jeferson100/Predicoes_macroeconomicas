@@ -154,7 +154,7 @@ dados = EconomicBrazilAsync(codigos_banco_central=banco_central_codes,
                        codigos_fred=codigos_fred_padrao,
                        data_inicio=DATA_INICIO)
 
-dados.dados_brazil_async(dados_fred=False,salvar=True, diretorio='economic_data_brazil_async', formato='pickle')
+dados.dados_brazil_async(dados_fred=False,salvar=True, diretorio='economic_data_brazil', formato='pickle')
 
 print('Coletando dados Brazil')
 

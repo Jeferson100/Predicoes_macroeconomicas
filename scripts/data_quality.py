@@ -22,11 +22,19 @@ LIMITES_DIAS = {
     "producao_industrial": 60,
 }
 
+MINIMO_COLUNAS = 40
+
 
 def avaliar(df: pd.DataFrame, hoje: pd.Timestamp | None = None) -> dict:
     hoje = pd.Timestamp(date.today()) if hoje is None else pd.Timestamp(hoje)
     series: dict[str, dict] = {}
     erros: list[str] = []
+
+    # Uma coleta parcial passa despercebida se as 5 series-alvo sobrevivem:
+    # em 13/11/2026 o arquivo saiu com 10 colunas em vez de 71 e o job
+    # commitou assim mesmo, porque so a frescura era checada.
+    if df.shape[1] < MINIMO_COLUNAS:
+        erros.append(f"arquivo com {df.shape[1]} colunas, abaixo do minimo de {MINIMO_COLUNAS}")
 
     for coluna, limite in LIMITES_DIAS.items():
         if coluna not in df.columns:
