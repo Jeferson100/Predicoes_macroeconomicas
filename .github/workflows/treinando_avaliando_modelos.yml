@@ -96,11 +96,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull --rebase
           git add artefatos/
           if git diff --cached --quiet; then
             echo "Sem mudancas nas previsoes."
             exit 0
           fi
           git commit -m "Previsoes $(date +'%Y-%m-%d') [skip ci]"
+          git pull --rebase --autostash
           git push
