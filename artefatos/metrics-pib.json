@@ -12,8 +12,8 @@
   "previsao": 0.5615,
   "intervalos": {
     "80%": [
-      0.0195,
-      1.1035
+      -0.178,
+      1.3011
     ],
     "95%": [
       -0.589,
@@ -21,29 +21,30 @@
     ]
   },
   "cobertura_empirica": {
-    "80%": 0.75,
-    "95%": 0.75
+    "80%": 1.0,
+    "95%": 1.0
   },
+  "n_avaliacao_cobertura": 20,
   "placar_mase": {
-    "random_walk": 0.4511,
-    "seasonal_naive": 0.4026,
-    "media": 0.2998,
-    "drift": 0.4541,
-    "ridge": 0.4269,
-    "elasticnet": 0.357,
-    "gradient_boosting": 0.5524
+    "random_walk": 1.3486,
+    "seasonal_naive": 1.6159,
+    "media": 0.9114,
+    "drift": 1.3584,
+    "ridge": 1.4642,
+    "elasticnet": 1.1957,
+    "gradient_boosting": 1.4276
   },
   "placar_mae": {
-    "random_walk": 0.5813,
-    "seasonal_naive": 0.5188,
-    "media": 0.3863,
-    "drift": 0.5852,
-    "ridge": 0.5501,
-    "elasticnet": 0.46,
-    "gradient_boosting": 0.7117
+    "random_walk": 1.4,
+    "seasonal_naive": 1.6775,
+    "media": 0.9461,
+    "drift": 1.4102,
+    "ridge": 1.52,
+    "elasticnet": 1.2412,
+    "gradient_boosting": 1.482
   },
   "campeao": "media",
-  "mase_campeao": 0.2998,
+  "mase_campeao": 0.9114,
   "bate_random_walk": true,
   "limites_plausiveis": [
     -8.0,

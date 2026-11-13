@@ -56,19 +56,50 @@ def test_resumo_rejeita_backtest_vazio():
 
 def test_cobertura_conformal_usa_a_janela_de_avaliacao(serie):
     """Antes a cobertura retornava None quando n_calib >= metade dos erros."""
-    bt = backtest.backtest_baseline(baselines.random_walk, serie, n_origens=24)
+    bt = backtest.backtest_baseline(baselines.random_walk, serie, n_origens=48)
     cobertura = conformal.cobertura_empirica(bt, alpha=0.2, n_calib=24)
 
     assert cobertura is not None
     assert 0.0 <= cobertura <= 1.0
 
 
+def test_cobertura_so_olha_para_o_passado(monkeypatch):
+    """Cada ponto e comparado ao quantil dos erros anteriores a ele.
+
+    A versao antiga calibrava nas ultimas origens e media nas primeiras, ou
+    seja, o quantil enxergava o futuro. O espião abaixo quebra se isso voltar.
+    """
+    chamadas = []
+    original = conformal.quantil_conformal
+
+    def espiao(erros, alpha):
+        chamadas.append(np.asarray(erros, dtype=float).copy())
+        return original(erros, alpha)
+
+    monkeypatch.setattr(conformal, "quantil_conformal", espiao)
+
+    erros = np.arange(1, 49, dtype=float)  # estritamente crescente
+    bt = pd.DataFrame({"previsto": erros, "real": np.zeros(48), "passo": 1})
+    conformal.cobertura_empirica(bt, alpha=0.2, n_calib=24)
+
+    assert len(chamadas) == 24
+    for passo, janela in enumerate(chamadas, start=24):
+        assert janela.max() <= erros[passo - 1]
+
+
+def test_pontos_avaliacao_reserva_amostra_minima(serie):
+    bt = backtest.backtest_baseline(baselines.random_walk, serie, n_origens=48)
+
+    assert conformal.pontos_avaliacao(bt, n_calib=24) == 24
+
+
 def test_intervalos_respeitam_o_quantil():
     erros = np.arange(1, 101, dtype=float)
     intervalo = conformal.intervalos(0.0, erros, alphas=(0.2,))["80%"]
 
-    assert intervalo[0] == pytest.approx(-81.0)
-    assert intervalo[1] == pytest.approx(81.0)
+    # nivel = ceil(101 * 0.8) / 100 = 0.81 -> quantil "higher" = 82
+    assert intervalo[0] == pytest.approx(-82.0)
+    assert intervalo[1] == pytest.approx(82.0)
 
 
 def test_montar_linha_futura_nao_ve_o_futuro(serie):

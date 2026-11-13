@@ -18,7 +18,7 @@ exogenas:
 candidatos: [ridge, elasticnet, gradient_boosting]
 baselines: [random_walk, seasonal_naive, media, drift]
 season: 12
-n_origens: 24
+n_origens: 48
 n_calib: 24
 alphas: [0.2, 0.05]
 limites_plausiveis: [-5.0, 30.0]

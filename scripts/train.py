@@ -167,6 +167,7 @@ def avaliar(variavel: str) -> dict:
         )
         for alpha in cfg["alphas"]
     }
+    n_avaliacao_cobertura = conformal.pontos_avaliacao(backtests[campeao], int(cfg["n_calib"]))
 
     resultado = {
         "variavel": variavel,
@@ -182,6 +183,7 @@ def avaliar(variavel: str) -> dict:
         "previsao": round(previsao, 4),
         "intervalos": intervalos,
         "cobertura_empirica": cobertura,
+        "n_avaliacao_cobertura": n_avaliacao_cobertura,
         "placar_mase": {nome: round(v["MASE"], 4) for nome, v in placar.items()},
         "placar_mae": {nome: round(v["MAE"], 4) for nome, v in placar.items()},
         "campeao": campeao,

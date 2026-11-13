@@ -9,41 +9,42 @@
   "ultima_observacao": "2026-10-01",
   "ultimo_valor": -1.16869926345012,
   "data_previsao": "2026-11-01",
-  "previsao": -1.6715,
+  "previsao": 0.7285,
   "intervalos": {
     "80%": [
-      -3.9782,
-      0.6352
+      -1.4389,
+      2.8959
     ],
     "95%": [
-      -5.8398,
-      2.4968
+      -3.036,
+      4.4931
     ]
   },
   "cobertura_empirica": {
-    "80%": 0.5833333333333334,
+    "80%": 0.9583333333333334,
     "95%": 1.0
   },
+  "n_avaliacao_cobertura": 24,
   "placar_mase": {
-    "random_walk": 0.5359,
-    "seasonal_naive": 0.8564,
-    "media": 0.418,
-    "drift": 0.5367,
-    "ridge": 0.41,
-    "elasticnet": 0.412,
-    "gradient_boosting": 0.4792
+    "random_walk": 0.6948,
+    "seasonal_naive": 0.8936,
+    "media": 0.5175,
+    "drift": 0.6961,
+    "ridge": 0.584,
+    "elasticnet": 0.599,
+    "gradient_boosting": 0.5628
   },
   "placar_mae": {
-    "random_walk": 1.8808,
-    "seasonal_naive": 3.006,
-    "media": 1.467,
-    "drift": 1.8837,
-    "ridge": 1.4391,
-    "elasticnet": 1.4462,
-    "gradient_boosting": 1.6818
+    "random_walk": 2.4717,
+    "seasonal_naive": 3.179,
+    "media": 1.841,
+    "drift": 2.4765,
+    "ridge": 2.0775,
+    "elasticnet": 2.1311,
+    "gradient_boosting": 2.0021
   },
-  "campeao": "ridge",
-  "mase_campeao": 0.41,
+  "campeao": "media",
+  "mase_campeao": 0.5175,
   "bate_random_walk": true,
   "limites_plausiveis": [
     -15.0,

@@ -54,6 +54,8 @@ jobs:
     needs: train
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      aprovados: ${{ steps.aprovados.outputs.lista }}
     steps:
       - name: Copia os arquivos do repo
         uses: actions/checkout@v4
@@ -71,14 +73,30 @@ jobs:
           merge-multiple: true
 
       - name: Rodar portoes
+        id: portoes
         run: python -m scripts.gate
+
+      - name: Ler aprovados
+        id: aprovados
+        if: always()
+        run: echo "lista=$(cat artefatos/aprovados.json 2>/dev/null || echo '[]')" >> "$GITHUB_OUTPUT"
 
       - name: Publicar resumo
         if: always()
         run: cat gate_resumo.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Guardar aprovados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aprovados
+          path: artefatos/aprovados.json
+          if-no-files-found: ignore
+
   publish:
     needs: gate
+    # Publica os aprovados mesmo quando alguma variavel foi bloqueada.
+    if: always() && needs.gate.outputs.aprovados != '[]' && needs.gate.outputs.aprovados != ''
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -91,6 +109,26 @@ jobs:
           pattern: metrics-*
           path: artefatos
           merge-multiple: true
+
+      - name: Baixar aprovados
+        uses: actions/download-artifact@v4
+        with:
+          name: aprovados
+          path: artefatos
+
+      - name: Manter apenas os aprovados
+        run: |
+          python - <<'PY'
+          import json
+          import pathlib
+
+          aprovados = set(json.loads(pathlib.Path("artefatos/aprovados.json").read_text()))
+          for arquivo in pathlib.Path("artefatos").glob("metrics-*.json"):
+              variavel = arquivo.stem.removeprefix("metrics-")
+              if variavel not in aprovados:
+                  arquivo.unlink()
+                  print(f"bloqueado, nao publicado: {variavel}")
+          PY
 
       - name: Commit and push changes
         run: |
