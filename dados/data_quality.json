@@ -1,0 +1,41 @@
+{
+  "gerado_em": "2026-11-13",
+  "series": {
+    "selic": {
+      "ultima_data": "2026-10-01",
+      "dias_desde_ultima": 43,
+      "missing_pct": 0.0,
+      "repetido_3x": false,
+      "limite_dias": 45
+    },
+    "ipca": {
+      "ultima_data": "2026-10-01",
+      "dias_desde_ultima": 43,
+      "missing_pct": 0.0,
+      "repetido_3x": false,
+      "limite_dias": 45
+    },
+    "pib": {
+      "ultima_data": "2026-10-01",
+      "dias_desde_ultima": 43,
+      "missing_pct": 0.0,
+      "repetido_3x": true,
+      "limite_dias": 120
+    },
+    "taxa_desocupacao": {
+      "ultima_data": "2026-10-01",
+      "dias_desde_ultima": 43,
+      "missing_pct": 0.0,
+      "repetido_3x": true,
+      "limite_dias": 60
+    },
+    "producao_industrial": {
+      "ultima_data": "2026-10-01",
+      "dias_desde_ultima": 43,
+      "missing_pct": 0.0,
+      "repetido_3x": true,
+      "limite_dias": 60
+    }
+  },
+  "erros": []
+}
