@@ -428,7 +428,7 @@ class EconomicBrazilAsync:
         diretorio: Optional[str] = None,
         formato: str = "csv",
         inter_delay: float = 0.2,
-        max_concurrent: int = 2,
+        max_concurrent: int = 4,
     ) -> pd.DataFrame:
         dic_ipeadata = self.data_index()
         # As 25 series disparadas juntas fazem o IPEADATA devolver vazio para

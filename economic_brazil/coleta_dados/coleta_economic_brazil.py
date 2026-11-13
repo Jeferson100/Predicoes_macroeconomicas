@@ -4,12 +4,13 @@ import warnings
 from datetime import date
 from typing import Any, Dict, List, Optional
 
-import ipeadatapy as ip
 import pandas as pd
 import quandl
 import sidrapy
 from bcb import Expectativas, sgs
 from pytrends.request import TrendReq
+
+from economic_brazil.coleta_dados.configuracao_apis.api_ipea import buscar_serie
 
 # Dados BCB
 # As APIs do BCB, IBGE, FRED e Google Trends falham de formas heterogeneas
@@ -226,11 +227,9 @@ def dados_expectativas_focus(
 
 
 def dados_ipeadata(codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01") -> pd.DataFrame:
-    dados_ipea = ip.timeseries(codigo, yearGreaterThan=int(data[0:4]) - 1)
-    if not isinstance(dados_ipea, pd.DataFrame):
-        print("Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio.")
-        return pd.DataFrame()
-    return dados_ipea
+    serie = buscar_serie(codigo)
+    serie = serie[serie.index >= pd.Timestamp(data)]
+    return serie.to_frame("VALUE")
 
 
 def coleta_google_trends(

@@ -5,11 +5,12 @@ import warnings
 from datetime import date
 from typing import Any, Dict, List, Optional
 
-import ipeadatapy as ip
 import pandas as pd
 import sidrapy
 from bcb import Expectativas, sgs
 from pytrends.request import TrendReq
+
+from economic_brazil.coleta_dados.configuracao_apis.api_ipea import buscar_serie
 
 # Dados BCB
 # As APIs do BCB, IBGE, FRED e Google Trends falham de formas heterogeneas
@@ -227,11 +228,11 @@ async def dados_expectativas_focus_async(
 async def dados_ipeadata_async(
     codigo: str = "ANBIMA12_TJTLN1212", data: str = "2020-01-01"
 ) -> pd.DataFrame:
-    dados_ipea = await asyncio.to_thread(ip.timeseries, codigo, yearGreaterThan=int(data[0:4]) - 1)
-    if not isinstance(dados_ipea, pd.DataFrame):
-        print("Erro: ip.timeseries não retornou um DataFrame. Retornando DataFrame vazio.")
-        return pd.DataFrame()
-    return dados_ipea
+    serie = await asyncio.to_thread(buscar_serie, codigo)
+    serie = serie[serie.index >= pd.Timestamp(data)]
+    # A coluna VALUE mantem o contrato que `tratatando_dados_ipeadata_async`
+    # consome (filtro por "VALUE"); o recorte de data continua la.
+    return serie.to_frame("VALUE")
 
 
 async def coleta_google_trends_async(
