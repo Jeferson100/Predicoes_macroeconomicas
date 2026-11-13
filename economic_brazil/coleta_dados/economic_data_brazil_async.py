@@ -176,8 +176,10 @@ codigos_fred_padrao = {
     "capacidade_instalada": "BSCURT02BRM160S",
 }
 
-# Uma fonte pendurada nao pode segurar o job ate o timeout do runner.
-TIMEOUT_FONTE_SEGUNDOS = 180
+# Uma fonte pendurada nao pode segurar o job ate o timeout do runner. O job
+# tem 25 min; as APIs do BCB/IPEADATA chegaram a passar de 4 min por rodada,
+# entao o orcamento por fonte e generoso de proposito.
+TIMEOUT_FONTE_SEGUNDOS = 600
 
 
 class EconomicBrazilAsync:
@@ -319,26 +321,33 @@ class EconomicBrazilAsync:
         salvar: bool = False,
         diretorio: Optional[str] = None,
         formato: str = "pickle",
+        inter_delay: float = 0.2,
+        max_concurrent: int = 2,
     ) -> pd.DataFrame:
         dic_ibge = self.data_index()
+        # Disparar as 8 tabelas de uma vez faz o SIDRA devolver vazio para a
+        # maioria; o mesmo codigo funciona quando chamado sozinho.
+        sem = asyncio.Semaphore(max_concurrent)
 
         async def processar_variavel_ibge(key, valor):
-            try:
-                if isinstance(valor, dict):
-                    # Executa a coleta de dados de forma assíncrona
-                    resultado = await asyncio.to_thread(
-                        tratando_dados_ibge_codigos_async, codigos=valor, period="all"
-                    )
-                    resultado = await resultado
-                    return key, resultado["Valor"]
-                else:
+            async with sem:
+                try:
+                    if isinstance(valor, dict):
+                        # Executa a coleta de dados de forma assíncrona
+                        resultado = await asyncio.to_thread(
+                            tratando_dados_ibge_codigos_async, codigos=valor, period="all"
+                        )
+                        resultado = await resultado
+                        return key, resultado["Valor"]
                     print(f"Tipo de valor não suportado para {key}: {type(valor)}")
                     return key, None
-            except ValueError:
-                print(
-                    f"Erro na coleta de dados da variável {key}. Verifique se os códigos {valor} estão ativos em https://sidra.ibge.gov.br/home/pms/brasil."
-                )
-                return key, None
+                except Exception as exc:
+                    print(
+                        f"Erro na coleta de dados da variável {key} ({exc}). Verifique se os códigos {valor} estão ativos em https://sidra.ibge.gov.br/home/pms/brasil."
+                    )
+                    return key, None
+                finally:
+                    await asyncio.sleep(inter_delay)
 
         # Executa todas as chamadas em paralelo
         resultados = await asyncio.gather(
@@ -418,21 +427,29 @@ class EconomicBrazilAsync:
         salvar: bool = False,
         diretorio: Optional[str] = None,
         formato: str = "csv",
+        inter_delay: float = 0.2,
+        max_concurrent: int = 2,
     ) -> pd.DataFrame:
         dic_ipeadata = self.data_index()
+        # As 25 series disparadas juntas fazem o IPEADATA devolver vazio para
+        # quase todas; so as primeiras passam. Isoladas, todas funcionam.
+        sem = asyncio.Semaphore(max_concurrent)
 
         async def processando_variavel_ipeadata(nome, codigo):
-            try:
-                resultado = await tratatando_dados_ipeadata_async(
-                    codigo_ipeadata={nome: codigo}, data=self.data_inicio
-                )
-                return nome, resultado
-            except (KeyError, ValueError) as e:
-                print(
-                    f"Erro na coleta da variável {nome} (código {codigo}): {str(e)}\n"
-                    f"Verifique se o código está ativo em http://www.ipeadata.gov.br/Default.aspx"
-                )
-                return nome, None
+            async with sem:
+                try:
+                    resultado = await tratatando_dados_ipeadata_async(
+                        codigo_ipeadata={nome: codigo}, data=self.data_inicio
+                    )
+                    return nome, resultado
+                except Exception as exc:
+                    print(
+                        f"Erro na coleta da variável {nome} (código {codigo}): {exc}\n"
+                        f"Verifique se o código está ativo em http://www.ipeadata.gov.br/Default.aspx"
+                    )
+                    return nome, None
+                finally:
+                    await asyncio.sleep(inter_delay)
 
         # Executa todas as chamadas em paralelo
         resultados = await asyncio.gather(
@@ -646,14 +663,28 @@ class EconomicBrazilAsync:
         if dados_fred:
             tarefas.append(("FRED", self.dados_fred()))
 
-        # Uma fonte quebrada nao pode derrubar as outras.
+        # Uma fonte quebrada nao pode derrubar as outras, e o log registra
+        # quanto cada uma levou para o proximo diagnostico nao ser um chute.
+        async def _com_timeout(nome: str, tarefa):
+            inicio = time.monotonic()
+            try:
+                return await asyncio.wait_for(tarefa, timeout=TIMEOUT_FONTE_SEGUNDOS)
+            except TimeoutError:
+                print(f"::warning::{nome}: excedeu {TIMEOUT_FONTE_SEGUNDOS}s")
+                raise
+            finally:
+                print(f"{nome}: {time.monotonic() - inicio:.0f}s")
+
         resultados = await asyncio.gather(
-            *(asyncio.wait_for(tarefa, timeout=TIMEOUT_FONTE_SEGUNDOS) for _, tarefa in tarefas),
+            *(_com_timeout(nome, tarefa) for nome, tarefa in tarefas),
             return_exceptions=True,
         )
 
         falhas = []
         for (nome, _), resultado in zip(tarefas, resultados, strict=True):
+            if isinstance(resultado, TimeoutError):
+                falhas.append(f"{nome}: excedeu {TIMEOUT_FONTE_SEGUNDOS}s")
+                continue
             if isinstance(resultado, BaseException):
                 falhas.append(f"{nome}: {resultado!r}")
                 continue

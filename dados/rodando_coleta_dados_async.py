@@ -158,25 +158,6 @@ dados.dados_brazil_async(dados_fred=False,salvar=True, diretorio='economic_data_
 
 print('Coletando dados Brazil')
 
-dados.dados_ibge_async(salvar=True, diretorio='dados_ibge', formato='pickle')
-
-print('Coletando dados IBGE')
-
-dados.dados_banco_central_async(salvar=True, diretorio='dados_banco_central_async', formato='pickle')
-
-print('Coletando dados Banco Central')
-
-dados.dados_expectativas_inflacao_async(salvar=True, diretorio='dados_expectativas_inflacao_async', formato='pickle')
-
-print('Coletando dados Expectativas Inflacao')
-
-dados.dados_ibge_link_async(salvar=True, diretorio='dados_ibge_link_async', formato='pickle')
-
-print('Coletando dados IBGE Link')
-
-dados.dados_fred_async(salvar=True, diretorio='dados_fred_async', formato='pickle')
-
-print('Coletando dados FRED')
 end = time.time()
 
 print('Tempo de execução:', end - start)
