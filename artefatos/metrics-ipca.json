@@ -5,46 +5,46 @@
   "frequencia": "M",
   "ancora": "random_walk",
   "horizonte": 1,
-  "n_observacoes": 274,
-  "ultima_observacao": "2026-10-01",
-  "ultimo_valor": 0.82,
-  "data_previsao": "2026-11-01",
-  "previsao": 0.6131,
+  "n_observacoes": 275,
+  "ultima_observacao": "2026-11-01",
+  "ultimo_valor": 0.14,
+  "data_previsao": "2026-12-01",
+  "previsao": 0.4242,
   "intervalos": {
     "80%": [
-      0.1791,
-      1.0471
+      -0.0132,
+      0.8615
     ],
     "95%": [
-      -0.3027,
-      1.5289
+      -0.4916,
+      1.3399
     ]
   },
   "cobertura_empirica": {
-    "80%": 0.7916666666666666,
+    "80%": 0.75,
     "95%": 0.9583333333333334
   },
   "n_avaliacao_cobertura": 24,
   "placar_mase": {
-    "random_walk": 1.1749,
-    "seasonal_naive": 1.2952,
-    "media": 1.0728,
-    "drift": 1.1774,
-    "ridge": 0.9998,
-    "elasticnet": 0.9416,
-    "gradient_boosting": 1.0323
+    "random_walk": 1.2223,
+    "seasonal_naive": 1.187,
+    "media": 1.0928,
+    "drift": 1.2251,
+    "ridge": 1.0405,
+    "elasticnet": 0.9746,
+    "gradient_boosting": 1.0611
   },
   "placar_mae": {
-    "random_walk": 0.2644,
-    "seasonal_naive": 0.2915,
-    "media": 0.2414,
-    "drift": 0.265,
-    "ridge": 0.225,
-    "elasticnet": 0.2119,
-    "gradient_boosting": 0.2323
+    "random_walk": 0.2748,
+    "seasonal_naive": 0.2669,
+    "media": 0.2457,
+    "drift": 0.2754,
+    "ridge": 0.2339,
+    "elasticnet": 0.2191,
+    "gradient_boosting": 0.2386
   },
   "campeao": "elasticnet",
-  "mase_campeao": 0.9416,
+  "mase_campeao": 0.9746,
   "bate_random_walk": true,
   "limites_plausiveis": [
     -2.0,

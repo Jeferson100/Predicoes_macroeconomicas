@@ -30,18 +30,18 @@
     "seasonal_naive": 1.6159,
     "media": 0.9114,
     "drift": 1.3584,
-    "ridge": 1.4642,
-    "elasticnet": 1.1957,
-    "gradient_boosting": 1.4276
+    "ridge": 1.4649,
+    "elasticnet": 1.1956,
+    "gradient_boosting": 1.4494
   },
   "placar_mae": {
     "random_walk": 1.4,
     "seasonal_naive": 1.6775,
     "media": 0.9461,
     "drift": 1.4102,
-    "ridge": 1.52,
+    "ridge": 1.5207,
     "elasticnet": 1.2412,
-    "gradient_boosting": 1.482
+    "gradient_boosting": 1.5047
   },
   "campeao": "media",
   "mase_campeao": 0.9114,
