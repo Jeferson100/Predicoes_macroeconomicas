@@ -1,80 +1,49 @@
-import sys
-sys.path.append("../../..")
-import streamlit as st
-import pickle
-import pandas as pd
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
+import json
 import warnings
-import os
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+
 warnings.filterwarnings("ignore")
+
+RAIZ = Path(__file__).resolve().parents[3]
+VARIAVEIS = ["selic", "ipca", "pib", "taxa_desocupacao", "producao_industrial"]
+
+
+def previsao(variavel: str) -> dict:
+    """Le a previsao publicada pelo pipeline em artefatos/metrics-<variavel>.json."""
+    metricas = json.loads(
+        (RAIZ / "artefatos" / f"metrics-{variavel}.json").read_text(encoding="utf-8")
+    )
+    inferior, superior = metricas["intervalos"]["95%"]
+    return {
+        "data": metricas["data_previsao"],
+        "predicao": metricas["previsao"],
+        "intervalo_lower": inferior,
+        "intervalo_upper": superior,
+    }
 
 st.set_page_config(page_title=f"Predições Macroeconomicas",
                    page_icon="https://c.files.bbci.co.uk/1356A/production/_125801297_gettyimages-1218757425.jpg",
                    layout="wide")
 
 
-#dados_path = os.path.join(os.getcwd(), 'dados_salvos.pkl')
-path_diretorio = os.getcwd()
-
 #################################################### Carregando dados ############################################################
-try:
-    arquivo_selic = path_diretorio+'/dados_salvos_selic.pkl'
-    dados_salvos_selic = pickle.load(open(arquivo_selic, 'rb'))
-    arquivo_ipca = path_diretorio+'/dados_salvos_ipca.pkl'
-    dados_salvos_ipca = pickle.load(open(arquivo_ipca, 'rb'))
-    arquivo_pib = path_diretorio+'/dados_salvos_pib.pkl'
-    dados_salvos_pib = pickle.load(open(arquivo_pib, 'rb'))
-    arquivo_taxa_desocupacao = path_diretorio+'/dados_salvos_taxa_desocupacao.pkl'
-    dados_salvos_taxa_desocupacao = pickle.load(open(arquivo_taxa_desocupacao, 'rb'))
-    arquivo_producao_industrial = path_diretorio+'/dados_salvos_producao_industrial.pkl'
-    dados_salvos_producao_industrial = pickle.load(open(arquivo_producao_industrial, 'rb'))
-    
-except FileNotFoundError:
-    arquivo_selic = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_selic.pkl'
-    dados_salvos_selic = pickle.load(open(arquivo_selic, 'rb'))
-    arquivo_ipca = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_ipca.pkl'
-    dados_salvos_ipca = pickle.load(open(arquivo_ipca, 'rb'))
-    arquivo_pib = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_pib.pkl'
-    dados_salvos_pib = pickle.load(open(arquivo_pib, 'rb'))
-    arquivo_taxa_desocupacao = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_taxa_desocupacao.pkl'
-    dados_salvos_taxa_desocupacao = pickle.load(open(arquivo_taxa_desocupacao, 'rb'))
-    arquivo_producao_industrial = '/mount/src/predicoes_macroeconomicas/codigos_rodando/avaliacao_modelos/apresentacao_streamlit/dados_salvos_producao_industrial.pkl'
-    dados_salvos_producao_industrial = pickle.load(open(arquivo_producao_industrial, 'rb'))
-    
-try:
-    arquivo = '/workspaces/Predicoes_macroeconomicas/dados/economic_data_brazil.pkl'
-    dados_economicos = pickle.load(open(arquivo, 'rb'))
-except:
-    arquivo = '/mount/src/predicoes_macroeconomicas/dados/economic_data_brazil.pkl'
-    dados_economicos = pickle.load(open(arquivo, 'rb'))
+# As previsoes vem de artefatos/metrics-<variavel>.json, gravados por
+# scripts/train.py e filtrados por scripts/gate.py no CI. Antes o app lia
+# dados_salvos_*.pkl do pipeline antigo, que deixou de ser executado.
+dados_futuros = {variavel: previsao(variavel) for variavel in VARIAVEIS}
 
+dados_economicos = pd.read_pickle(RAIZ / "dados" / "economic_data_brazil.pkl")
 
-if "dados_salvos_selic" not in st.session_state:
-    st.session_state['dados_futuro_selic'] = dados_salvos_selic['dados_futuro']
-
-if "dados_salvos_ipca" not in st.session_state:
-    st.session_state['dados_futuro_ipca'] = dados_salvos_ipca['dados_futuro']
-    
-if "dados_salvos_pib" not in st.session_state:
-    st.session_state['dados_futuro_pib'] = dados_salvos_pib['dados_futuro']
-
-if "dados_salvos_taxa_desocupacao" not in st.session_state:
-    st.session_state['dados_futuro_taxa_desocupacao'] = dados_salvos_taxa_desocupacao['dados_futuro']
-    
-if "dados_salvos_producao_industrial" not in st.session_state:
-    st.session_state['dados_futuro_producao_industrial'] = dados_salvos_producao_industrial['dados_futuro']
-    
-if "dados_economicos" not in st.session_state:
-    st.session_state['dados_economicos'] = dados_economicos
-   
-dados_futuros_selic = st.session_state['dados_futuro_selic']
-dados_futuros_ipca = st.session_state['dados_futuro_ipca']
-dados_futuros_pib = st.session_state['dados_futuro_pib']
-dados_futuros_taxa_desocupacao = st.session_state['dados_futuro_taxa_desocupacao']
-dados_futuros_producao_industrial = st.session_state['dados_futuro_producao_industrial']
-dados_economicos = st.session_state['dados_economicos']
+dados_futuros_selic = dados_futuros["selic"]
+dados_futuros_ipca = dados_futuros["ipca"]
+dados_futuros_pib = dados_futuros["pib"]
+dados_futuros_taxa_desocupacao = dados_futuros["taxa_desocupacao"]
+dados_futuros_producao_industrial = dados_futuros["producao_industrial"]
 
 
 
@@ -174,12 +143,7 @@ else:
 if filtro_variaveis == 'pib':
     dados_economicos_filtrados = dados_economicos_filtrados.resample('QS').median()
 fig = go.Figure()
-if filtro_variaveis == 'taxa_desocupacao':
-    fig.add_trace(go.Scatter(x=dados_salvos_taxa_desocupacao['dados'].index, y=dados_salvos_taxa_desocupacao['dados']['taxa_desocupacao'], mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
-elif filtro_variaveis == 'producao_industrial': 
-    fig.add_trace(go.Scatter(x=dados_salvos_producao_industrial['dados'].index, y=dados_salvos_producao_industrial['dados']['producao_industrial'], mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
-else:
-    fig.add_trace(go.Scatter(x=dados_economicos_filtrados.index, y=dados_economicos_filtrados, mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
+fig.add_trace(go.Scatter(x=dados_economicos_filtrados.index, y=dados_economicos_filtrados, mode='lines', name=f'Histórico da Variável {filtro_variaveis}'))
 fig.update_layout(
         title="",
         xaxis_title="Periódo",
